@@ -31,7 +31,7 @@ int main() {
 	unsigned int indices[] = { 0,1,2, 1,2,3, 0,1,4, 1,3,4, 2,3,4, 0,2,4};
 	
 
-	struct Object ourObject = createObject(vertices, indices,6, 18);
+	Object ourObject = createObject(vertices, indices,6, 18);
 	ourObject.position[X] = 0;
 	ourObject.position[Y] = 0;
 	ourObject.position[Z] = 0;

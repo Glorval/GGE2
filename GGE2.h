@@ -2,6 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
+#include "ObjectManager.h"
 //#include "GGE2.c"
 
 #define APPLICATIONNAME "GGE2"
@@ -17,18 +18,24 @@
 #define J 5
 #define K 6
 
+#define IND_SIZE sizeof(unsigned int)
+#define VERTEX_LENGTH 6//The length of the vertices, 6 entries per,  x/y/z r/g/b
+#define VERTEX_SIZE sizeof(float)//The size in bytes of a vertex, sizeof(float)
+
 struct programData {
     int shaderID;
     int cordinatesLoc;
     int orientationLoc;
     int perspectiveLoc;
     int scaleLoc;
-    float temp[3];
 };
-
 struct programData ProgramData;
 
-struct Object {
+GLFWwindow* startup();
+int setupShaders();
+
+
+struct object {
     unsigned int ID, EBO;
     int indexCount;
 
@@ -36,12 +43,13 @@ struct Object {
     float scale;
     int updateOpenGLData; //Whether or not we need to refresh this object to OpenGL (For multithreading mainly)
 };
+typedef struct object Object;
 
-GLFWwindow* startup();
-int setupShaders();
+struct world {
+    Object** objects;//List of all items, ptp because it allows easy deletion of items
+    int objectCount;
+    int* objectRender;
+};
+typedef struct world World;
 
-struct Object createObject(float* vertices, unsigned int* index, int vertSize, int indSize);
-
-void drawShape(struct Object* shape);
-
-
+void drawWorld(World* world);
