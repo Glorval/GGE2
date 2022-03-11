@@ -64,6 +64,16 @@ float* quatMult(float* o, float* c) {
 	return(temp);
 }
 
+float* quatMultNS(float* o, float* c) {
+	float temp[4];
+	temp[X] = (o[X] * c[X]) - (o[Y] * c[Y]) - (o[Z] * c[Z]) - (o[W] * c[W]);
+	temp[Y] = (o[X] * c[Y]) + (o[Y] * c[X]) + (o[Z] * c[W]) - (o[W] * c[Z]);
+	temp[Z] = (o[X] * c[Z]) - (o[Y] * c[W]) + (o[Z] * c[X]) + (o[W] * c[Y]);
+	temp[W] = (o[X] * c[W]) + (o[Y] * c[Z]) - (o[Z] * c[Y]) + (o[W] * c[X]);
+
+	return(temp);
+}
+
 float* quatConj(float q[4]) {
 	q[Y] = -q[Y];
 	q[Z] = -q[Z];

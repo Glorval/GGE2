@@ -7,6 +7,7 @@ uniform mat4 perspective;
 uniform vec3 cordinates;
 uniform vec4 orientation;
 uniform float scale;
+uniform vec4 cameraOrientation;
 
 out vec3 fColor;
 
@@ -56,6 +57,6 @@ void main() {
 
 	//temp.z = temp.z + cordinates.y;
 	//temp.y = temp.y + cordinates.x;
-	gl_Position = perspective * vec4(worldPos, 1);
+	gl_Position = perspective * quatMult(vec4(worldPos, 1), cameraOrientation);
 	fColor = aColor;
 }

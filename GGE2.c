@@ -1,9 +1,8 @@
 #pragma once
 #include "GGE2.h"
+#include "ObjectManager.h"
 #include "GlorwynUtilities.h"
 #include <math.h>
-
-
 
 
 
@@ -21,7 +20,7 @@ GLFWwindow* startup() {
 		glfwTerminate();
 	}
 	glfwMakeContextCurrent(window);
-	
+
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		printf("GLAD failed to load.");
 	}
@@ -36,6 +35,8 @@ GLFWwindow* startup() {
 	ProgramData.orientationLoc = glGetUniformLocation(ProgramData.shaderID, "orientation");
 	ProgramData.scaleLoc = glGetUniformLocation(ProgramData.shaderID, "scale");
 	ProgramData.perspectiveLoc = glGetUniformLocation(ProgramData.shaderID, "perspective");
+	ProgramData.cameraLoc = glGetUniformLocation(ProgramData.shaderID, "cameraOrientation");
+	ProgramData.camAngleLoc = glGetUniformLocation(ProgramData.shaderID, "cameraOrientation");
 
 	float aspect = 800 / 600;
 	float fov = 45;
@@ -59,10 +60,13 @@ GLFWwindow* startup() {
 	perspective[2][2] = f / (n - f);
 	perspective[2][3] = -1.0;
 	perspective[3][2] = -((f * n) / (f - n));
-	
+
 
 	glUniformMatrix4fv(ProgramData.perspectiveLoc, 1, 0, perspective);
 
+
+	//int cameraDefault[4] = { 0, 0, 1, 0 };
+	//glUniformMatrix4fv(ProgramData.cameraLoc, 1, 0, cameraDefault);
 	return(window);
 }
 
@@ -78,7 +82,7 @@ int setupShaders() {
 	}
 	glShaderSource(vertexShader, 1, &fileData, NULL);
 	glCompileShader(vertexShader);
-	
+
 
 	//Fragment Shader
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -112,13 +116,3 @@ int setupShaders() {
 
 
 
-void drawWorld(World* world) {
-	int current = 0;
-	while (current < world->objectCount) {
-		if (world->objectRender[current] == 1) {
-			drawObject(world->objects[current]);
-		}
-		current++;
-	}
-
-}

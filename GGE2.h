@@ -2,8 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
-#include "ObjectManager.h"
-//#include "GGE2.c"
+
 
 #define APPLICATIONNAME "GGE2"
 
@@ -28,6 +27,8 @@ struct programData {
     int orientationLoc;
     int perspectiveLoc;
     int scaleLoc;
+    int cameraLoc;
+    int camAngleLoc;
 };
 struct programData ProgramData;
 
@@ -36,7 +37,7 @@ int setupShaders();
 
 
 struct object {
-    unsigned int ID, EBO;
+    unsigned int ID, VBO, EBO;
     int indexCount;
 
     float position[7]; //x,y,z, quaternion orientation
@@ -48,8 +49,8 @@ typedef struct object Object;
 struct world {
     Object** objects;//List of all items, ptp because it allows easy deletion of items
     int objectCount;
+    int objectListSize;//size of the pointer
     int* objectRender;
+    float camera[7];
 };
 typedef struct world World;
-
-void drawWorld(World* world);

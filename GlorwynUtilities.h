@@ -16,4 +16,6 @@ void normalizeQuat(float* quat);
 
 float* quatMult(float* o, float* c);
 
+float* quatMultNS(float* o, float* c);
+
 float* quatConj(float q[4]);
