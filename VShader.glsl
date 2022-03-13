@@ -8,6 +8,7 @@ uniform vec3 cordinates;
 uniform vec4 orientation;
 uniform float scale;
 uniform vec4 cameraOrientation;
+uniform vec3 cameraPosition;
 
 out vec3 fColor;
 
@@ -44,19 +45,21 @@ void main() {
 	cordFour.y = corePos.x;
 	cordFour.z = corePos.y;
 	cordFour.w = corePos.z;
-
-
 	//vec4 orientationNorm = normalizeQuat(orientation);
+
+	
 		
 	vec4 orientated = quatMult(quatMult(orientation, cordFour), quatConj(orientation));
+	orientated = normalizeQuat(orientated);
 
 
-	//Notes: Clipping problem was because Z goes -1, 1, right? But I was double purposing Z as perspective number as well
-	//so when trying to rotate it'd go all fucky wucky
-	vec3 worldPos = orientated.yzw + cordinates;
 
-	//temp.z = temp.z + cordinates.y;
-	//temp.y = temp.y + cordinates.x;
-	gl_Position = perspective * quatMult(vec4(worldPos, 1), cameraOrientation);
+
+	vec3 worldPos = orientated.yzw + cordinates + cameraPosition;
+	vec4 temp = vec4(0, worldPos);
+	temp =  quatMult(quatMult(cameraOrientation, temp), quatConj(cameraOrientation));
+
+	//gl_Position = perspective * quatMult(quatMult(cameraOrientation, vec4(worldPos, 1)), quatConj(cameraOrientation));
+	gl_Position = perspective * vec4(temp.yzw, 1);
 	fColor = aColor;
 }
