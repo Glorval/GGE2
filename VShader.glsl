@@ -53,13 +53,11 @@ void main() {
 	orientated = normalizeQuat(orientated);
 
 
+	vec3 worldPos = orientated.yzw + cordinates - cameraPosition;
+	vec4 reposToCam = vec4(0, worldPos);
+	reposToCam =  quatMult(quatMult(cameraOrientation, reposToCam), quatConj(cameraOrientation));
 
+	gl_Position = perspective * vec4(reposToCam.yzw, 1);
 
-	vec3 worldPos = orientated.yzw + cordinates + cameraPosition;
-	vec4 temp = vec4(0, worldPos);
-	temp =  quatMult(quatMult(cameraOrientation, temp), quatConj(cameraOrientation));
-
-	//gl_Position = perspective * quatMult(quatMult(cameraOrientation, vec4(worldPos, 1)), quatConj(cameraOrientation));
-	gl_Position = perspective * vec4(temp.yzw, 1);
 	fColor = aColor;
 }

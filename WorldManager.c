@@ -1,6 +1,52 @@
 #pragma once
 #include <malloc.h>
 #include "WorldManager.h"
+#include "GlorwynUtilities.h"
+
+void rotateCamera(World* world, float rotQuat[4]) {
+	float* temp = calloc(4, sizeof(float));
+	vec4 conj = quatConjNS(rotQuat);
+	float Conj[4];
+	Conj[0] = conj.a[0];
+	Conj[1] = conj.a[1];
+	Conj[2] = conj.a[2];
+	Conj[3] = conj.a[3];
+	
+	temp[0] = 0;
+	temp[1] = world->camFo[X];
+	temp[2] = world->camFo[Y];
+	temp[3] = world->camFo[Z];
+	
+	vec4 stepone = quatMultNS(rotQuat, temp);
+	stepone = quatMultNS((float*)&stepone, Conj);
+	normalizeQuat((float*)&stepone);
+	world->camFo[X] = stepone.a[Y];
+	world->camFo[Y] = stepone.a[Z];
+	world->camFo[Z] = stepone.a[W];
+
+	temp[0] = 0;
+	temp[1] = world->camLe[X];
+	temp[2] = world->camLe[Y];
+	temp[3] = world->camLe[Z];
+	vec4 steptwo = quatMultNS(rotQuat, temp);
+	steptwo = quatMultNS((float*)&steptwo, Conj);
+	normalizeQuat((float*)&steptwo);
+	world->camLe[X] = steptwo.a[Y];
+	world->camLe[Y] = steptwo.a[Z];
+	world->camLe[Z] = steptwo.a[W];
+
+	temp[0] = 0;
+	temp[1] = world->camUp[X];
+	temp[2] = world->camUp[Y];
+	temp[3] = world->camUp[Z];
+	vec4 stepthree = quatMultNS(rotQuat, temp);
+	stepthree = quatMultNS((float*)&stepthree, Conj);
+	normalizeQuat((float*)&stepthree);
+	world->camUp[X] = stepthree.a[Y];
+	world->camUp[Y] = stepthree.a[Z];
+	world->camUp[Z] = stepthree.a[W];
+}
+
 
 World createWorld() {
 	World newWorld;
@@ -15,6 +61,15 @@ World createWorld() {
 	newWorld.camera[I] = 0;
 	newWorld.camera[J] = 0;
 	newWorld.camera[K] = 0;
+	newWorld.camUp[0] = 0;
+	newWorld.camUp[1] = 1;
+	newWorld.camUp[2] = 0;
+	newWorld.camFo[0] = 0;
+	newWorld.camFo[1] = 0;
+	newWorld.camFo[2] = -1;
+	newWorld.camLe[0] = -1;
+	newWorld.camLe[1] = 0;
+	newWorld.camLe[2] = 0;
 	return(newWorld);
 }
 

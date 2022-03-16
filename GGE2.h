@@ -52,5 +52,8 @@ struct world {
     int objectListSize;//size of the pointer
     int* objectRender;
     float camera[7];
+    float camUp[3];
+    float camFo[3];
+    float camLe[3];
 };
 typedef struct world World;

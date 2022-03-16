@@ -17,6 +17,10 @@
 
 World* ourWorld;
 void moveShape(Object* ourObject);
+void printThingy(float thing[3]) {
+	printf("%f, %f, %f\n", thing[0], thing[1], thing[2]);
+}
+
 
 int main() {
 	printf("Hi\n");
@@ -41,14 +45,14 @@ int main() {
 	unsigned int indices[] = { 0,1,2, 1,2,3, 0,1,4, 1,3,4, 2,3,4, 0,2,4};
 	
 
-	Object ourObject = createObject(vertices, indices,6, 18, 0);
+	Object ourObject = createObject(vertices, indices,6, 18);
 	ourObject.position[Z] = -2;
 	ourObject.position[X] = -0.5;
 	
 	World world = createWorld();
 	insertObjectIntoWorld(&world, &ourObject, 1);
 
-	Object secondObject = createObject(verticestwo, indices, 6, 18, 1);
+	Object secondObject = createObject(verticestwo, indices, 6, 18);
 	secondObject.position[Z] = -2;
 	secondObject.position[X] = 0.5;
 	insertObjectIntoWorld(&world, &secondObject, 1);
@@ -116,14 +120,14 @@ void moveShape(Object* ourObject) {
 
 		if (input == 'l') {
 			float rotateQuat[4] = { cosf(0.0872665 / 2), 0, 1 * sinf(0.1 / 2), 0 };
-			normalizeQuat(&rotateQuat);
+			normalizeQuat(rotateQuat);
 			quatMult(rotateQuat, &ourObject->position[W]);
 			printf("\n%f, %f, %f, %f\n", ourObject->position[W], ourObject->position[I], ourObject->position[J], ourObject->position[K]);
 			//normalizeQuat(&ourObject->position[W]);
 		}
 		if (input == 'j') {
 			float rotateQuat[4] = { cosf(-0.0872665 / 2), 0, 1 * sinf(-0.1 / 2), 0 };
-			normalizeQuat(&rotateQuat);
+			normalizeQuat(rotateQuat);
 			quatMult(rotateQuat, &ourObject->position[W]);
 			printf("\n%f, %f, %f, %f\n", ourObject->position[W], ourObject->position[I], ourObject->position[J], ourObject->position[K]);
 			//normalizeQuat(&ourObject->position[W]);
@@ -132,14 +136,14 @@ void moveShape(Object* ourObject) {
 
 		if (input == 'i') {
 			float rotateQuat[4] = { cosf(0.0872665 / 2), 1 * sinf(0.1 / 2), 0, 0 };
-			normalizeQuat(&rotateQuat);
+			normalizeQuat(rotateQuat);
 			quatMult(rotateQuat, &ourObject->position[W]);
 			printf("\n%f, %f, %f, %f\n", ourObject->position[W], ourObject->position[I], ourObject->position[J], ourObject->position[K]);
 			//normalizeQuat(&ourObject->position[W]);
 		}
 		if (input == 'k') {
 			float rotateQuat[4] = { cosf(-0.0872665 / 2), 1 * sinf(-0.1 / 2), 0, 0 };
-			normalizeQuat(&rotateQuat);
+			normalizeQuat(rotateQuat);
 			quatMult(rotateQuat, &ourObject->position[W]);
 			printf("\n%f, %f, %f, %f\n", ourObject->position[W], ourObject->position[I], ourObject->position[J], ourObject->position[K]);
 			//normalizeQuat(&ourObject->position[W]);
@@ -157,59 +161,105 @@ void moveShape(Object* ourObject) {
 
 
 
-
+		double moveScale = 0.05;
 		if (input == 't') {
-			ourWorld->camera[Y] += 0.05;
+			ourWorld->camera[X] += moveScale * ourWorld->camUp[X];
+			ourWorld->camera[Y] += moveScale * ourWorld->camUp[Y];
+			ourWorld->camera[Z] += moveScale * ourWorld->camUp[Z];
 			printf("\n%f\n", ourWorld->camera[Y]);
 		}
 		if (input == 'g') {
-			ourWorld->camera[Y] -= 0.05;
+			ourWorld->camera[X] -= moveScale * ourWorld->camUp[X];
+			ourWorld->camera[Y] -= moveScale * ourWorld->camUp[Y];
+			ourWorld->camera[Z] -= moveScale * ourWorld->camUp[Z];
 			printf("\n%f\n", ourWorld->camera[Y]);
 		}
 		if (input == 'f') {
-			ourWorld->camera[X] -= 0.05;
+			ourWorld->camera[X] += moveScale * ourWorld->camLe[X];
+			ourWorld->camera[Y] += moveScale * ourWorld->camLe[Y];
+			ourWorld->camera[Z] += moveScale * ourWorld->camLe[Z];
 			printf("\n%f\n", ourWorld->camera[X]);
 		}
 		if (input == 'h') {
-			ourWorld->camera[X] += 0.05;
+			ourWorld->camera[X] -= moveScale * ourWorld->camLe[X];
+			ourWorld->camera[Y] -= moveScale * ourWorld->camLe[Y];
+			ourWorld->camera[Z] -= moveScale * ourWorld->camLe[Z];
 			printf("\n%f\n", ourWorld->camera[X]);
 		}
 		if (input == 'r') {
-			ourWorld->camera[Z] -= 0.05;
+			ourWorld->camera[X] -= moveScale * ourWorld->camFo[X];
+			ourWorld->camera[Y] -= moveScale * ourWorld->camFo[Y];
+			ourWorld->camera[Z] -= moveScale * ourWorld->camFo[Z];
 			printf("\n%f\n", ourWorld->camera[Z]);
 		}
 		if (input == 'y') {
-			ourWorld->camera[Z] += 0.05;
+			ourWorld->camera[X] += moveScale * ourWorld->camFo[X];
+			ourWorld->camera[Y] += moveScale * ourWorld->camFo[Y];
+			ourWorld->camera[Z] += moveScale * ourWorld->camFo[Z];
 			printf("\n%f\n", ourWorld->camera[Z]);
 		}
 
-		if (input == '6') {
-			float rotateQuat[4] = { cosf(0.0872665 / 2), 0, 1 * sinf(0.1 / 2), 0 };
+		if (input == '7') {
+			float rotateQuat[4] = { cosf(0.0872665 / 2), 0, 0, 1 * sinf(0.1 / 2) };
 			normalizeQuat(&rotateQuat);
-			quatMult(rotateQuat, &ourWorld->camera[W]);
+			rotateCamera(ourWorld, &rotateQuat);
+			quatMultFull(rotateQuat, &ourWorld->camera[W]);
 			printf("\n%f, %f, %f, %f\n", ourWorld->camera[W], ourWorld->camera[I], ourWorld->camera[J], ourWorld->camera[K]);
 			//normalizeQuat(&ourWorld->camera[W]);
 		}
+		if (input == '9') {
+			float rotateQuat[4] = { cosf(-0.1 / 2), 0, 0, 1 * sinf(-0.1 / 2) };
+			normalizeQuat(rotateQuat);
+			rotateCamera(ourWorld, &rotateQuat);
+			quatMultFull(rotateQuat, &ourWorld->camera[W]);
+			printf("\n%f, %f, %f, %f\n", ourWorld->camera[W], ourWorld->camera[I], ourWorld->camera[J], ourWorld->camera[K]);
+			//normalizeQuat(&ourWorld->camera[W]);
+		}
+
+
+		if (input == '6') {
+			float rotateQuat[4] = { cosf(0.1 / 2), 0, 1 * sinf(0.1 / 2), 0 };
+			printf("\n");
+			normalizeQuat(rotateQuat);
+			rotateCamera(ourWorld, rotateQuat);
+			printThingy(ourWorld->camLe);
+			printThingy(ourWorld->camFo);
+			printThingy(ourWorld->camUp);
+			normalizeQuat(&ourWorld->camera[W]);
+			vec4 stepone = quatMultNS(rotateQuat, &ourWorld->camera[W]);
+			//stepone = quatMultNS((float*)&stepone, quatConj(rotateQuat));
+			normalizeQuat((float*)&stepone);
+			ourWorld->camera[W] = stepone.a[X];
+			ourWorld->camera[I] = stepone.a[Y];
+			ourWorld->camera[J] = stepone.a[Z];
+			ourWorld->camera[K] = stepone.a[W];
+			//quatMultFull(rotateQuat, &ourWorld->camera[W]);
+			printf("%f, %f, %f, %f\n", ourWorld->camera[W], ourWorld->camera[I], ourWorld->camera[J], ourWorld->camera[K]);
+			//normalizeQuat(&ourWorld->camera[W]);
+		}
 		if (input == '4') {
-			float rotateQuat[4] = { cosf(-0.0872665 / 2), 0, 1 * sinf(-0.1 / 2), 0 };
-			normalizeQuat(&rotateQuat);
-			quatMult(rotateQuat, &ourWorld->camera[W]);
+			float rotateQuat[4] = { cosf(-0.1 / 2), 0, 1 * sinf(-0.1 / 2), 0 };
+			normalizeQuat(rotateQuat);
+			rotateCamera(ourWorld, rotateQuat);
+			quatMultFull(rotateQuat, &ourWorld->camera[W]);
 			printf("\n%f, %f, %f, %f\n", ourWorld->camera[W], ourWorld->camera[I], ourWorld->camera[J], ourWorld->camera[K]);
 			//normalizeQuat(&ourWorld->camera[W]);
 		}
 
 
 		if (input == '8') {
-			float rotateQuat[4] = { cosf(0.0872665 / 2), 1 * sinf(0.1 / 2), 0, 0 };
-			normalizeQuat(&rotateQuat);
-			quatMult(rotateQuat, &ourWorld->camera[W]);
+			float rotateQuat[4] = { cosf(0.1 / 2), 1 * sinf(0.1 / 2), 0, 0 };
+			normalizeQuat(rotateQuat);
+			rotateCamera(ourWorld, &rotateQuat);
+			quatMultFull(rotateQuat, &ourWorld->camera[W]);
 			printf("\n%f, %f, %f, %f\n", ourWorld->camera[W], ourWorld->camera[I], ourWorld->camera[J], ourWorld->camera[K]);
 			//normalizeQuat(&ourWorld->camera[W]);
 		}
 		if (input == '5') {
-			float rotateQuat[4] = { cosf(-0.0872665 / 2), 1 * sinf(-0.1 / 2), 0, 0 };
-			normalizeQuat(&rotateQuat);
-			quatMult(rotateQuat, &ourWorld->camera[W]);
+			float rotateQuat[4] = { cosf(-0.1 / 2), 1 * sinf(-0.1 / 2), 0, 0 };
+			normalizeQuat(rotateQuat);
+			rotateCamera(ourWorld, &rotateQuat);
+			quatMultFull(rotateQuat, &ourWorld->camera[W]);
 			printf("\n%f, %f, %f, %f\n", ourWorld->camera[W], ourWorld->camera[I], ourWorld->camera[J], ourWorld->camera[K]);
 			//normalizeQuat(&ourWorld->camera[W]);
 		}
