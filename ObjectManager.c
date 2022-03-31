@@ -29,10 +29,11 @@ Object createObject(float* vertices, unsigned int* index, int vertSize, int indS
 	returnObject.position[X] = 0;
 	returnObject.position[Y] = 0;
 	returnObject.position[Z] = 0;
-	returnObject.position[W] = 0;
+	returnObject.position[W] = 1;
 	returnObject.position[I] = 0;
 	returnObject.position[J] = 1;//1, idk why
 	returnObject.position[K] = 0;
+	normalizeQuat(&returnObject.position[W]);
 
 	returnObject.updateOpenGLData = 1;
 

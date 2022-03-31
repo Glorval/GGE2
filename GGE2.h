@@ -27,7 +27,7 @@ struct programData {
     int orientationLoc;
     int perspectiveLoc;
     int scaleLoc;
-    int cameraLoc;
+    int cameraPosLoc;
     int camAngleLoc;
 };
 struct programData ProgramData;
@@ -52,5 +52,8 @@ struct world {
     int objectListSize;//size of the pointer
     int* objectRender;
     float camera[7];
+    float up[4];
+    float back[4];
+    float left[4];
 };
 typedef struct world World;

@@ -15,6 +15,22 @@ World createWorld() {
 	newWorld.camera[I] = 0;
 	newWorld.camera[J] = 0;
 	newWorld.camera[K] = 0;
+
+	newWorld.up[0] = 0;
+	newWorld.up[1] = 0;
+	newWorld.up[2] = -1;
+	newWorld.up[3] = 0;
+
+	newWorld.back[0] = 0;
+	newWorld.back[1] = 0;
+	newWorld.back[2] = 0;
+	newWorld.back[3] = -1;
+
+	newWorld.left [0] = 0;
+	newWorld.left[1] = -1;
+	newWorld.left[2] = 0;
+	newWorld.left[3] = 0;
+
 	return(newWorld);
 }
 
@@ -50,7 +66,8 @@ void removeObjectFromWorld(World* world, int ID, int FreeIt) {
 void drawWorld(World* world) {
 	int current = 0;
 
-	glUniform4f(ProgramData.cameraLoc, world->camera[W], world->camera[I], world->camera[J], world->camera[K]);
+	glUniform3f(ProgramData.cameraPosLoc, world->camera[X], world->camera[Y], world->camera[Z]);
+	glUniform4f(ProgramData.camAngleLoc, world->camera[W], world->camera[I], world->camera[J], world->camera[K]);
 	while (current < world->objectCount) {
 		if (world->objectRender[current] == 1) {
 			Object* temp = world->objects[current];

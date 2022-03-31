@@ -35,7 +35,7 @@ GLFWwindow* startup() {
 	ProgramData.orientationLoc = glGetUniformLocation(ProgramData.shaderID, "orientation");
 	ProgramData.scaleLoc = glGetUniformLocation(ProgramData.shaderID, "scale");
 	ProgramData.perspectiveLoc = glGetUniformLocation(ProgramData.shaderID, "perspective");
-	ProgramData.cameraLoc = glGetUniformLocation(ProgramData.shaderID, "cameraOrientation");
+	ProgramData.cameraPosLoc = glGetUniformLocation(ProgramData.shaderID, "cameraPosition");
 	ProgramData.camAngleLoc = glGetUniformLocation(ProgramData.shaderID, "cameraOrientation");
 
 	float aspect = 800 / 600;
