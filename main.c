@@ -219,7 +219,7 @@ void moveShape(Object* ourObject) {
 		}
 
 		if (input == '6') {
-			float rotateQuat[4] = { cosf(0.0872665 / 2), ourWorld->up[1] * sinf(0.0872665 / 2), ourWorld->up[2] * sinf(0.0872665 / 2), ourWorld->up[3] * sinf(0.0872665 / 2) };
+			float rotateQuat[4] = { cosf(0.0872665 / 2), 0 , 1 * sinf(0.0872665 / 2), 0 };
 			normalizeQuat(&rotateQuat);
 			quatMult(rotateQuat, &ourWorld->camera[W]);
 			normalizeQuat(&ourWorld->camera[W]);
@@ -237,7 +237,8 @@ void moveShape(Object* ourObject) {
 			//normalizeQuat(&ourWorld->camera[W]);
 		}
 		if (input == '4') {
-			float rotateQuat[4] = { cosf(-0.0872665 / 2), ourWorld->up[1] * sinf(-0.0872665 / 2), ourWorld->up[2] * sinf(-0.0872665 / 2), ourWorld->up[3] * sinf(-0.0872665 / 2) };
+			//float rotateQuat[4] = { cosf(-0.0872665 / 2), ourWorld->up[1] * sinf(-0.0872665 / 2), ourWorld->up[2] * sinf(-0.0872665 / 2), ourWorld->up[3] * sinf(-0.0872665 / 2) };
+			float rotateQuat[4] = { cosf(-0.0872665 / 2), 0, 1 * sinf(-0.0872665 / 2), 0};
 			normalizeQuat(&rotateQuat);
 			quatMult(rotateQuat, &ourWorld->camera[W]);
 			normalizeQuat(&ourWorld->camera[W]);
@@ -257,7 +258,8 @@ void moveShape(Object* ourObject) {
 
 
 		if (input == '8') {
-			float rotateQuat[4] = { cosf(0.0872665 / 2), ourWorld->left[1] * sinf(0.0872665 / 2), ourWorld->left[2] * sinf(0.0872665 / 2), ourWorld->left[3] * sinf(0.0872665 / 2) };
+			//float rotateQuat[4] = { cosf(0.0872665 / 2), ourWorld->left[1] * sinf(0.0872665 / 2), ourWorld->left[2] * sinf(0.0872665 / 2), ourWorld->left[3] * sinf(0.0872665 / 2) };
+			float rotateQuat[4] = { cosf(-0.0872665 / 2), 1 * sinf(-0.0872665 / 2), 0, 0 };
 			normalizeQuat(&rotateQuat);
 			quatMult(rotateQuat, &ourWorld->camera[W]);
 			normalizeQuat(&ourWorld->camera[W]);
@@ -275,7 +277,46 @@ void moveShape(Object* ourObject) {
 			//normalizeQuat(&ourWorld->camera[W]);
 		}
 		if (input == '5') {
-			float rotateQuat[4] = { cosf(-0.0872665 / 2), ourWorld->left[1] * sinf(-0.0872665 / 2), ourWorld->left[2] * sinf(-0.0872665 / 2), ourWorld->left[3] * sinf(-0.0872665 / 2) };
+			//float rotateQuat[4] = { cosf(-0.0872665 / 2), ourWorld->left[1] * sinf(-0.0872665 / 2), ourWorld->left[2] * sinf(-0.0872665 / 2), ourWorld->left[3] * sinf(-0.0872665 / 2) };
+			float rotateQuat[4] = { cosf(0.0872665 / 2), 1 * sinf(0.0872665 / 2), 0, 0 };
+			normalizeQuat(&rotateQuat);
+			quatMult(rotateQuat, &ourWorld->camera[W]);
+			normalizeQuat(&ourWorld->camera[W]);
+
+			quatMult(rotateQuat, ourWorld->up);
+			quatMultRS(ourWorld->up, quatConj(rotateQuat));
+			ourWorld->up[0] = 0;
+			quatMult(rotateQuat, ourWorld->back);
+			quatMultRS(ourWorld->back, quatConj(rotateQuat));
+			ourWorld->back[0] = 0;
+			quatMult(rotateQuat, ourWorld->left);
+			quatMultRS(ourWorld->left, quatConj(rotateQuat));
+			ourWorld->left[0] = 0;
+			printf("\n%f, %f, %f, %f\n", ourWorld->camera[W], ourWorld->camera[I], ourWorld->camera[J], ourWorld->camera[K]);
+			//normalizeQuat(&ourWorld->camera[W]);
+		}
+
+		if (input == '9') {
+			float rotateQuat[4] = { cosf(-0.0872665 / 2), ourWorld->back[1] * sinf(-0.0872665 / 2), ourWorld->back[2] * sinf(-0.0872665 / 2), ourWorld->back[3] * sinf(-0.0872665 / 2) };
+			normalizeQuat(&rotateQuat);
+			quatMult(rotateQuat, &ourWorld->camera[W]);
+			normalizeQuat(&ourWorld->camera[W]);
+
+			quatMult(rotateQuat, ourWorld->up);
+			quatMultRS(ourWorld->up, quatConj(rotateQuat));
+			ourWorld->up[0] = 0;
+			quatMult(rotateQuat, ourWorld->back);
+			quatMultRS(ourWorld->back, quatConj(rotateQuat));
+			ourWorld->back[0] = 0;
+			quatMult(rotateQuat, ourWorld->left);
+			quatMultRS(ourWorld->left, quatConj(rotateQuat));
+			ourWorld->left[0] = 0;
+			printf("\n%f, %f, %f, %f\n", ourWorld->camera[W], ourWorld->camera[I], ourWorld->camera[J], ourWorld->camera[K]);
+			//normalizeQuat(&ourWorld->camera[W]);
+		}
+
+		if (input == '7') {
+			float rotateQuat[4] = { cosf(0.0872665 / 2), ourWorld->back[1] * sinf(0.0872665 / 2), ourWorld->back[2] * sinf(0.0872665 / 2), ourWorld->back[3] * sinf(0.0872665 / 2) };
 			normalizeQuat(&rotateQuat);
 			quatMult(rotateQuat, &ourWorld->camera[W]);
 			normalizeQuat(&ourWorld->camera[W]);
