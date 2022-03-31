@@ -4,7 +4,8 @@
 #include "GlorwynUtilities.h"
 #include <math.h>
 
-
+#define windX 1600
+#define windY (windX * 3)/4
 
 GLFWwindow* startup() {
 	glfwInit();
@@ -14,7 +15,7 @@ GLFWwindow* startup() {
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, APPLICATIONNAME, NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(windX, windY, APPLICATIONNAME, NULL, NULL);
 	if (window == NULL) {
 		printf("Failed to create GLFW window");
 		glfwTerminate();
@@ -25,7 +26,7 @@ GLFWwindow* startup() {
 		printf("GLAD failed to load.");
 	}
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, windX, windY);
 
 	ProgramData.shaderID = setupShaders();
 	glEnable(GL_DEPTH_TEST);
@@ -38,7 +39,7 @@ GLFWwindow* startup() {
 	ProgramData.cameraPosLoc = glGetUniformLocation(ProgramData.shaderID, "cameraPosition");
 	ProgramData.camAngleLoc = glGetUniformLocation(ProgramData.shaderID, "cameraOrientation");
 
-	float aspect = 800 / 600;
+	float aspect = 4 / 3;
 	float fov = 45;
 	float far = 1000;
 	float near = 0.1;
