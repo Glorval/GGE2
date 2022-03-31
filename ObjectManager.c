@@ -35,7 +35,7 @@ Object createObject(float* vertices, unsigned int* index, int vertSize, int indS
 	returnObject.position[K] = 0;
 	normalizeQuat(&returnObject.position[W]);
 
-	returnObject.updateOpenGLData = 1;
+	returnObject.updateOpenGLData = 0;
 
 	return(returnObject);
 }
@@ -52,28 +52,15 @@ void drawObject(Object* shape) {
 
 
 
-float modifiedPos[3] = { 0 };
 void drawWorldObject(Object* shape, World* world) {
 	glBindVertexArray(shape->ID);
 
 	//quatMultNS(shape->position[W], world->camera[X])
 
 
-	
-	modifiedPos[X] = shape->position[X] + world->camera[X];
-	modifiedPos[Y] = shape->position[Y] + world->camera[Y];
-	modifiedPos[Z] = shape->position[Z] + world->camera[Z];
-	/*
-	float rotated[4] = {0};
-	rotated[0] = world->camera[W];
-	rotated[1] = world->camera[I];
-	rotated[2] = world->camera[J];
-	rotated[3] = world->camera[K];
-	quatMult(&shape->position[W], rotated);
-	normalizeQuat(rotated);*/
-
 
 	glUniform4f(ProgramData.camAngleLoc, world->camera[W], world->camera[I], world->camera[J], world->camera[K]);
+	glUniform3f(ProgramData.cameraLoc, world->camera[X], world->camera[Y], world->camera[Z]);
 	//glUniform3f(ProgramData.cordinatesLoc, modifiedPos[X], modifiedPos[Y], modifiedPos[Z]);
 	glUniform3f(ProgramData.cordinatesLoc, shape->position[X], shape->position[Y], shape->position[Z]);
 	glUniform4f(ProgramData.orientationLoc, shape->position[W], shape->position[I], shape->position[J], shape->position[K]);
