@@ -24,7 +24,7 @@ World createWorld() {
 	newWorld.back[0] = 0;
 	newWorld.back[1] = 0;
 	newWorld.back[2] = 0;
-	newWorld.back[3] = -1;
+	newWorld.back[3] = 1;
 
 	newWorld.left [0] = 0;
 	newWorld.left[1] = -1;
