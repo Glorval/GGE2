@@ -17,6 +17,7 @@
 
 
 World* ourWorld;
+World* ourUI;
 void moveShape(Object* ourObject);
 
 int main() {
@@ -40,13 +41,27 @@ int main() {
 		0.0f, 0.1f, 0.0f, 0.1f, 0.1f, 0.1f
 	};
 	unsigned int indices[] = { 0,1,2, 1,2,3, 0,1,4, 1,3,4, 2,3,4, 0,2,4};
-	
+
+	float uiverts[] = {
+		 0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.5f,  // bottom right
+		-0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.5f,// bottom left
+		 0.0f,  0.5f, 0.0, 0.5f, 0.5f, 0.5f  // top 
+	};
+
+	unsigned int uiinds[] = { 0, 1, 2 };
+
+	World world = createWorld();
+	World uis = createWorld();
+
+
+
+	Object ourUIelement = createObject(uiverts, indices, 3, 3, 0);
+
+	insertObjectIntoWorld(&uis, &ourUIelement, 1);
 
 	Object ourObject = createObject(vertices, indices,6, 18, 0);
 	ourObject.position[Z] = -2;
 	ourObject.position[X] = -0.5;
-	
-	World world = createWorld();
 	insertObjectIntoWorld(&world, &ourObject, 1);
 
 	Object secondObject = createObject(verticestwo, indices, 6, 18, 1);
@@ -65,6 +80,7 @@ int main() {
 
 
 		drawWorld(&world);
+		drawUI(&uis);
 		
 
 		glfwSwapBuffers(window);

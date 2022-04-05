@@ -29,6 +29,7 @@ struct programData {
     int scaleLoc;
     int cameraPosLoc;
     int camAngleLoc;
+    int flagsLoc;
 };
 struct programData ProgramData;
 

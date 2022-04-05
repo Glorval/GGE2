@@ -7,6 +7,8 @@ uniform mat4 perspective;
 uniform vec3 cordinates;
 uniform vec4 orientation;
 
+uniform int flags; 
+
 uniform vec3 cameraPosition;
 uniform vec4 cameraOrientation;
 
@@ -45,21 +47,28 @@ void main() {
 	cordFour.y = corePos.x;
 	cordFour.z = corePos.y;
 	cordFour.w = corePos.z;
-
-
-	//vec4 orientationNorm = normalizeQuat(orientation);
-		
-	vec4 orientated = quatMult(quatMult(orientation, cordFour), quatConj(orientation));
-
-
-	//Notes: Clipping problem was because Z goes -1, 1, right? But I was double purposing Z as perspective number as well
-	//so when trying to rotate it'd go all fucky wucky
-	//vec3 worldPos = orientated.yzw + cordinates;
 	
-	vec3 worldPos = orientated.yzw + cordinates - cameraPosition;
-	vec4 reposToCam = vec4(0, worldPos);
-	reposToCam =  quatMult(quatMult(cameraOrientation, reposToCam), quatConj(cameraOrientation));
+	if(flags == 5){
+		gl_Position = vec4(corePos, 0);
+		fColor = aColor;
+	}else{
 
-	gl_Position = perspective * vec4(reposToCam.yzw, 1);
-	fColor = aColor;
+		//vec4 orientationNorm = normalizeQuat(orientation);
+		
+		vec4 orientated = quatMult(quatMult(orientation, cordFour), quatConj(orientation));
+
+
+		//Notes: Clipping problem was because Z goes -1, 1, right? But I was double purposing Z as perspective number as well
+		//so when trying to rotate it'd go all fucky wucky
+		//vec3 worldPos = orientated.yzw + cordinates;
+	
+		vec3 worldPos = orientated.yzw + cordinates - cameraPosition;
+		vec4 reposToCam = vec4(0, worldPos);
+		reposToCam =  quatMult(quatMult(cameraOrientation, reposToCam), quatConj(cameraOrientation));
+
+		gl_Position = perspective * vec4(reposToCam.yzw, 1);
+		fColor = aColor;
+	}
+
+	
 }

@@ -15,7 +15,6 @@ Object createObject(float* vertices, unsigned int* index, int vertSize, int indS
 
 	glBindBuffer(GL_ARRAY_BUFFER, returnObject.VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertSize * VERTEX_SIZE * VERTEX_LENGTH, vertices, GL_DYNAMIC_DRAW);
-
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, returnObject.EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indSize * IND_SIZE, index, GL_DYNAMIC_DRAW);
 
@@ -59,8 +58,8 @@ void drawWorldObject(Object* shape, World* world) {
 
 
 
-	glUniform4f(ProgramData.camAngleLoc, world->camera[W], world->camera[I], world->camera[J], world->camera[K]);
-	glUniform3f(ProgramData.cameraPosLoc, world->camera[X], world->camera[Y], world->camera[Z]);
+	//glUniform4f(ProgramData.camAngleLoc, world->camera[W], world->camera[I], world->camera[J], world->camera[K]);
+	//glUniform3f(ProgramData.cameraPosLoc, world->camera[X], world->camera[Y], world->camera[Z]);
 	//glUniform3f(ProgramData.cordinatesLoc, modifiedPos[X], modifiedPos[Y], modifiedPos[Z]);
 	glUniform3f(ProgramData.cordinatesLoc, shape->position[X], shape->position[Y], shape->position[Z]);
 	glUniform4f(ProgramData.orientationLoc, shape->position[W], shape->position[I], shape->position[J], shape->position[K]);

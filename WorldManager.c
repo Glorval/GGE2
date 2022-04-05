@@ -66,8 +66,22 @@ void removeObjectFromWorld(World* world, int ID, int FreeIt) {
 void drawWorld(World* world) {
 	int current = 0;
 
+	glUniform2i(ProgramData.flagsLoc, 1, 0);
 	glUniform3f(ProgramData.cameraPosLoc, world->camera[X], world->camera[Y], world->camera[Z]);
 	glUniform4f(ProgramData.camAngleLoc, world->camera[W], world->camera[I], world->camera[J], world->camera[K]);
+	while (current < world->objectCount) {
+		if (world->objectRender[current] == 1) {
+			Object* temp = world->objects[current];
+			drawWorldObject(world->objects[current], world);
+		}
+		current++;
+	}
+}
+
+
+void drawUI(World* world) {
+	int current = 0;
+	glUniform1i(ProgramData.flagsLoc, 0);
 	while (current < world->objectCount) {
 		if (world->objectRender[current] == 1) {
 			Object* temp = world->objects[current];
