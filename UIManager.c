@@ -1,6 +1,12 @@
 #include "UIManager.h"
 #include <string.h>
 
+void setupUI(int flag) {
+	if (flag) {
+
+	}
+}
+
 UI* createUI() {
 	UI* newUI = calloc(1, sizeof(UI));
 	newUI->elementCount = 0;
@@ -32,9 +38,16 @@ void runUI(UI* ui) {
 		}
 
 		//UI actions
-		if (ui->elements[current]->actionNeeded == 1) {
+		if (ui->elements[current]->actionNeeded == 1 && ui->elements[current]->defaultAction != NO_ACTION) {
 			ui->elements[current]->actionNeeded = COMMITTING_ACTION;
-			ui->elements[current]->action(ui->elements[current]->data);
+			switch (ui->elements[current]->defaultAction) {
+				case ACTION:
+					ui->elements[current]->data = ui->elements[current]->action(ui->elements[current]->data);
+					break;
+				case CUSTOM_ACTION:
+					*ui->elements[current]->blockData = ui->elements[current]->customAction(*ui->elements[current]->blockData);
+					break;
+			}
 			ui->elements[current]->actionNeeded = READY_FOR_ACTION;
 		}
 
@@ -61,7 +74,7 @@ void drawElement(UIElement* uiItem) {
 }
 
 //'click area' is leftmost, rightmost, bottommost, topmost
-UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, void* action, int active, float clickArea[4]) {
+UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, void* action, void* customAction, char defaultAction, int active, float clickArea[4]){
 	//unsigned int VBO;
 	UIElement* returnElement = calloc(1, sizeof(UIElement));
 	//returnElement.ID = ID;
@@ -86,6 +99,8 @@ UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int
 	glEnableVertexAttribArray(1);
 
 	returnElement->action = action;
+	returnElement->customAction = customAction;
+	returnElement->defaultAction = defaultAction;
 	returnElement->elementActive = active;
 
 

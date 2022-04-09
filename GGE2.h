@@ -10,6 +10,10 @@
 #define COMMITTING_ACTION -1 //Is in the process of being activated
 #define AWAITING_ACTION 1 //Should be activated the next time we look at it
 
+#define ACTION 0
+#define CUSTOM_ACTION 1
+#define NO_ACTION -1
+
 #define APPLICATIONNAME "GGE2"
 
 #define ERROR -1
@@ -79,8 +83,11 @@ struct uielement {
     int elementActive;
     int actionNeeded;
     float clickArea[4];//left x, right x, top y, bottom y.
-    Block data;
-    Block (*action)(Block);
+    char defaultAction;
+    long long int data;
+    Block* blockData;
+    long long int(*action)(long long int);
+    Block (*customAction)(Block);
 };
 typedef struct uielement UIElement;
 

@@ -5,5 +5,5 @@
 
 
 
-Block testFunction(Block data);
+long long int testFunction(long long int data);
 void startupDataBase(GLFWwindow* window);

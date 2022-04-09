@@ -1,12 +1,10 @@
 #include "DataBase.h"
 
-Block testFunction(Block data) {
+long long int testFunction(long long int data) {
 	int* useable = &data;
-	//if (useable[0] == GLFW_MOUSE_BUTTON_1 && useable[1] == GLFW_PRESS) {
+	if (useable[0] == GLFW_MOUSE_BUTTON_1 && useable[1] == GLFW_PRESS) {
 		printf("clicked\n");
-	//}
-	
-	
+	}
 }
 
 void startupDataBase(GLFWwindow* window) {
@@ -31,9 +29,9 @@ void startupDataBase(GLFWwindow* window) {
 
 
 	UI* mainPage = createUI();
-	UIElement* first = createElement(uiverts, uiinds, 4, 6, testFunction, 1, elementOneClickArea);
+	UIElement* first = createElement(uiverts, uiinds, 4, 6, testFunction, NULL, ACTION, 1, elementOneClickArea);
 	insertElementIntoUI(mainPage, first);
-	UIElement* second = createElement(uivertstwo, uiinds, 4, 6, testFunction, 1, elementTwoClickArea);
+	UIElement* second = createElement(uivertstwo, uiinds, 4, 6, NULL, NULL, NO_ACTION, 1, elementTwoClickArea);
 	insertElementIntoUI(mainPage, second);
 
 	masterUIList = calloc(1, sizeof(UI*));
