@@ -39,28 +39,21 @@ Object createObject(float* vertices, unsigned int* index, int vertSize, int indS
 	return(returnObject);
 }
 
+//draws object as is
 void drawObject(Object* shape) {
 	glBindVertexArray(shape->ID);
-
-	//normalizeQuat(temp);
-	//glUniform1f(ProgramData.scaleLoc, shape->scale);
 	glUniform3f(ProgramData.cordinatesLoc, shape->position[X], shape->position[Y], shape->position[Z]);
 	glUniform4f(ProgramData.orientationLoc, shape->position[W], shape->position[I], shape->position[J], shape->position[K]);
 	glDrawElements(GL_TRIANGLES, shape->indexCount, GL_UNSIGNED_INT, 0);
 }
 
 
-
+//Draws an object from a world setting all the uniforms and such
 void drawWorldObject(Object* shape, World* world) {
 	glBindVertexArray(shape->ID);
-
-	//quatMultNS(shape->position[W], world->camera[X])
-
-
-
-	//glUniform4f(ProgramData.camAngleLoc, world->camera[W], world->camera[I], world->camera[J], world->camera[K]);
-	//glUniform3f(ProgramData.cameraPosLoc, world->camera[X], world->camera[Y], world->camera[Z]);
-	//glUniform3f(ProgramData.cordinatesLoc, modifiedPos[X], modifiedPos[Y], modifiedPos[Z]);
+	glUniform1i(ProgramData.flagsLoc, 0);
+	glUniform3f(ProgramData.cameraPosLoc, world->camera[X], world->camera[Y], world->camera[Z]);
+	glUniform4f(ProgramData.camAngleLoc, world->camera[W], world->camera[I], world->camera[J], world->camera[K]);
 	glUniform3f(ProgramData.cordinatesLoc, shape->position[X], shape->position[Y], shape->position[Z]);
 	glUniform4f(ProgramData.orientationLoc, shape->position[W], shape->position[I], shape->position[J], shape->position[K]);
 	glDrawElements(GL_TRIANGLES, shape->indexCount, GL_UNSIGNED_INT, 0);

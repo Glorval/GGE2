@@ -3,16 +3,14 @@
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
 #include <stdio.h>
-
 #include <process.h>
+#include <time.h>
 
 #include "GGE2.h"
-#include "ObjectManager.h"
-#include "WorldManager.h"
-
 #include "GlorwynUtilities.h"
 
-#include <time.h>
+#include "DataBase.h"
+
 
 
 
@@ -22,9 +20,14 @@ void moveShape(Object* ourObject);
 
 int main() {
 	printf("Hi\n");
-
+	
 
 	GLFWwindow* window = startup();
+
+
+	World uis = createWorld();
+	startupDataBase(window);
+
 
 	float vertices[] = {
 		-0.25f, -0.25f, -0.25f, 0.6f, 0.0f, 0.0f,
@@ -42,22 +45,9 @@ int main() {
 	};
 	unsigned int indices[] = { 0,1,2, 1,2,3, 0,1,4, 1,3,4, 2,3,4, 0,2,4};
 
-	float uiverts[] = {
-		 0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.5f,  // bottom right
-		-0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.5f,// bottom left
-		 0.0f,  0.5f, 0.0, 0.5f, 0.5f, 0.5f  // top 
-	};
-
-	unsigned int uiinds[] = { 0, 1, 2 };
 
 	World world = createWorld();
-	World uis = createWorld();
 
-
-
-	Object ourUIelement = createObject(uiverts, indices, 3, 3, 0);
-
-	insertObjectIntoWorld(&uis, &ourUIelement, 1);
 
 	Object ourObject = createObject(vertices, indices,6, 18, 0);
 	ourObject.position[Z] = -2;
@@ -80,7 +70,9 @@ int main() {
 
 
 		drawWorld(&world);
-		drawUI(&uis);
+		for (int c = 0; c < masterUIListLength; c++) {
+			runUI(masterUIList[c]);
+		}
 		
 
 		glfwSwapBuffers(window);

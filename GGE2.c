@@ -4,8 +4,7 @@
 #include "GlorwynUtilities.h"
 #include <math.h>
 
-#define windX 1600
-#define windY (windX * 3)/4
+
 
 GLFWwindow* startup() {
 	glfwInit();
@@ -66,6 +65,7 @@ GLFWwindow* startup() {
 
 	glUniformMatrix4fv(ProgramData.perspectiveLoc, 1, 0, perspective);
 
+	glfwSetMouseButtonCallback(window, defaultMoustClick);
 
 	//int cameraDefault[4] = { 0, 0, 1, 0 };
 	//glUniformMatrix4fv(ProgramData.cameraLoc, 1, 0, cameraDefault);
@@ -117,4 +117,22 @@ int setupShaders() {
 
 
 
-
+//The default handler of mouse clicks
+void defaultMoustClick(GLFWwindow* window, int button, int action, int mods) {
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos);
+	for (int masterPos = 0; masterPos < masterUIListLength; masterPos++) {
+		for (int cItem = 0; cItem < masterUIList[masterPos]->elementCount; cItem++) {
+			if (masterUIList[masterPos]->elements[cItem]->elementActive == 1 && masterUIList[masterPos]->elements[cItem]->actionNeeded == READY_FOR_ACTION) {
+				UIElement* ref = masterUIList[masterPos]->elements[cItem];
+				if (xpos > ref->clickArea[0] && xpos < ref->clickArea[1] && ypos < ref->clickArea[2] && ypos > ref->clickArea[3]) {
+					masterUIList[masterPos]->elements[cItem]->actionNeeded = AWAITING_ACTION;
+					int* modifier = &masterUIList[0]->elements[0]->data;
+					modifier[0] = button;
+					modifier[1] = action;
+				}
+				
+			}
+		}
+	}
+}

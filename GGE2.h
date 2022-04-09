@@ -3,6 +3,12 @@
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
 
+#define windX 1600
+#define windY (windX * 3)/4
+
+#define READY_FOR_ACTION 0 //Is ready to be activated
+#define COMMITTING_ACTION -1 //Is in the process of being activated
+#define AWAITING_ACTION 1 //Should be activated the next time we look at it
 
 #define APPLICATIONNAME "GGE2"
 
@@ -58,3 +64,39 @@ struct world {
     float left[4];
 };
 typedef struct world World;
+
+struct datablock {
+    char data[64];
+};
+typedef struct datablock Block;
+
+Block* standardUIAction(Block* input);
+
+struct uielement {
+    unsigned int ID, VBO, EBO;
+    int indexCount;
+    float scale;
+    int elementActive;
+    int actionNeeded;
+    float clickArea[4];//left x, right x, top y, bottom y.
+    Block data;
+    Block (*action)(Block);
+};
+typedef struct uielement UIElement;
+
+struct ui {
+    UIElement** elements;//List of all items, ptp because it allows easy deletion of items
+    int elementCount;
+    int elementListSize;//size of the pointer
+};
+typedef struct ui UI;
+
+UI** masterUIList;
+int masterUIListLength;
+
+void defaultMoustClick(GLFWwindow* window, int button, int action, int mods);
+
+
+#include "ObjectManager.h"
+#include "WorldManager.h"
+#include "UIManager.h"
