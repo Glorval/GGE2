@@ -3,7 +3,7 @@
 #define USE_BUILT_IN_FONT 1
 #define FONT_NAME NULL
 
-#define FONT_SIZE_Y 100
+#define FONT_SIZE_Y 80
 #define FONT_SIZE_X 50
 
 
@@ -24,4 +24,4 @@ void insertElementIntoUI(UI* ui, UIElement* element);
 void drawElement(UIElement* uiItem);
 UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, void* action, void* customAction, char defaultAction, int active, float clickArea[4]);
 
-UnfinObj createUnFinText(char* text, float xpos, float ypos, int fontSize);
+UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize);

@@ -116,7 +116,7 @@ int setupShaders() {
 	return(shaderProgram);
 }
 
-UnfinObj createUnfinObjFromStatic(float* verts, float* inds, int vLen, int iCount) {
+UnfinObj createUnfinObjFromStatic(float* verts, unsigned int* inds, int vLen, int iCount) {
 	UnfinObj returnObj;
 	returnObj.iCount = iCount;
 	returnObj.vLineCount = vLen;
@@ -145,14 +145,18 @@ void appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo) {
 	objOne->indices = realloc(objOne->indices, IND_SIZE * objOne->iCount);
 
 	for (int c = iCount; c < objOne->iCount; c++) {
-		objOne->indices[c] = objTwo->indices[c - iCount];
+		printf("Cind: %d, %d   ", c, objTwo->indices[c - iCount] + iCount);
+		objOne->indices[c] = objTwo->indices[c - iCount] + iCount;//C is the offset here in a sense, the indices from the 2nd entry will have been for themselves and need to be offset to point at the right vertiecs
 	}
+	printf("\n");
 
 	for (int c = vLength; c < objOne->vLineCount; c++) {
 		for (int cEntry = 0; cEntry < VERTEX_LENGTH; cEntry++) {
+			printf("Cv: %d, %f   ", cEntry + (c*6), objTwo->verts[(c * VERTEX_LENGTH) - vLength + cEntry]);
 			objOne->verts[(c * VERTEX_LENGTH)+cEntry] = objTwo->verts[(c * VERTEX_LENGTH) - vLength + cEntry];
 		}
 	}
+	printf("\n\n");
 }
 
 

@@ -58,17 +58,17 @@ int main() {
 	secondObject.position[Z] = -2;
 	secondObject.position[X] = 0.5;
 	insertObjectIntoWorld(&world, &secondObject, 1);
-
+	
 
 	ourWorld = &world;
 	_beginthread(moveShape, 0, world.objects[0]);
 
 
-	UnfinObj testText = createUnFinText("A", 0, 0, 1000);
+	
 
-	Object textInstance = createObject(testText.verts, testText.indices, testText.vLineCount, testText.iCount);
+	/*Object textInstance = createObject(testText.verts, testText.indices, testText.vLineCount, testText.iCount);
 	textInstance.position[Z] = -2;
-	insertObjectIntoWorld(&world, &textInstance, 1);
+	insertObjectIntoWorld(&world, &textInstance, 1);*/
 
 	float counter = 1;
 	while (1) {
@@ -76,11 +76,10 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		drawWorld(&world);
+		//drawWorld(&world);//We dont need the world, just the UI right now
 		for (int c = 0; c < masterUIListLength; c++) {
 			runUI(masterUIList[c]);
 		}
-		//drawElement(font['A']);
 		
 
 		glfwSwapBuffers(window);

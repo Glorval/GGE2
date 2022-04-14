@@ -40,11 +40,16 @@ void startupDataBase(GLFWwindow* window) {
 
 	UI* mainPage = createUI();
 	UIElement* first = createElement(uiverts, uiinds, 4, 6, testFunction, NULL, ACTION, 1, elementOneClickArea);
+
+	UnfinObj testText = createUnFinText("A A", 0, 0, 50);
+	UIElement* ourText = createElement(testText.verts, testText.indices, testText.vLineCount, testText.iCount, NULL, NULL, 0, 1, NULL);
+	insertElementIntoUI(mainPage, ourText);
+
 	//insertElementIntoUI(mainPage, first);
 	//UIElement* second = createElement(A, Ainds, 10, 18, NULL, NULL, NO_ACTION, 1, NULL);
 	//insertElementIntoUI(mainPage, second);
 
 	masterUIList = calloc(1, sizeof(UI*));
 	masterUIList[0] = mainPage;
-	masterUIListLength = 0;
+	masterUIListLength = 1;
 }

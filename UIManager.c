@@ -8,29 +8,53 @@ void convertPixelSpaceToOpenGL(float* input, int lines) {
 	}
 }
 
+//All fonts go +/- 40 on the Y axis, +/- 25 on the X axis to make a 50:80 x/y ratio
 void setupUI(int flag) {
 	font = calloc(128, sizeof(UnfinObj));//MEMORYTODO - can reduce consumption by several kb if done differently
 	if (flag) {//Using the default 'built in' characterset
 		float A[] = {
-			0, 50, 0,			0, 0, 0,//0  
-			0, 40, 0,			0, 0 ,0,//1
-			-25, -50, 0,		0, 0, 0,//2
-			-15, -50,0,		0, 0, 0,//3
-			25, -50, 0,		0, 0, 0,//4
-			15, -50, 0,			0, 0, 0,//5
-			10, 5, 0,			0, 0, 0,//6
-			10, -5, 0,			0, 0, 0,//7
-			-10, 5, 0,			0, 0, 0,//8
-			-10, -5,	0,			0, 0, 0,//9
+			0, 40,			0, 0.8, 0.8, 0.8,//0  
+			0, 20,			0, 0.8, 0.8, 0.8,//1
+			-25, -40,		0, 0.8, 0.8, 0.8,//2
+			-15, -40,		0, 0.8, 0.8, 0.8,//3
+			25, -40,		0, 0.8, 0.8, 0.8,//4
+			15, -40,			0, 0.8, 0.8, 0.8,//5
+			10, 0, 			0, 0.8, 0.8, 0.8,//6
+			10, -8, 			0, 0.8, 0.8, 0.8,//7
+			-10, 0, 			0, 0.8, 0.8, 0.8,//8
+			-10, -8,			0, 0.8, 0.8, 0.8//9
 		};
 		convertPixelSpaceToOpenGL(A, 10);
 
 		unsigned int Ainds[] = {
-			0, 2, 3,		1, 2, 3,//left bar
-			0, 4, 5,		1, 4, 5,//right bar
-			6, 7, 8,		6, 7, 9//middle bar
+			0, 1, 2,		2, 3, 1,//left bar
+			0, 1, 4,		4, 5, 1,//right bar
+			6, 7, 8,		8, 9, 7//middle bar
 		};
 		font['A'] = createUnfinObjFromStatic(A, Ainds, (sizeof(A) / sizeof(float))/VERTEX_LENGTH, sizeof(Ainds) / sizeof(unsigned int));
+
+		float a[] = {
+			//stem
+			19, 10,			0, 0.8, 0.8, 0.8,//0  
+			11, 9,				0, 0.8, 0.8, 0.8,//1
+			22, -30,		0, 0.8, 0.8, 0.8,//2
+			14, -35,			0, 0.8, 0.8, 0.8,//3
+			//base of stem
+			25, -35,		0, 0.8, 0.8, 0.8,//4
+			25, -40,		0, 0.8, 0.8, 0.8,//5
+			//ring
+			-25, -15,		0, 0.8, 0.8, 0.8,//6
+			-15, -15,		0, 0.8, 0.8, 0.8//7
+		};
+		convertPixelSpaceToOpenGL(a, _countof(a) / VERTEX_LENGTH);
+		unsigned int ainds[] = {
+			0, 1, 2,		2, 3, 1,//main stem
+			2, 4, 5,		5, 3, 2,//base stem connection
+			0, 6, 1,		1, 6, 7,		3, 6, 7,		7, 2, 3// ring
+		};
+		//createUnfinObjFromStatic(aaaa, ainds, _countof(aaaa) / VERTEX_LENGTH, _countof(ainds));
+		font['a'] = createUnfinObjFromStatic(a, ainds, _countof(a) / VERTEX_LENGTH, _countof(ainds));
+
 	}
 }
 
@@ -144,7 +168,7 @@ UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int
 
 
 //Font size is in pixels and for the height. X/Y pos are in opengl coords
-UnfinObj createUnFinText(char* text, float xpos, float ypos, int fontSize) {
+UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize) {
 	int textLength = strlen(text);
 	float xOffset = 0;
 	float yOffset = 0;
@@ -157,10 +181,6 @@ UnfinObj createUnFinText(char* text, float xpos, float ypos, int fontSize) {
 	for (int cChar = 0; cChar < textLength; cChar++) {
 		UnfinObj temp = { 0 };
 		appendUnfinisheds(&temp, &font[text[cChar]]);//so as to not mess up the font
-		for (int c = 0; c < 60; c += 6) {
-			printf("%f, ", temp.verts[c]);
-			printf("%f\t", font[text[cChar]].verts[c]);
-		}
 
 		printf("Cur Index: %d,\t", cChar);
 		printf("Cur char: %c\n", text[cChar]);
