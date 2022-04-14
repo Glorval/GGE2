@@ -69,6 +69,8 @@ GLFWwindow* startup() {
 
 	//int cameraDefault[4] = { 0, 0, 1, 0 };
 	//glUniformMatrix4fv(ProgramData.cameraLoc, 1, 0, cameraDefault);
+
+	setupUI(USE_BUILT_IN_FONT);
 	return(window);
 }
 
@@ -114,7 +116,44 @@ int setupShaders() {
 	return(shaderProgram);
 }
 
+UnfinObj createUnfinObjFromStatic(float* verts, float* inds, int vLen, int iCount) {
+	UnfinObj returnObj;
+	returnObj.iCount = iCount;
+	returnObj.vLineCount = vLen;
 
+	returnObj.verts = calloc(vLen * VERTEX_LENGTH, VERTEX_SIZE);
+	returnObj.indices = calloc(iCount, IND_SIZE);
+
+	for (int c = 0; c < vLen * VERTEX_LENGTH; c++) {
+		returnObj.verts[c] = verts[c];
+	}
+
+	for (int c = 0; c < iCount; c++) {
+		returnObj.indices[c] = inds[c];
+	}
+
+	return(returnObj);
+}
+
+void appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo) {
+	int iCount = objOne->iCount;
+	int vLength = objOne->vLineCount;
+	objOne->iCount += objTwo->iCount;
+	objOne->vLineCount += objTwo->vLineCount;
+
+	objOne->verts = realloc(objOne->verts, objOne->vLineCount * VERTEX_LENGTH * VERTEX_SIZE);
+	objOne->indices = realloc(objOne->indices, IND_SIZE * objOne->iCount);
+
+	for (int c = iCount; c < objOne->iCount; c++) {
+		objOne->indices[c] = objTwo->indices[c - iCount];
+	}
+
+	for (int c = vLength; c < objOne->vLineCount; c++) {
+		for (int cEntry = 0; cEntry < VERTEX_LENGTH; cEntry++) {
+			objOne->verts[(c * VERTEX_LENGTH)+cEntry] = objTwo->verts[(c * VERTEX_LENGTH) - vLength + cEntry];
+		}
+	}
+}
 
 
 //The default handler of mouse clicks

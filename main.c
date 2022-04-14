@@ -63,6 +63,13 @@ int main() {
 	ourWorld = &world;
 	_beginthread(moveShape, 0, world.objects[0]);
 
+
+	UnfinObj testText = createUnFinText("A", 0, 0, 1000);
+
+	Object textInstance = createObject(testText.verts, testText.indices, testText.vLineCount, testText.iCount);
+	textInstance.position[Z] = -2;
+	insertObjectIntoWorld(&world, &textInstance, 1);
+
 	float counter = 1;
 	while (1) {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -73,6 +80,7 @@ int main() {
 		for (int c = 0; c < masterUIListLength; c++) {
 			runUI(masterUIList[c]);
 		}
+		//drawElement(font['A']);
 		
 
 		glfwSwapBuffers(window);

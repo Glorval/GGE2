@@ -4,7 +4,7 @@
 #include <GLFW\glfw3.h>
 
 #define windX 1600
-#define windY (windX * 3)/4
+#define windY 1200//(windX * 3)/4
 
 #define READY_FOR_ACTION 0 //Is ready to be activated
 #define COMMITTING_ACTION -1 //Is in the process of being activated
@@ -74,7 +74,6 @@ struct datablock {
 };
 typedef struct datablock Block;
 
-Block* standardUIAction(Block* input);
 
 struct uielement {
     unsigned int ID, VBO, EBO;
@@ -101,7 +100,22 @@ typedef struct ui UI;
 UI** masterUIList;
 int masterUIListLength;
 
+
+struct unfinishedObject {
+    float* verts;
+    unsigned int* indices;
+    int vLineCount;
+    int iCount;
+};
+typedef struct unfinishedObject UnfinObj;
+
 void defaultMoustClick(GLFWwindow* window, int button, int action, int mods);
+
+//Used for easily creating objects, especially from hardcoded stuff that'd die when touched by realloc
+UnfinObj createUnfinObjFromStatic(float* verts, float* inds, int vLen, int iCount);
+
+//Appends objTwo into objOne. Needs both to have their arrays dynamically allocated
+void appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo);
 
 
 #include "ObjectManager.h"
