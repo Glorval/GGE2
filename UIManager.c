@@ -31,7 +31,7 @@ void setupUI(int flag) {
 			0, 1, 4,		4, 5, 1,//right bar
 			6, 7, 8,		8, 9, 7//middle bar
 		};
-		font['A'] = createUnfinObjFromStatic(A, Ainds, (sizeof(A) / sizeof(float))/VERTEX_LENGTH, sizeof(Ainds) / sizeof(unsigned int));
+		font['A'] = createUnfinObjFromStatic(A, Ainds, _countof(A)/VERTEX_LENGTH, _countof(Ainds));
 
 		float a[] = {
 			//stem
@@ -53,6 +53,7 @@ void setupUI(int flag) {
 			0, 6, 1,		1, 6, 7,		3, 6, 7,		7, 2, 3// ring
 		};
 		//createUnfinObjFromStatic(aaaa, ainds, _countof(aaaa) / VERTEX_LENGTH, _countof(ainds));
+		
 		font['a'] = createUnfinObjFromStatic(a, ainds, _countof(a) / VERTEX_LENGTH, _countof(ainds));
 
 	}
@@ -173,35 +174,36 @@ UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize) {
 	float xOffset = 0;
 	float yOffset = 0;
 
-	float fontHeight = (float)FONT_SIZE_Y / (float)windY;
-	float fontWidth = (float)FONT_SIZE_X / (float)windX;
+	float fontHeight = ((float)FONT_SIZE_Y / (float)windY) * (float)1.5;
+	float fontWidth = ((float)FONT_SIZE_X / (float)windX) * (float)1.5;
 
 	UnfinObj returnData = { 0 };
 
 	for (int cChar = 0; cChar < textLength; cChar++) {
 		UnfinObj temp = { 0 };
-		appendUnfinisheds(&temp, &font[text[cChar]]);//so as to not mess up the font
+		UnfinObj character = mergeUnfinisheds(temp, font[text[cChar]]);//so as to not mess up the font
 
 		printf("Cur Index: %d,\t", cChar);
 		printf("Cur char: %c\n", text[cChar]);
 
-		if (text[cChar] != '\0') {
-			for (int cV = 0; cV < temp.vLineCount; cV++) {
-				printf("Cur V: %d.   ", cV);
+		if (text[cChar] != '\n') {
+			for (int cV = 0; cV < character.vLineCount; cV++) {
+				//printf("Cur V: %d.   ", cV);
 			
-				temp.verts[cV * VERTEX_LENGTH] *= (fontSize / FONT_SIZE_Y);
-				temp.verts[(cV * VERTEX_LENGTH) + 1] *= (fontSize / FONT_SIZE_Y);
+				character.verts[cV * VERTEX_LENGTH] *= (fontSize / FONT_SIZE_Y);
+				character.verts[(cV * VERTEX_LENGTH) + 1] *= (fontSize / FONT_SIZE_Y);
 
-				temp.verts[cV * VERTEX_LENGTH] += xpos + xOffset;
-				temp.verts[(cV * VERTEX_LENGTH) + 1] += ypos + yOffset;
+				character.verts[cV * VERTEX_LENGTH] += xpos + xOffset;
+				character.verts[(cV * VERTEX_LENGTH) + 1] += ypos + yOffset;
 				
-				printf("%f, %f\n", temp.verts[cV * VERTEX_LENGTH], temp.verts[(cV * VERTEX_LENGTH) + 1]);
+				//printf("%f, %f\n", temp.verts[cV * VERTEX_LENGTH], temp.verts[(cV * VERTEX_LENGTH) + 1]);
 			}
 			xOffset += fontWidth;
 			printf("\n\n");
-			appendUnfinisheds(&returnData, &temp);
-			free(temp.verts);
-			free(temp.indices);
+			//appendUnfinisheds(&returnData, &temp);
+			returnData = mergeUnfinisheds(returnData, character);
+			free(character.verts);
+			free(character.indices);
 		} else {
 			xOffset = 0;
 			yOffset -= fontHeight; //minus becuase we need to go down not upsies

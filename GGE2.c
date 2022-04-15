@@ -135,29 +135,41 @@ UnfinObj createUnfinObjFromStatic(float* verts, unsigned int* inds, int vLen, in
 	return(returnObj);
 }
 
-void appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo) {
-	int iCount = objOne->iCount;
-	int vLength = objOne->vLineCount;
-	objOne->iCount += objTwo->iCount;
-	objOne->vLineCount += objTwo->vLineCount;
+UnfinObj mergeUnfinisheds(UnfinObj objOne, UnfinObj objTwo) {
+	UnfinObj returnObj = { 0 };
 
-	objOne->verts = realloc(objOne->verts, objOne->vLineCount * VERTEX_LENGTH * VERTEX_SIZE);
-	objOne->indices = realloc(objOne->indices, IND_SIZE * objOne->iCount);
+	returnObj.verts = calloc(objOne.vLineCount + objTwo.vLineCount, VERTEX_LENGTH * VERTEX_SIZE);
+	returnObj.indices = calloc(objOne.iCount + objTwo.iCount, IND_SIZE);
+	returnObj.iCount = objOne.iCount + objTwo.iCount;
+	returnObj.vLineCount = objOne.vLineCount + objTwo.vLineCount;
 
-	for (int c = iCount; c < objOne->iCount; c++) {
-		printf("Cind: %d, %d   ", c, objTwo->indices[c - iCount] + iCount);
-		objOne->indices[c] = objTwo->indices[c - iCount] + iCount;//C is the offset here in a sense, the indices from the 2nd entry will have been for themselves and need to be offset to point at the right vertiecs
-	}
-	printf("\n");
-
-	for (int c = vLength; c < objOne->vLineCount; c++) {
-		for (int cEntry = 0; cEntry < VERTEX_LENGTH; cEntry++) {
-			printf("Cv: %d, %f   ", cEntry + (c*6), objTwo->verts[(c * VERTEX_LENGTH) - vLength + cEntry]);
-			objOne->verts[(c * VERTEX_LENGTH)+cEntry] = objTwo->verts[(c * VERTEX_LENGTH) - vLength + cEntry];
+	for (int cInd = 0; cInd < objOne.iCount; cInd++) {//Copy the first one over
+		returnObj.indices[cInd] = objOne.indices[cInd];
+		if (returnObj.iCount > 20) {
+			printf("%u, ", returnObj.indices[cInd]);
 		}
 	}
-	printf("\n\n");
+	for (int cInd = objOne.iCount; cInd < objOne.iCount + objTwo.iCount; cInd++) {//Copy the second over with the offset to point at the correct vertex
+		returnObj.indices[cInd] = objTwo.indices[cInd - objOne.iCount] + objOne.vLineCount;
+		if (returnObj.iCount > 20) {
+			printf("%u, ", returnObj.indices[cInd]);
+		}
+	}
+
+	for (int cVert = 0; cVert < objOne.vLineCount * VERTEX_LENGTH; cVert++) {//Copy first over
+		returnObj.verts[cVert] = objOne.verts[cVert];
+	}
+	for (int cVert = objOne.vLineCount * VERTEX_LENGTH; cVert < (objOne.vLineCount + objTwo.vLineCount) * VERTEX_LENGTH; cVert++) {//Copy second over
+		returnObj.verts[cVert] = objTwo.verts[cVert - (objOne.vLineCount * VERTEX_LENGTH)];
+	}
+
+	return(returnObj);
 }
+
+void appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo) {
+	printf("guck");
+}
+
 
 
 //The default handler of mouse clicks

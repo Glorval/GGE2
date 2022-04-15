@@ -116,7 +116,7 @@ UnfinObj createUnfinObjFromStatic(float* verts, unsigned int* inds, int vLen, in
 
 //Appends objTwo into objOne. Needs both to have their arrays dynamically allocated
 void appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo);
-
+UnfinObj mergeUnfinisheds(UnfinObj objOne, UnfinObj objTwo);
 
 #include "ObjectManager.h"
 #include "WorldManager.h"
