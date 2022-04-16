@@ -145,15 +145,9 @@ UnfinObj mergeUnfinisheds(UnfinObj objOne, UnfinObj objTwo) {
 
 	for (int cInd = 0; cInd < objOne.iCount; cInd++) {//Copy the first one over
 		returnObj.indices[cInd] = objOne.indices[cInd];
-		if (returnObj.iCount > 20) {
-			printf("%u, ", returnObj.indices[cInd]);
-		}
 	}
 	for (int cInd = objOne.iCount; cInd < objOne.iCount + objTwo.iCount; cInd++) {//Copy the second over with the offset to point at the correct vertex
 		returnObj.indices[cInd] = objTwo.indices[cInd - objOne.iCount] + objOne.vLineCount;
-		if (returnObj.iCount > 20) {
-			printf("%u, ", returnObj.indices[cInd]);
-		}
 	}
 
 	for (int cVert = 0; cVert < objOne.vLineCount * VERTEX_LENGTH; cVert++) {//Copy first over

@@ -5,6 +5,7 @@
 
 #define FONT_SIZE_Y 80
 #define FONT_SIZE_X 50
+#define FONT_RATIO (FONT_SIZE_X/FONT_SIZE_Y)
 
 
 //UI* font;
