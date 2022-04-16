@@ -11,11 +11,11 @@ void startupDataBase(GLFWwindow* window) {
 	UI* mainPage = createUI();
 	
 
-	UnfinObj testText = createUnFinText("ABCDEFG\nabcdefg", -.3, 0, 30);
+	UnfinObj testText = createUnFinText("ABCDEFGHI\nabcdefghi\nJKLMNOPQR\njklmnopqr\nSTUV", -0.95, .8, 30);
 	UIElement* ourText = createElement(testText.verts, testText.indices, testText.vLineCount, testText.iCount, NULL, NULL, 0, 1, NULL);
 	insertElementIntoUI(mainPage, ourText);
 
-	testText = createUnFinText("ABCDEFG\nabcdefg", 0, 0.1, 200);
+	testText = createUnFinText("ABCDEFGHI\nabcdefghi\nJKLMNOPQR\njklmnopqr\nSTUV", -0.55, 0.8, 200);
 	ourText = createElement(testText.verts, testText.indices, testText.vLineCount, testText.iCount, NULL, NULL, 0, 1, NULL);
 	insertElementIntoUI(mainPage, ourText);
 
