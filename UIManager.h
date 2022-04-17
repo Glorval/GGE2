@@ -6,7 +6,8 @@
 #define FONT_SIZE_Y 80
 #define FONT_SIZE_X 50
 #define FONT_RATIO (FONT_SIZE_X/FONT_SIZE_Y)
-
+#define convFromPixelX(pixels) pixels/((float)windX / (float)2)
+#define convFromPixelY(pixels) pixels/((float)windY / (float)2)
 
 //UI* font;
 UnfinObj* font;
@@ -23,6 +24,8 @@ void drawUI(UI* ui);
 void runUI(UI* ui);
 void insertElementIntoUI(UI* ui, UIElement* element);
 void drawElement(UIElement* uiItem);
+
+//'click area' is leftmost, rightmost, bottommost, topmost
 UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, void* customAction, char defaultAction, int active, float clickArea[4]);
 
 UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, float* rgb);

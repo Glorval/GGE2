@@ -1461,10 +1461,15 @@ UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int
 	returnElement->position[Z] = pos[Z];
 
 	if (clickArea != NULL) {
+		returnElement->clickArea[0] = clickArea[0];
+		returnElement->clickArea[1] = clickArea[1];
+		returnElement->clickArea[2] = clickArea[2];
+		returnElement->clickArea[3] = clickArea[3];
+		/*
 		returnElement->clickArea[0] = (clickArea[0] + 1) * windX / 2;
 		returnElement->clickArea[1] = (clickArea[1] + 1) * windX / 2;
 		returnElement->clickArea[2] = ((clickArea[2] * -1) + 1) * windY / 2;
-		returnElement->clickArea[3] = ((clickArea[3] * -1) + 1) * windY / 2;
+		returnElement->clickArea[3] = ((clickArea[3] * -1) + 1) * windY / 2;*/
 	}	
 	//printf("%f, %f, %f, %f\n", returnElement->clickArea[0], returnElement->clickArea[1], returnElement->clickArea[2], returnElement->clickArea[3]);
 
@@ -1490,8 +1495,8 @@ UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, flo
 		UnfinObj temp = { 0 };
 		UnfinObj character = mergeUnfinisheds(temp, font[text[cChar]]);//so as to not mess up the font
 
-		printf("Cur Index: %d,\t", cChar);
-		printf("Cur char: %c\n", text[cChar]);
+		//printf("Cur Index: %d,\t", cChar);
+		//printf("Cur char: %c\n", text[cChar]);
 
 		if (text[cChar] != '\n') {
 			for (int cV = 0; cV < character.vLineCount; cV++) {
@@ -1510,7 +1515,7 @@ UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, flo
 				//printf("%f, %f\n", temp.verts[cV * VERTEX_LENGTH], temp.verts[(cV * VERTEX_LENGTH) + 1]);
 			}
 			xOffset += fontWidth;
-			printf("\n\n");
+			//printf("\n\n");
 			//appendUnfinisheds(&returnData, &temp);
 			returnData = mergeUnfinisheds(returnData, character);
 			free(character.verts);
