@@ -23,6 +23,6 @@ void drawUI(UI* ui);
 void runUI(UI* ui);
 void insertElementIntoUI(UI* ui, UIElement* element);
 void drawElement(UIElement* uiItem);
-UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, void* action, void* customAction, char defaultAction, int active, float clickArea[4]);
+UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, void* customAction, char defaultAction, int active, float clickArea[4]);
 
-UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize);
+UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, float* rgb);

@@ -3,8 +3,8 @@
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
 
-#define windX 1600
-#define windY 1200//(windX * 3)/4
+#define windX 1200
+#define windY 900//(windX * 3)/4
 
 #define READY_FOR_ACTION 0 //Is ready to be activated
 #define COMMITTING_ACTION -1 //Is in the process of being activated
@@ -82,6 +82,7 @@ struct uielement {
     int elementActive;
     int actionNeeded;
     float clickArea[4];//left x, right x, top y, bottom y.
+    float position[3];//xyz position on the screen
     char defaultAction;
     long long int data;
     Block* blockData;

@@ -49,7 +49,7 @@ void main() {
 	cordFour.w = corePos.z;
 	
 	if(flags == 1){
-		gl_Position = vec4(corePos.x, corePos.y, corePos.z, 1);
+		gl_Position = vec4(corePos.x + cordinates.x, corePos.y + cordinates.y, corePos.z + cordinates.z, 1);
 		fColor = aColor;
 	}else{
 

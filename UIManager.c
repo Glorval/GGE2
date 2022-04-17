@@ -67,7 +67,7 @@ void setupUI(int flag) {
 
 			//back stem
 			20, 12,			0, 0.8, 0.8, 0.8,//8 
-			12, 12,			0, 0.8, 0.8, 0.8,//9
+			12, 5,			0, 0.8, 0.8, 0.8,//9
 			20, -40,		0, 0.8, 0.8, 0.8,//10
 			12, -40,			0, 0.8, 0.8, 0.8,//11
 		};
@@ -391,13 +391,13 @@ void setupUI(int flag) {
 		float H[] = {
 			//three bars, not complex
 			-25, 40,		0, 0.8, 0.8, 0.8,//0
-			-18, 40,			0, 0.8, 0.8, 0.8,//1
+			-17, 40,			0, 0.8, 0.8, 0.8,//1
 			-25, -40,		0, 0.8, 0.8, 0.8,//2
-			-18, -40,		0, 0.8, 0.8, 0.8,//3
+			-17, -40,		0, 0.8, 0.8, 0.8,//3
 
 			25, 40,			0, 0.8, 0.8, 0.8,//4
-			18, 40,			0, 0.8, 0.8, 0.8,//5
-			18, -40,			0, 0.8, 0.8, 0.8,//6
+			17, 40,			0, 0.8, 0.8, 0.8,//5
+			17, -40,			0, 0.8, 0.8, 0.8,//6
 			25, -40,		0, 0.8, 0.8, 0.8,//7
 
 			20, 5,			0, 0.8, 0.8, 0.8,//8
@@ -418,13 +418,13 @@ void setupUI(int flag) {
 		float h[] = {
 			//three bars, not complex
 			-25, 40,		0, 0.8, 0.8, 0.8,//0
-			-18, 40,			0, 0.8, 0.8, 0.8,//1
+			-17, 40,			0, 0.8, 0.8, 0.8,//1
 			-25, -40,		0, 0.8, 0.8, 0.8,//2
-			-18, -40,		0, 0.8, 0.8, 0.8,//3
+			-17, -40,		0, 0.8, 0.8, 0.8,//3
 
 			25, -3,			0, 0.8, 0.8, 0.8,//4
-			18, 5,			0, 0.8, 0.8, 0.8,//5
-			18, -40,			0, 0.8, 0.8, 0.8,//6
+			17, 5,			0, 0.8, 0.8, 0.8,//5
+			17, -40,			0, 0.8, 0.8, 0.8,//6
 			25, -40,		0, 0.8, 0.8, 0.8,//7
 
 			-20, 5,			0, 0.8, 0.8, 0.8,//8
@@ -615,15 +615,20 @@ void setupUI(int flag) {
 
 		float l[] = {
 			//back
-			-25, 40,		0, 0.8, 0.8, 0.8,//0   
-			-17, 40,			0, 0.8, 0.8, 0.8,//1
-			-25, -40,		0, 0.8, 0.8, 0.8,//2
-			-17, -40,		0, 0.8, 0.8, 0.8,//3  
+			-9, 32,			0, 0.8, 0.8, 0.8,//0   
+			-1, 40,			0, 0.8, 0.8, 0.8,//1
+			-9, -40,		0, 0.8, 0.8, 0.8,//2
+			-1, -40,			0, 0.8, 0.8, 0.8,//3  
+			//lil protrusion to help with spacing
+			10, -40,			0, 0.8, 0.8, 0.8,//4  
+			-1, -32,			0, 0.8, 0.8, 0.8,//5  
+			-1, -32,			0, 0.8, 0.8, 0.8,//6  
 		};
 		convertPixelSpaceToOpenGL(l, _countof(l) / VERTEX_LENGTH);
 
 		unsigned int linds[] = {
 			0,1,2, 1,2,3,
+			3,4,6,
 		};
 		font['l'] = createUnfinObjFromStatic(l, linds, _countof(l) / VERTEX_LENGTH, _countof(linds));
 
@@ -682,7 +687,7 @@ void setupUI(int flag) {
 		float m[] = {
 			//back stem
 			-25, 12,			0, 0.8, 0.8, 0.8,//0   
-			-17, 12,			0, 0.8, 0.8, 0.8,//1
+			-17, 5,			0, 0.8, 0.8, 0.8,//1
 			-25, -40,		0, 0.8, 0.8, 0.8,//2
 			-17, -40,		0, 0.8, 0.8, 0.8,//3
 			//arc across
@@ -733,7 +738,7 @@ void setupUI(int flag) {
 		float n[] = {
 			//back stem
 			-25, 12,			0, 0.8, 0.8, 0.8,//0   
-			-17, 12,			0, 0.8, 0.8, 0.8,//1
+			-17, 5,			0, 0.8, 0.8, 0.8,//1
 			-25, -40,		0, 0.8, 0.8, 0.8,//2
 			-17, -40,		0, 0.8, 0.8, 0.8,//3
 			//arc across
@@ -742,7 +747,7 @@ void setupUI(int flag) {
 			17, 5,			0, 0.8, 0.8, 0.8,//6   
 			25, -3,			0, 0.8, 0.8, 0.8,//7   
 			17, -40,			0, 0.8, 0.8, 0.8,//8   
-			25, -40,			0, 0.8, 0.8, 0.8,//9   
+			25, -40,		0, 0.8, 0.8, 0.8,//9   
 		};
 		convertPixelSpaceToOpenGL(n, _countof(n) / VERTEX_LENGTH);
 
@@ -793,16 +798,16 @@ void setupUI(int flag) {
 		float P[] = {
 			//back
 			-25, -40,		0, 0.8, 0.8, 0.8,//0  
-			-17, -40,			0, 0.8, 0.8, 0.8,//1  
+			-17, -40,		0, 0.8, 0.8, 0.8,//1  
 			-25, 40,		0, 0.8, 0.8, 0.8,//2  
-			-17, 40,		0, 0.8, 0.8, 0.8,//3 
+			-17, 40,			0, 0.8, 0.8, 0.8,//3 
 
-			//bottom o part
+			//o part
 			-20, -5,			0, 0.8, 0.8, 0.8,//4
 			-20, 3,			0, 0.8, 0.8, 0.8,//5  
 			17, -5,			0, 0.8, 0.8, 0.8,//6  
 			25, 3,			0, 0.8, 0.8, 0.8,//7 
-			25, 32,		0, 0.8, 0.8, 0.8,//8
+			25, 32,			0, 0.8, 0.8, 0.8,//8
 			17, 40,			0, 0.8, 0.8, 0.8,//9
 			-25, 32,		0, 0.8, 0.8, 0.8,//10
 			-25, 40,		0, 0.8, 0.8, 0.8,//11
@@ -818,18 +823,18 @@ void setupUI(int flag) {
 		float p[] = {
 			//back
 			-25, -48,		0, 0.8, 0.8, 0.8,//0  
-			-17, -48,			0, 0.8, 0.8, 0.8,//1  
-			-25, -3,		0, 0.8, 0.8, 0.8,//2  
-			-17, 5,		0, 0.8, 0.8, 0.8,//3 
+			-17, -48,		0, 0.8, 0.8, 0.8,//1  
+			-25, -3,			0, 0.8, 0.8, 0.8,//2  
+			-17, 5,			0, 0.8, 0.8, 0.8,//3 
 
 			//bottom o part
-			-20, -27,			0, 0.8, 0.8, 0.8,//4
-			-20, -19,			0, 0.8, 0.8, 0.8,//5  
+			-20, -27,		0, 0.8, 0.8, 0.8,//4
+			-20, -19,		0, 0.8, 0.8, 0.8,//5  
 			17, -27,			0, 0.8, 0.8, 0.8,//6  
 			25, -19,			0, 0.8, 0.8, 0.8,//7 
-			25, -3,		0, 0.8, 0.8, 0.8,//8
+			25, -3,			0, 0.8, 0.8, 0.8,//8
 			17, 5,			0, 0.8, 0.8, 0.8,//9
-			-25, -3,		0, 0.8, 0.8, 0.8,//10
+			-25, -3,			0, 0.8, 0.8, 0.8,//10
 		};
 		convertPixelSpaceToOpenGL(p, _countof(p) / VERTEX_LENGTH);
 
@@ -851,7 +856,7 @@ void setupUI(int flag) {
 			18, -32,			0, 0.8, 0.8, 0.8,//7 
 
 			//lil stem
-			25, -48,			0, 0.8, 0.8, 0.8,//8  
+			25, -48,		0, 0.8, 0.8, 0.8,//8  
 			17, -48,			0, 0.8, 0.8, 0.8,//9  
 		};
 		convertPixelSpaceToOpenGL(Q, _countof(Q) / VERTEX_LENGTH);
@@ -861,6 +866,158 @@ void setupUI(int flag) {
 			6,7,9, 7,8,9,
 		};
 		font['Q'] = createUnfinObjFromStatic(Q, Qinds, _countof(Q) / VERTEX_LENGTH, _countof(Qinds));
+
+		float q[] = {
+			//back
+			25, -48,		0, 0.8, 0.8, 0.8,//0  
+			17, -48,			0, 0.8, 0.8, 0.8,//1  
+			25, -3,			0, 0.8, 0.8, 0.8,//2  
+			17, 5,			0, 0.8, 0.8, 0.8,//3 
+
+			//bottom o part
+			20, -27,		0, 0.8, 0.8, 0.8,//4
+			20, -19,			0, 0.8, 0.8, 0.8,//5  
+			-17, -27,		0, 0.8, 0.8, 0.8,//6  
+			-25, -19,		0, 0.8, 0.8, 0.8,//7 
+			-25, -3,			0, 0.8, 0.8, 0.8,//8
+			-17, 5,			0, 0.8, 0.8, 0.8,//9
+			25, -3,			0, 0.8, 0.8, 0.8,//10
+		};
+		convertPixelSpaceToOpenGL(q, _countof(q) / VERTEX_LENGTH);
+
+		unsigned int qinds[] = {
+			0,1,2, 2,1,3,//back
+			4,5,6, 6,7,5, 6,8,9, 6,7,8, 10,3,9, 10,9,8//bottom o part
+		};
+		font['q'] = createUnfinObjFromStatic(q, qinds, _countof(q) / VERTEX_LENGTH, _countof(qinds));
+
+		float R[] = {
+			//back
+			-25, -40,		0, 0.8, 0.8, 0.8,//0  
+			-17, -40,		0, 0.8, 0.8, 0.8,//1  
+			-25, 40,		0, 0.8, 0.8, 0.8,//2  
+			-17, 40,			0, 0.8, 0.8, 0.8,//3 
+
+			//o part
+			-20, -5,			0, 0.8, 0.8, 0.8,//4
+			-18, 3,			0, 0.8, 0.8, 0.8,//5  
+			17, -5,			0, 0.8, 0.8, 0.8,//6  
+			25, 3,			0, 0.8, 0.8, 0.8,//7 
+			25, 32,			0, 0.8, 0.8, 0.8,//8
+			17, 40,			0, 0.8, 0.8, 0.8,//9
+			-25, 32,		0, 0.8, 0.8, 0.8,//10
+			-25, 40,		0, 0.8, 0.8, 0.8,//11
+
+			//angled stem that differentiates us from a P
+			-10, -5,			0, 0.8, 0.8, 0.8,//12
+			0, -5,			0, 0.8, 0.8, 0.8,//13  
+			15, -40,			0, 0.8, 0.8, 0.8,//14
+			25, -40,		0, 0.8, 0.8, 0.8,//15 
+		};
+		convertPixelSpaceToOpenGL(R, _countof(R) / VERTEX_LENGTH);
+
+		unsigned int Rinds[] = {
+			0,1,2, 2,1,3,//back
+			4,5,6, 6,7,5, 6,8,9, 6,7,8, 10,11,9, 10,9,8,//o part
+			12,13,14, 13,14,15,//bottom stem
+		};
+		font['R'] = createUnfinObjFromStatic(R, Rinds, _countof(R) / VERTEX_LENGTH, _countof(Rinds));
+
+		float r[] = {
+			//back stem
+			-21, 12,			0, 0.8, 0.8, 0.8,//0   
+			-13, 5,			0, 0.8, 0.8, 0.8,//1
+			-21, -40,		0, 0.8, 0.8, 0.8,//2
+			-13, -40,		0, 0.8, 0.8, 0.8,//3
+			//arc across
+			-17, 5,			0, 0.8, 0.8, 0.8,//4   
+			-17, -3,			0, 0.8, 0.8, 0.8,//5   
+			13, 5,			0, 0.8, 0.8, 0.8,//6   
+			21, -3,			0, 0.8, 0.8, 0.8,//7   
+			13, -10,			0, 0.8, 0.8, 0.8,//8   
+			21, -10,			0, 0.8, 0.8, 0.8,//9   
+		};
+		convertPixelSpaceToOpenGL(r, _countof(r) / VERTEX_LENGTH);
+
+		unsigned int rinds[] = {
+			0,1,2, 2,3,1,//back stem
+			4,5,6, 5,6,7, 7,8,9, 6,7,8//arc across
+		};
+		font['r'] = createUnfinObjFromStatic(r, rinds, _countof(r) / VERTEX_LENGTH, _countof(rinds));
+
+
+		/*verboten S
+		float S[] = {
+			//back
+			-5, 35,			0, 0.8, 0.8, 0.8,//0   
+			5, 40,			0, 0.8, 0.8, 0.8,//1   
+			-10, -10,			0, 0.8, 0.8, 0.8,//2   
+			0, -5,			0, 0.8, 0.8, 0.8,//3   
+			//front
+			-5, -40,			0, 0.8, 0.8, 0.8,//4   
+			5, -35,			0, 0.8, 0.8, 0.8,//5   
+			0, 5,			0, 0.8, 0.8, 0.8,//6   
+			10, 10,			0, 0.8, 0.8, 0.8,//7   
+		};
+		convertPixelSpaceToOpenGL(S, _countof(S) / VERTEX_LENGTH);
+
+		unsigned int Sinds[] = {
+			0,1,2, 2,3,1,//left
+			4,5,6, 5,6,7,
+		};
+		font['S'] = createUnfinObjFromStatic(S, Sinds, _countof(S) / VERTEX_LENGTH, _countof(Sinds));*/
+
+		float S[] = {
+			//double arcing loop
+			25, 32,			0, 0.8, 0.8, 0.8,//0   
+			17, 40,			0, 0.8, 0.8, 0.8,//1   
+			-17, 40,			0, 0.8, 0.8, 0.8,//2   
+			-25, 32,		0, 0.8, 0.8, 0.8,//3   
+
+			-25, 5,			0, 0.8, 0.8, 0.8,//4   
+			-17, -3,			0, 0.8, 0.8, 0.8,//5   
+			25, -3,			0, 0.8, 0.8, 0.8,//6   
+			17, 5,			0, 0.8, 0.8, 0.8,//7   
+
+			25, -32,		0, 0.8, 0.8, 0.8,//8   
+			17, -40,			0, 0.8, 0.8, 0.8,//9   
+
+			-25, -32,		0, 0.8, 0.8, 0.8,//10   
+			-17, -40,		0, 0.8, 0.8, 0.8,//11   
+		};
+		convertPixelSpaceToOpenGL(S, _countof(S) / VERTEX_LENGTH);
+
+		unsigned int Sinds[] = {
+			0,1,2, 0,2,3, 2,3,4, 2,4,5, 4,5,6, 4,6,7, 6,7,8, 7,8,9, 8,9,10, 9,10,11
+
+		};
+		font['S'] = createUnfinObjFromStatic(S, Sinds, _countof(S) / VERTEX_LENGTH, _countof(Sinds));
+
+		float s[] = {
+			//double arcing loop
+			25, -3,			0, 0.8, 0.8, 0.8,//0   
+			17, 5,			0, 0.8, 0.8, 0.8,//1   
+			-17, 5,			0, 0.8, 0.8, 0.8,//2   
+			-25, -3,		0, 0.8, 0.8, 0.8,//3   
+
+			-25, -11,			0, 0.8, 0.8, 0.8,//4   
+			-17, -19,			0, 0.8, 0.8, 0.8,//5   
+			25, -19,			0, 0.8, 0.8, 0.8,//6   
+			17, -11,			0, 0.8, 0.8, 0.8,//7   
+
+			25, -32,		0, 0.8, 0.8, 0.8,//8   
+			17, -40,			0, 0.8, 0.8, 0.8,//9   
+
+			-25, -32,		0, 0.8, 0.8, 0.8,//10   
+			-17, -40,		0, 0.8, 0.8, 0.8,//11   
+		};
+		convertPixelSpaceToOpenGL(s, _countof(s) / VERTEX_LENGTH);
+
+		unsigned int sinds[] = {
+			0,1,2, 0,2,3, 2,3,4, 2,4,5, 4,5,6, 4,6,7, 6,7,8, 7,8,9, 8,9,10, 9,10,11
+
+		};
+		font['s'] = createUnfinObjFromStatic(s, sinds, _countof(s) / VERTEX_LENGTH, _countof(sinds));
 
 		float T[] = {
 			//three bars, not complex
@@ -881,6 +1038,281 @@ void setupUI(int flag) {
 			4,5,6, 4,6,7,
 		};
 		font['T'] = createUnfinObjFromStatic(T, Tinds, _countof(T) / VERTEX_LENGTH, _countof(Tinds));
+
+		float t[] = {
+			//three bars, not complex
+			-4, 40,			0, 0.8, 0.8, 0.8,//0
+			4, 40,			0, 0.8, 0.8, 0.8,//1
+			-4, -40,			0, 0.8, 0.8, 0.8,//2
+			4, -40,			0, 0.8, 0.8, 0.8,//3
+
+			25, 5,			0, 0.8, 0.8, 0.8,//4
+			25, 13,			0, 0.8, 0.8, 0.8,//5
+			-25, 13,			0, 0.8, 0.8, 0.8,//6
+			-25, 5,			0, 0.8, 0.8, 0.8,//7
+		};
+		convertPixelSpaceToOpenGL(t, _countof(t) / VERTEX_LENGTH);
+
+		unsigned int tinds[] = {
+			0,1,2, 1,2,3,
+			4,5,6, 4,6,7,
+		};
+		font['t'] = createUnfinObjFromStatic(t, tinds, _countof(t) / VERTEX_LENGTH, _countof(tinds));
+
+		float U[] = {
+			//thing is a big loop okay
+			17, 40,			0, 0.8, 0.8, 0.8,//0  
+			25, 40,			0, 0.8, 0.8, 0.8,//1   
+			-17, 40,			0, 0.8, 0.8, 0.8,//2  
+			-25, 40,		0, 0.8, 0.8, 0.8,//3  
+			-17, -40,		0, 0.8, 0.8, 0.8,//4  
+			-25, -32,		0, 0.8, 0.8, 0.8,//5   
+			17, -40,			0, 0.8, 0.8, 0.8,//6  
+			25, -32,			0, 0.8, 0.8, 0.8,//7 
+		};
+		convertPixelSpaceToOpenGL(U, _countof(U) / VERTEX_LENGTH);
+
+		unsigned int Uinds[] = {
+			2,3,4, 3,4,5, 4,5,6, 5,6,7, 0,1,6, 1,6,7,//big loopy bit
+		};
+		font['U'] = createUnfinObjFromStatic(U, Uinds, _countof(U) / VERTEX_LENGTH, _countof(Uinds));
+
+		float u[] = {
+			//thing is a big loop okay
+			17, 5,			0, 0.8, 0.8, 0.8,//0  
+			25, 5,			0, 0.8, 0.8, 0.8,//1   
+			-17, 5,			0, 0.8, 0.8, 0.8,//2  
+			-25, 5,			0, 0.8, 0.8, 0.8,//3  
+			-17, -40,		0, 0.8, 0.8, 0.8,//4  
+			-25, -32,		0, 0.8, 0.8, 0.8,//5   
+			17, -40,			0, 0.8, 0.8, 0.8,//6  
+			25, -32,		0, 0.8, 0.8, 0.8,//7 
+
+			//lil stem
+			/*25, -44,		0, 0.8, 0.8, 0.8,//8  
+			17, -44,			0, 0.8, 0.8, 0.8,//9  */
+		};
+		convertPixelSpaceToOpenGL(u, _countof(u) / VERTEX_LENGTH);
+
+		unsigned int uinds[] = {
+			2,3,4, 3,4,5, 4,5,6, 5,6,7, 0,1,6, 1,6,7,//big loopy bit
+			/*6,7,9, 7,8,9,*/
+		};
+		font['u'] = createUnfinObjFromStatic(u, uinds, _countof(u) / VERTEX_LENGTH, _countof(uinds));
+
+		float V[] = {
+			0, -40,			0, 0.8, 0.8, 0.8,//0  
+			0, -15,			0, 0.8, 0.8, 0.8,//1
+			-25, 40,		0, 0.8, 0.8, 0.8,//2
+			-15, 40,			0, 0.8, 0.8, 0.8,//3
+			25, 40,			0, 0.8, 0.8, 0.8,//4
+			15, 40,			0, 0.8, 0.8, 0.8,//5
+		};
+		convertPixelSpaceToOpenGL(V, _countof(V) / VERTEX_LENGTH);
+
+		unsigned int Vinds[] = {
+			0, 1, 2,		2, 3, 1,//left bar
+			0, 1, 4,		4, 5, 1,//right bar
+		};
+		font['V'] = createUnfinObjFromStatic(V, Vinds, _countof(V) / VERTEX_LENGTH, _countof(Vinds));
+
+		float v[] = {
+			0, -40,			0, 0.8, 0.8, 0.8,//0  
+			0, -25,			0, 0.8, 0.8, 0.8,//1
+			-25, 5,			0, 0.8, 0.8, 0.8,//2
+			-15, 5,			0, 0.8, 0.8, 0.8,//3
+			25, 5,			0, 0.8, 0.8, 0.8,//4
+			15, 5,			0, 0.8, 0.8, 0.8,//5
+		};
+		convertPixelSpaceToOpenGL(v, _countof(v) / VERTEX_LENGTH);
+
+		unsigned int vinds[] = {
+			0, 1, 2,		2, 3, 1,//left bar
+			0, 1, 4,		4, 5, 1,//right bar
+		};
+		font['v'] = createUnfinObjFromStatic(v, vinds, _countof(v) / VERTEX_LENGTH, _countof(vinds));
+
+		float _W[] = {
+			//back
+			-25, -40,		0, 0.8, 0.8, 0.8,//0   
+			-17, -40,			0, 0.8, 0.8, 0.8,//1
+			-25, 40,		0, 0.8, 0.8, 0.8,//2
+			-17, 40,		0, 0.8, 0.8, 0.8,//3  
+
+			//front
+			25, -40,			0, 0.8, 0.8, 0.8,//4  
+			17, -40,			0, 0.8, 0.8, 0.8,//5
+			25, 40,		0, 0.8, 0.8, 0.8,//6
+			17, 40,			0, 0.8, 0.8, 0.8,//7
+
+			//middle
+			0, 5,			0, 0.8, 0.8, 0.8,//8   //-10
+			0, -8,				0, 0.8, 0.8, 0.8,//9   //-6
+		};
+		convertPixelSpaceToOpenGL(_W, _countof(_W) / VERTEX_LENGTH);
+
+		unsigned int Winds[] = {
+			0,1,2, 1,2,3,//back
+			4,5,6, 5,6,7,//front
+			4,5,9, 8,9,4, 0,1,9, 8,9,0,
+		};
+		font['W'] = createUnfinObjFromStatic(_W, Winds, _countof(_W) / VERTEX_LENGTH, _countof(Winds));
+
+		float w[] = {
+			//back
+			-25, -40,		0, 0.8, 0.8, 0.8,//0   
+			-17, -40,		0, 0.8, 0.8, 0.8,//1
+			-25, 5,			0, 0.8, 0.8, 0.8,//2
+			-17, 5,			0, 0.8, 0.8, 0.8,//3  
+
+			//front
+			25, -40,		0, 0.8, 0.8, 0.8,//4  
+			17, -40,			0, 0.8, 0.8, 0.8,//5
+			25, 5,			0, 0.8, 0.8, 0.8,//6
+			17, 5,			0, 0.8, 0.8, 0.8,//7
+
+			//middle
+			0, 5,				0, 0.8, 0.8, 0.8,//8 
+			0, -8,			0, 0.8, 0.8, 0.8,//9
+		};
+		convertPixelSpaceToOpenGL(w, _countof(w) / VERTEX_LENGTH);
+
+		unsigned int winds[] = {
+			0,1,2, 1,2,3,//back
+			4,5,6, 5,6,7,//front
+			4,5,9, 8,9,4, 0,1,9, 8,9,0,
+		};
+		font['w'] = createUnfinObjFromStatic(w, winds, _countof(w) / VERTEX_LENGTH, _countof(winds));
+
+
+		float _X[] = {
+			//two crossing bars
+			25, 40,				0, 0.8, 0.8, 0.8,//0 
+			15, 40,				0, 0.8, 0.8, 0.8,//1 
+			-25, -40,			0, 0.8, 0.8, 0.8,//2 
+			-15, -40,			0, 0.8, 0.8, 0.8,//3 
+
+			-25, 40,			0, 0.8, 0.8, 0.8,//4 
+			-15, 40,				0, 0.8, 0.8, 0.8,//5 
+			25, -40,			0, 0.8, 0.8, 0.8,//6 
+			15, -40,				0, 0.8, 0.8, 0.8,//7 
+		};
+		convertPixelSpaceToOpenGL(_X, _countof(_X) / VERTEX_LENGTH);
+
+		unsigned int Xinds[] = {
+			0,1,2, 0,2,3,
+			4,5,6, 4,6,7,
+		};
+		font['X'] = createUnfinObjFromStatic(_X, Xinds, _countof(_X) / VERTEX_LENGTH, _countof(Xinds));
+
+		float x[] = {
+			//two crossing bars
+			25, 5,				0, 0.8, 0.8, 0.8,//0 
+			15, 5,				0, 0.8, 0.8, 0.8,//1 
+			-25, -40,			0, 0.8, 0.8, 0.8,//2 
+			-15, -40,			0, 0.8, 0.8, 0.8,//3 
+
+			-25, 5,				0, 0.8, 0.8, 0.8,//4 
+			-15, 5,				0, 0.8, 0.8, 0.8,//5 
+			25, -40,			0, 0.8, 0.8, 0.8,//6 
+			15, -40,				0, 0.8, 0.8, 0.8,//7 
+		};
+		convertPixelSpaceToOpenGL(x, _countof(x) / VERTEX_LENGTH);
+
+		unsigned int xinds[] = {
+			0,1,2, 0,2,3,
+			4,5,6, 4,6,7,
+		};
+		font['x'] = createUnfinObjFromStatic(x, xinds, _countof(x) / VERTEX_LENGTH, _countof(xinds));
+
+		float _Y[] = {
+			//top bars
+			25, 40,				0, 0.8, 0.8, 0.8,//0 
+			17, 40,				0, 0.8, 0.8, 0.8,//1 
+			-25, 40,			0, 0.8, 0.8, 0.8,//2 
+			-17, 40,				0, 0.8, 0.8, 0.8,//3 
+			//bottom middle bar, top bars connect to it
+			4, 5,					0, 0.8, 0.8, 0.8,//4 
+			-4, 5,				0, 0.8, 0.8, 0.8,//5 
+			4, -40,				0, 0.8, 0.8, 0.8,//6 
+			-4, -40,				0, 0.8, 0.8, 0.8,//7 
+		};
+		convertPixelSpaceToOpenGL(_Y, _countof(_Y) / VERTEX_LENGTH);
+
+		unsigned int Yinds[] = {
+			0,1,4, 1,4,5, 2,3,4, 2,4,5,//top piece
+			4,5,6, 5,6,7,//bottom bar
+		};
+		font['Y'] = createUnfinObjFromStatic(_Y, Yinds, _countof(_Y) / VERTEX_LENGTH, _countof(Yinds));
+
+
+		float y[] = {
+			//two touching bars
+			25, 5,				0, 0.8, 0.8, 0.8,//0 
+			15, 5,				0, 0.8, 0.8, 0.8,//1 
+			-29, -48,			0, 0.8, 0.8, 0.8,//2 
+			-19, -48,			0, 0.8, 0.8, 0.8,//3 
+
+			-25, 5,				0, 0.8, 0.8, 0.8,//4 
+			-15, 5,				0, 0.8, 0.8, 0.8,//5 
+			4, -19,				0, 0.8, 0.8, 0.8,//6 
+			-5, -20,				0, 0.8, 0.8, 0.8,//7 
+		};
+		convertPixelSpaceToOpenGL(y, _countof(y) / VERTEX_LENGTH);
+
+		unsigned int yinds[] = {
+			0,1,2, 0,2,3,
+			4,5,6, 4,6,7,
+		};
+		font['y'] = createUnfinObjFromStatic(y, yinds, _countof(y) / VERTEX_LENGTH, _countof(yinds));
+
+		float _Z[] = {
+			//top, bottom, then connect the two
+			25, 32,				0, 0.8, 0.8, 0.8,//0 
+			25, 40,				0, 0.8, 0.8, 0.8,//1 
+			-25, 40,			0, 0.8, 0.8, 0.8,//2 
+			-25, 32, 			0, 0.8, 0.8, 0.8,//3 
+
+			25, -32,			0, 0.8, 0.8, 0.8,//4 
+			25, -40,			0, 0.8, 0.8, 0.8,//5 
+			-25, -40,			0, 0.8, 0.8, 0.8,//6 
+			-25, -32, 			0, 0.8, 0.8, 0.8,//7  
+
+			17, 32,				0, 0.8, 0.8, 0.8,//8 
+			-17, -32,			0, 0.8, 0.8, 0.8,//9 
+		};
+		convertPixelSpaceToOpenGL(_Z, _countof(_Z) / VERTEX_LENGTH);
+
+		unsigned int Zinds[] = {
+			0,1,2, 0,2,3, 4,5,6, 4,6,7,//top and bottom
+			0,8,7, 7,0,9
+		};
+		font['Z'] = createUnfinObjFromStatic(_Z, Zinds, _countof(_Z) / VERTEX_LENGTH, _countof(Zinds));
+
+		float z[] = {
+			//top, bottom, then connect the two
+			25, -3,				0, 0.8, 0.8, 0.8,//0 
+			25, 5,				0, 0.8, 0.8, 0.8,//1 
+			-25, 5,				0, 0.8, 0.8, 0.8,//2 
+			-25, -3, 			0, 0.8, 0.8, 0.8,//3 
+
+			25, -32,			0, 0.8, 0.8, 0.8,//4 
+			25, -40,			0, 0.8, 0.8, 0.8,//5 
+			-25, -40,			0, 0.8, 0.8, 0.8,//6 
+			-25, -32, 			0, 0.8, 0.8, 0.8,//7  
+
+			14, -3,				0, 0.8, 0.8, 0.8,//8 
+			-14, -32,			0, 0.8, 0.8, 0.8,//9 
+		};
+		convertPixelSpaceToOpenGL(z, _countof(z) / VERTEX_LENGTH);
+
+		unsigned int zinds[] = {
+			0,1,2, 0,2,3, 4,5,6, 4,6,7,//top and bottom
+			0,8,7, 7,0,9
+		};
+		font['z'] = createUnfinObjFromStatic(z, zinds, _countof(z) / VERTEX_LENGTH, _countof(zinds));
+
+
 
 		/*float a[] = {
 			//stem
@@ -991,11 +1423,12 @@ void insertElementIntoUI(UI* ui, UIElement* element){
 
 void drawElement(UIElement* uiItem) {
 	glBindVertexArray(uiItem->ID);
+	glUniform3f(ProgramData.cordinatesLoc, uiItem->position[X], uiItem->position[Y], uiItem->position[Z]);
 	glDrawElements(GL_TRIANGLES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
 }
 
 //'click area' is leftmost, rightmost, bottommost, topmost
-UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, void* action, void* customAction, char defaultAction, int active, float clickArea[4]){
+UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, void* customAction, char defaultAction, int active, float clickArea[4]){
 	//unsigned int VBO;
 	UIElement* returnElement = calloc(1, sizeof(UIElement));
 	//returnElement.ID = ID;
@@ -1023,6 +1456,9 @@ UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int
 	returnElement->customAction = customAction;
 	returnElement->defaultAction = defaultAction;
 	returnElement->elementActive = active;
+	returnElement->position[X] = pos[X];
+	returnElement->position[Y] = pos[Y];
+	returnElement->position[Z] = pos[Z];
 
 	if (clickArea != NULL) {
 		returnElement->clickArea[0] = (clickArea[0] + 1) * windX / 2;
@@ -1038,13 +1474,13 @@ UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int
 
 
 //Font size is in pixels and for the height. X/Y pos are in opengl coords
-UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize) {
+UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, float* rgb) {
 	int textLength = strlen(text);
 	float xOffset = 0;
 	float yOffset = 0;
 
 	float fontHeight = ((16*(fontSize/(float)100)) + fontSize)/ ((float)windY / 2);
-	float fontWidth = ((12 * (fontSize / (float)100)) + (fontSize* 0.625)) / ((float)windX / 2);
+	float fontWidth = ((8 * (fontSize / (float)100)) + (fontSize* 0.625)) / ((float)windX / 2);
 	//float fontHeight = (fontSize * ((float)FONT_SIZE_Y / ((float)windY / 2)))/ ((float)FONT_SIZE_Y* .95);//((float)FONT_SIZE_Y * fontSize) / ((float)windY);
 	//float fontWidth = (fontSize * ((float)FONT_SIZE_X / ((float)windX / 2)))/ ((float)FONT_SIZE_Y * .85);// ((float)FONT_SIZE_X * fontSize) / ((float)windX );
 
@@ -1067,6 +1503,10 @@ UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize) {
 				character.verts[cV * VERTEX_LENGTH] += xpos + xOffset;
 				character.verts[(cV * VERTEX_LENGTH) + 1] += ypos + yOffset;
 				
+				character.verts[(cV * VERTEX_LENGTH) + 3] = rgb[0];
+				character.verts[(cV * VERTEX_LENGTH) + 4] = rgb[1];
+				character.verts[(cV * VERTEX_LENGTH) + 5] = rgb[2];
+
 				//printf("%f, %f\n", temp.verts[cV * VERTEX_LENGTH], temp.verts[(cV * VERTEX_LENGTH) + 1]);
 			}
 			xOffset += fontWidth;
