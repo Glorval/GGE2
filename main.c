@@ -72,14 +72,12 @@ int main() {
 
 	float counter = 1;
 	while (1) {
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 		//drawWorld(&world);//We dont need the world, just the UI right now
-		for (int c = 0; c < masterUIListLength; c++) {
-			runUI(masterUIList[c]);
-		}
+		runMasterUI();
 		
 
 		glfwSwapBuffers(window);

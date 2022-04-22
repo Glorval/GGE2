@@ -21,6 +21,7 @@ void setupUI(int flag);
 
 UI* createUI();
 void drawUI(UI* ui);
+void runMasterUI();
 void runUI(UI* ui);
 void insertElementIntoUI(UI* ui, UIElement* element);
 void drawElement(UIElement* uiItem);

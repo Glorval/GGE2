@@ -95,6 +95,7 @@ struct ui {
     UIElement** elements;//List of all items, ptp because it allows easy deletion of items
     int elementCount;
     int elementListSize;//size of the pointer
+    int active;
 };
 typedef struct ui UI;
 
