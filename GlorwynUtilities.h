@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define X 0
-#define Y 1
-#define Z 2
-#define W 3
+#define X_pos 0
+#define Y_pos 1
+#define Z_pos 2
+#define W_pos 3
 
 
 char* readFile(char* FileName);

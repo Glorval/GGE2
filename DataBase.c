@@ -1,23 +1,115 @@
 #include "DataBase.h"
 
-long long int pageSwitcher(long long int data) {
-	char* useable = &data;
-	if (useable[0] == GLFW_MOUSE_BUTTON_1 && useable[1] == GLFW_PRESS) {
-		printf("We were clicked. Desired page: %d\n", useable[OUR_DESIRED_PAGE]);
+
+
+void clearTempStuff() {
+	for (int cElement = 0; cElement < temporaryStuff->elementCount; cElement++) {
+		free(temporaryStuff->elements[cElement]);
+		temporaryStuff->elements[cElement] = NULL;
+	}
+	temporaryStuff->elementCount = 0;
+}
+
+void clearTempAfterExecute(long long int* data) {
+	while (*data != 0) {
+	}
+	clearTempStuff();
+	return;
+}
+
+long long int pageSwitcher(long long int data, short int clickData) {
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		printf("We were clicked. Desired page: %d\n", ourData[OUR_DESIRED_PAGE]);
 		printf("Data %lld\n", data);
-		printf("Data chunks %d, %d, %d\n", useable[0], useable[1], useable[7]);
+		printf("Data chunks %d, %d, %d\n", clickdat[0], clickdat[1], ourData[7]);
 
 		//disable all other pages except the base
 		for (int cPage = 1; cPage < PAGECOUNT; cPage++) {
-			masterUIList[cPage]->active = 0;
+			if (masterUIList[cPage] != NULL) {//safety
+				masterUIList[cPage]->active = 0;
+			}
 		}
 
+		clearTempStuff();
+
 		//enable our desired page
-		masterUIList[useable[OUR_DESIRED_PAGE]]->active = 1;
+		masterUIList[ourData[OUR_DESIRED_PAGE]]->active = 1;
+		masterUIList[TEMPSTUFF]->active = 1;
 	}
 
 
 	return(data);
+}
+
+long long int accessKeyUploadSelect(long long int data) {
+	char* filePath = fileSelector();
+	clearTempStuff();
+	float textColour[] = { 0,0,0 };
+	float position[] = {
+		-1 + convFromPixelX(100),
+		 1 - convFromPixelY(520),
+		 0.8
+	};
+	float buttonBaseColour[] = { 189.0 / 255, 115.0 / 255, 58.0 / 255, };
+	float buttonInnerColour[] = { 211.0 / 255, 207.0 / 255, 193.0 / 255, };
+	float clickarea[] = { 
+		-(windX/2) + 100, //left
+		-(windX / 2) + 320, //right
+		-185, //bottom
+		-126, //top
+	};
+
+	char displayedText[512] = "File:\n";
+	strcat(displayedText, filePath);
+
+	UnfinObj text = createUnFinText(displayedText, convFromPixelX(28), convFromPixelY(16), 32, textColour);
+	UnfinObj button = createButton(0, -56, 220, 60, 5, buttonBaseColour, buttonInnerColour);
+	UnfinObj buttonText = createUnFinText("Confirm?", convFromPixelX(28), convFromPixelY(-86), 32, textColour);
+	text = mergeUnfinisheds(text, button);
+	text = mergeUnfinisheds(text, buttonText);
+	UIElement* displayedPath = createElement(text.verts, text.indices, text.vLineCount, text.iCount, position, accessKeyUpload, NULL, ACTION, 1, clickarea);
+	displayedPath->data = (long long int)filePath;
+	insertElementIntoUI(masterUIList[TEMPSTUFF], displayedPath);
+
+	return(data);
+}
+
+long long int backendUploadSelect(long long int data, short int clickData) {
+	char* test = fileSelector();
+	
+	return(data);
+}
+
+long long int  surveyUploadSelect(long long int data, short int clickData) {
+	char* test = fileSelector();
+
+	return(data);
+}
+
+long long int accessKeyUpload(long long int data, short int clickData) {
+	//data parsing and upload can go here
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		char* string = data;
+
+		parseAccessKeys(string);
+
+		_beginthread(clearTempAfterExecute, 0, &data);
+		free(string);
+		data = 0;
+	}
+	return(0);
+}
+
+long long int backendUpload(long long int filename, short int clickData) {
+	//data parsing and upload can go here
+}
+
+long long int surveyUpload(long long int filename, short int clickData) {
+	//data parsing and upload can go here
 }
 
 void startupDataBase(GLFWwindow* window) {
@@ -25,6 +117,9 @@ void startupDataBase(GLFWwindow* window) {
 	masterUIList = calloc(10, sizeof(UI*));
 	masterUIListLength = PAGECOUNT;
 
+	temporaryStuff = createUI();
+	temporaryStuff->active = 1;
+	masterUIList[TEMPSTUFF] = temporaryStuff;
 
 	//Main page creation, will have all the page switching buttons, background, etc.
 	UI* mainPage = createUI();
@@ -63,9 +158,9 @@ void startupDataBase(GLFWwindow* window) {
 	UnfinObj text = createUnFinText("Update Access", convFromPixelX(32), convFromPixelY(-30), 32, textColour);
 	UnfinObj buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
 	buttonBase = mergeUnfinisheds(buttonBase, text);
-	curPos[X] = -1 + convFromPixelX(150);
-	curPos[Y] = 1;
-	curPos[Z] = .8;
+	curPos[X_pos] = -1 + convFromPixelX(150);
+	curPos[Y_pos] = 1;
+	curPos[Z_pos] = .8;
 	curClick[0] = 150 - (windX/2);
 	curClick[1] = 500 - (windX / 2);
 	curClick[2] = (windY / 2) - 60;
@@ -78,42 +173,42 @@ void startupDataBase(GLFWwindow* window) {
 	text = createUnFinText("Update Backend", convFromPixelX(28), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
 	buttonBase = mergeUnfinisheds(buttonBase, text);
-	curPos[X] = -1 + convFromPixelX(500);
-	curPos[Y] = 1;
-	curPos[Z] = .8;
+	curPos[X_pos] = -1 + convFromPixelX(500);
+	curPos[Y_pos] = 1;
+	curPos[Z_pos] = .8;
 	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, pageSwitcher, NULL, NO_ACTION, 1, NULL));
 
 	text = createUnFinText("Update Surveys", convFromPixelX(28), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
 	buttonBase = mergeUnfinisheds(buttonBase, text);
-	curPos[X] = -1 + convFromPixelX(850);
-	curPos[Y] = 1;
-	curPos[Z] = .8;
+	curPos[X_pos] = -1 + convFromPixelX(850);
+	curPos[Y_pos] = 1;
+	curPos[Z_pos] = .8;
 	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
 
 
 	text = createUnFinText("View Accesses", convFromPixelX(32), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
 	buttonBase = mergeUnfinisheds(buttonBase, text);
-	curPos[X] = -1 + convFromPixelX(150);
-	curPos[Y] = 1 - convFromPixelY(60);
-	curPos[Z] = .8;
+	curPos[X_pos] = -1 + convFromPixelX(150);
+	curPos[Y_pos] = 1 - convFromPixelY(60);
+	curPos[Z_pos] = .8;
 	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
 
 	text = createUnFinText("View Backend", convFromPixelX(48), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
 	buttonBase = mergeUnfinisheds(buttonBase, text);
-	curPos[X] = -1 + convFromPixelX(500);
-	curPos[Y] = 1 - convFromPixelY(60);
-	curPos[Z] = .8;
+	curPos[X_pos] = -1 + convFromPixelX(500);
+	curPos[Y_pos] = 1 - convFromPixelY(60);
+	curPos[Z_pos] = .8;
 	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
 
 	text = createUnFinText("View Surveys", convFromPixelX(48), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
 	buttonBase = mergeUnfinisheds(buttonBase, text);
-	curPos[X] = -1 + convFromPixelX(850);
-	curPos[Y] = 1 - convFromPixelY(60);
-	curPos[Z] = .8;
+	curPos[X_pos] = -1 + convFromPixelX(850);
+	curPos[Y_pos] = 1 - convFromPixelY(60);
+	curPos[Z_pos] = .8;
 	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
 		
 	masterUIList[MAINPAGE] = mainPage;
@@ -125,9 +220,9 @@ void startupDataBase(GLFWwindow* window) {
 	splashScreen->active = 1;
 
 	text = createUnFinText("   Sir Vey\nAdministrative\n  Interface", convFromPixelX(20), convFromPixelX(-40), 80, zeroPos);
-	curPos[X] = -0.6;
-	curPos[Y] = 0.2;
-	curPos[Z] = 0.8;
+	curPos[X_pos] = -0.6;
+	curPos[Y_pos] = 0.2;
+	curPos[Z_pos] = 0.8;
 	insertElementIntoUI(splashScreen, createElement(text.verts, text.indices, text.vLineCount, text.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
 
 	masterUIList[SPLASHSCREEN] = splashScreen;
@@ -137,11 +232,18 @@ void startupDataBase(GLFWwindow* window) {
 	UI* upone = createUI();
 	upone->active = 0;
 
-	text = createUnFinText("Upload one", convFromPixelX(20), convFromPixelX(-40), 80, textColour);
-	curPos[X] = -0.9;
-	curPos[Y] = 0;
-	curPos[Z] = 0.8;
-	insertElementIntoUI(upone, createElement(text.verts, text.indices, text.vLineCount, text.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
+	text = createUnFinText("Select File", convFromPixelX(48), convFromPixelY(-30), 32, textColour);
+	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
+	buttonBase = mergeUnfinisheds(buttonBase, text);
+	curPos[X_pos] = -1 + convFromPixelX(100);
+	curPos[Y_pos] = 1 - convFromPixelY(400);
+	curPos[Z_pos] = .8;
+	curClick[0] = 100 - (windX / 2);
+	curClick[1] = 450 - (windX / 2);
+	curClick[2] = (windY / 2) - 460;
+	curClick[3] = (windY / 2) - 400;
+	insertElementIntoUI(upone, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, accessKeyUploadSelect, NULL, ACTION, 1, curClick));
+
 
 	masterUIList[UPONE] = upone;
 
@@ -183,3 +285,55 @@ UnfinObj createButton(float xIn, float yIn, float xScaleIn, float yScaleIn, floa
 	}
 	return(returnObj);
 }
+
+
+
+
+/*
+void testMYSQL() {
+	MYSQL* conn;
+	MYSQL_RES* res;
+	MYSQL_ROW row;
+
+	char server[] = "localhost";
+	char user[] = "root";
+	char password[] = "LizIronheart"; 
+	char database[] = "Testing";
+
+	conn = mysql_init(NULL);
+
+	if (!mysql_real_connect(conn, server, user, password, database, 0, NULL, 0)) {
+		fprintf(stderr, "%s\n", mysql_error(conn));
+		exit(1);
+	}
+
+	if (mysql_query(conn, "show tables")) {
+		fprintf(stderr, "%s\n", mysql_error(conn));
+		exit(1);
+	}
+
+	res = mysql_use_result(conn);
+
+
+
+	printf("MySQL Tables in mysql database:\n");
+
+	while ((row = mysql_fetch_row(res)) != NULL)
+		printf("%s \n", row[0]);
+
+	mysql_free_result(res);
+
+	if (mysql_query(conn, "insert into main_table values (5)")) {
+		printf("%s\n", mysql_error(conn));
+		exit(1);
+	}
+
+
+
+
+
+
+	mysql_close(conn);
+}
+
+*/

@@ -184,7 +184,7 @@ void setupUI(int flag) {
 
 		float D[] = {
 			-25, 40,		0, 0.8, 0.8, 0.8,//0  
-			-18, 32,			0, 0.8, 0.8, 0.8,//1
+			-17, 32,			0, 0.8, 0.8, 0.8,//1
 			6, 40,			0, 0.8, 0.8, 0.8,//2
 			2, 32,			0, 0.8, 0.8, 0.8,//3  
 			25, 10,			0, 0.8, 0.8, 0.8,//4
@@ -194,7 +194,7 @@ void setupUI(int flag) {
 			6, -40,			0, 0.8, 0.8, 0.8,//8
 			2, -32,			0, 0.8, 0.8, 0.8,//9  
 			-25, -40,		0, 0.8, 0.8, 0.8,//10  
-			-18, -32,		0, 0.8, 0.8, 0.8,//11
+			-17, -32,		0, 0.8, 0.8, 0.8,//11
 		};
 		convertPixelSpaceToOpenGL(D, _countof(D) / VERTEX_LENGTH);
 
@@ -1383,9 +1383,12 @@ void drawUI(UI* ui) {
 
 void runMasterUI() {
 	for (int c = 0; c < masterUIListLength; c++) {
-		if (masterUIList[c]->active == 1) {
-			runUI(masterUIList[c]);
-		}		
+		if (masterUIList[c] != NULL) {//safety
+			if (masterUIList[c]->active == 1) {
+				runUI(masterUIList[c]);
+			}
+		}
+		
 	}
 }
 
@@ -1403,10 +1406,10 @@ void runUI(UI* ui) {
 			ui->elements[current]->actionNeeded = COMMITTING_ACTION;
 			switch (ui->elements[current]->defaultAction) {
 				case ACTION:
-					ui->elements[current]->data = ui->elements[current]->action(ui->elements[current]->data);
+					ui->elements[current]->data = ui->elements[current]->action(ui->elements[current]->data, ui->elements[current]->clickData);
 					break;
 				case CUSTOM_ACTION:
-					*ui->elements[current]->blockData = ui->elements[current]->customAction(*ui->elements[current]->blockData);
+					*ui->elements[current]->blockData = ui->elements[current]->customAction(ui->elements[current]->blockData, ui->elements[current]->clickData);
 					break;
 			}
 			ui->elements[current]->actionNeeded = READY_FOR_ACTION;
@@ -1417,9 +1420,13 @@ void runUI(UI* ui) {
 }
 
 void insertElementIntoUI(UI* ui, UIElement* element){
-	if (ui->elementCount == ui->elementListSize) {//This is because the list might be bigger than the current count from deleting elements 
+	if (ui->elementCount > ui->elementListSize) {//This is because the list might be bigger than the current count from deleting elements 
 
 		//POTENTIAL PERFORMANCE TODO- Could check the actual size of the list versus what we needand spare some realloc calls that might be redundant
+		ui->elementCount++;
+		ui->elementListSize = ui->elementCount;
+		ui->elements[ui->elementCount - 1] = element;
+	} else {
 		ui->elementCount++;
 		ui->elementListSize = ui->elementCount;
 		ui->elements = realloc(ui->elements, ui->elementCount * sizeof(UIElement*));
@@ -1427,11 +1434,24 @@ void insertElementIntoUI(UI* ui, UIElement* element){
 	}
 }
 
+void removeElementFromUI(UI* ui, UIElement* element) {
+	for (int cEl = 0; cEl < ui->elementCount; cEl++) {
+		if (ui->elements[cEl]->ID == element->ID) {
+			//if it's the last, we just null it
+			if (cEl == ui->elementCount) {
+				ui->elements[cEl] = NULL;
+			} else {//otherwise, replace it with the current final element
+				ui->elements[cEl] = ui->elements[ui->elementCount - 1];
+			}
+			ui->elementCount--;
+		}
+	}
+}
 
 
 void drawElement(UIElement* uiItem) {
 	glBindVertexArray(uiItem->ID);
-	glUniform3f(ProgramData.cordinatesLoc, uiItem->position[X], uiItem->position[Y], uiItem->position[Z]);
+	glUniform3f(ProgramData.cordinatesLoc, uiItem->position[X_pos], uiItem->position[Y_pos], uiItem->position[Z_pos]);
 	glDrawElements(GL_TRIANGLES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
 }
 
@@ -1464,9 +1484,9 @@ UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int
 	returnElement->customAction = customAction;
 	returnElement->defaultAction = defaultAction;
 	returnElement->elementActive = active;
-	returnElement->position[X] = pos[X];
-	returnElement->position[Y] = pos[Y];
-	returnElement->position[Z] = pos[Z];
+	returnElement->position[X_pos] = pos[X_pos];
+	returnElement->position[Y_pos] = pos[Y_pos];
+	returnElement->position[Z_pos] = pos[Z_pos];
 
 	if (clickArea != NULL) {
 		returnElement->clickArea[0] = clickArea[0];

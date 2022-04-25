@@ -176,17 +176,20 @@ void defaultMoustClick(GLFWwindow* window, int button, int action, int mods) {
 	ypos += (windY / 2);
 	//printf("%f, %f\n", xpos, ypos);
 	for (int masterPos = 0; masterPos < masterUIListLength; masterPos++) {
-		for (int cItem = 0; cItem < masterUIList[masterPos]->elementCount; cItem++) {
-			if (masterUIList[masterPos]->elements[cItem]->elementActive == 1 && masterUIList[masterPos]->elements[cItem]->actionNeeded == READY_FOR_ACTION) {
-				UIElement* ref = masterUIList[masterPos]->elements[cItem];
-				if (xpos > ref->clickArea[0] && xpos < ref->clickArea[1] && ypos > ref->clickArea[2] && ypos < ref->clickArea[3]) {
-					masterUIList[masterPos]->elements[cItem]->actionNeeded = AWAITING_ACTION;
-					char* modifier = &masterUIList[masterPos]->elements[cItem]->data;
-					modifier[0] = button;
-					modifier[1] = action;
+		if (masterUIList[masterPos] != NULL) {//safety
+			for (int cItem = 0; cItem < masterUIList[masterPos]->elementCount; cItem++) {
+				if (masterUIList[masterPos]->elements[cItem]->elementActive == 1 && masterUIList[masterPos]->elements[cItem]->actionNeeded == READY_FOR_ACTION) {
+					UIElement* ref = masterUIList[masterPos]->elements[cItem];
+					if (xpos > ref->clickArea[0] && xpos < ref->clickArea[1] && ypos > ref->clickArea[2] && ypos < ref->clickArea[3]) {
+						masterUIList[masterPos]->elements[cItem]->actionNeeded = AWAITING_ACTION;
+						char* modifier = &masterUIList[masterPos]->elements[cItem]->clickData;
+						modifier[0] = button;
+						modifier[1] = action;
+					}
+
 				}
-				
 			}
 		}
+		
 	}
 }

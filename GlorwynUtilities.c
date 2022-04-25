@@ -51,47 +51,47 @@ void normalizeQuat(float* quat) {
 
 float* quatMult(float* o, float* c) {
 	float temp[4];
-	temp[X] = (o[X] * c[X]) - (o[Y] * c[Y]) - (o[Z] * c[Z]) - (o[W] * c[W]);
-	temp[Y] = (o[X] * c[Y]) + (o[Y] * c[X]) + (o[Z] * c[W]) - (o[W] * c[Z]);
-	temp[Z] = (o[X] * c[Z]) - (o[Y] * c[W]) + (o[Z] * c[X]) + (o[W] * c[Y]);
-	temp[W] = (o[X] * c[W]) + (o[Y] * c[Z]) - (o[Z] * c[Y]) + (o[W] * c[X]);
+	temp[X_pos] = (o[X_pos] * c[X_pos]) - (o[Y_pos] * c[Y_pos]) - (o[Z_pos] * c[Z_pos]) - (o[W_pos] * c[W_pos]);
+	temp[Y_pos] = (o[X_pos] * c[Y_pos]) + (o[Y_pos] * c[X_pos]) + (o[Z_pos] * c[W_pos]) - (o[W_pos] * c[Z_pos]);
+	temp[Z_pos] = (o[X_pos] * c[Z_pos]) - (o[Y_pos] * c[W_pos]) + (o[Z_pos] * c[X_pos]) + (o[W_pos] * c[Y_pos]);
+	temp[W_pos] = (o[X_pos] * c[W_pos]) + (o[Y_pos] * c[Z_pos]) - (o[Z_pos] * c[Y_pos]) + (o[W_pos] * c[X_pos]);
 
-	c[X] = temp[X];
-	c[Y] = temp[Y];
-	c[Z] = temp[Z];
-	c[W] = temp[W];
+	c[X_pos] = temp[X_pos];
+	c[Y_pos] = temp[Y_pos];
+	c[Z_pos] = temp[Z_pos];
+	c[W_pos] = temp[W_pos];
 
 	return(temp);
 }
 
 float* quatMultRS(float* o, float* c) {
 	float temp[4];
-	temp[X] = (o[X] * c[X]) - (o[Y] * c[Y]) - (o[Z] * c[Z]) - (o[W] * c[W]);
-	temp[Y] = (o[X] * c[Y]) + (o[Y] * c[X]) + (o[Z] * c[W]) - (o[W] * c[Z]);
-	temp[Z] = (o[X] * c[Z]) - (o[Y] * c[W]) + (o[Z] * c[X]) + (o[W] * c[Y]);
-	temp[W] = (o[X] * c[W]) + (o[Y] * c[Z]) - (o[Z] * c[Y]) + (o[W] * c[X]);
+	temp[X_pos] = (o[X_pos] * c[X_pos]) - (o[Y_pos] * c[Y_pos]) - (o[Z_pos] * c[Z_pos]) - (o[W_pos] * c[W_pos]);
+	temp[Y_pos] = (o[X_pos] * c[Y_pos]) + (o[Y_pos] * c[X_pos]) + (o[Z_pos] * c[W_pos]) - (o[W_pos] * c[Z_pos]);
+	temp[Z_pos] = (o[X_pos] * c[Z_pos]) - (o[Y_pos] * c[W_pos]) + (o[Z_pos] * c[X_pos]) + (o[W_pos] * c[Y_pos]);
+	temp[W_pos] = (o[X_pos] * c[W_pos]) + (o[Y_pos] * c[Z_pos]) - (o[Z_pos] * c[Y_pos]) + (o[W_pos] * c[X_pos]);
 
-	o[X] = temp[X];
-	o[Y] = temp[Y];
-	o[Z] = temp[Z];
-	o[W] = temp[W];
+	o[X_pos] = temp[X_pos];
+	o[Y_pos] = temp[Y_pos];
+	o[Z_pos] = temp[Z_pos];
+	o[W_pos] = temp[W_pos];
 
 	return(temp);
 }
 
 float* quatMultNS(float* o, float* c) {
 	float temp[4];
-	temp[X] = (o[X] * c[X]) - (o[Y] * c[Y]) - (o[Z] * c[Z]) - (o[W] * c[W]);
-	temp[Y] = (o[X] * c[Y]) + (o[Y] * c[X]) + (o[Z] * c[W]) - (o[W] * c[Z]);
-	temp[Z] = (o[X] * c[Z]) - (o[Y] * c[W]) + (o[Z] * c[X]) + (o[W] * c[Y]);
-	temp[W] = (o[X] * c[W]) + (o[Y] * c[Z]) - (o[Z] * c[Y]) + (o[W] * c[X]);
+	temp[X_pos] = (o[X_pos] * c[X_pos]) - (o[Y_pos] * c[Y_pos]) - (o[Z_pos] * c[Z_pos]) - (o[W_pos] * c[W_pos]);
+	temp[Y_pos] = (o[X_pos] * c[Y_pos]) + (o[Y_pos] * c[X_pos]) + (o[Z_pos] * c[W_pos]) - (o[W_pos] * c[Z_pos]);
+	temp[Z_pos] = (o[X_pos] * c[Z_pos]) - (o[Y_pos] * c[W_pos]) + (o[Z_pos] * c[X_pos]) + (o[W_pos] * c[Y_pos]);
+	temp[W_pos] = (o[X_pos] * c[W_pos]) + (o[Y_pos] * c[Z_pos]) - (o[Z_pos] * c[Y_pos]) + (o[W_pos] * c[X_pos]);
 
 	return(temp);
 }
 
 float* quatConj(float q[4]) {
-	q[Y] = -q[Y];
-	q[Z] = -q[Z];
-	q[W] = -q[W];
+	q[Y_pos] = -q[Y_pos];
+	q[Z_pos] = -q[Z_pos];
+	q[W_pos] = -q[W_pos];
 	return(q);
 }

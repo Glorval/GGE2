@@ -24,6 +24,7 @@ void drawUI(UI* ui);
 void runMasterUI();
 void runUI(UI* ui);
 void insertElementIntoUI(UI* ui, UIElement* element);
+void removeElementFromUI(UI* ui, UIElement* element);
 void drawElement(UIElement* uiItem);
 
 //'click area' is leftmost, rightmost, bottommost, topmost

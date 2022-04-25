@@ -25,14 +25,14 @@ Object createObject(float* vertices, unsigned int* index, int vertSize, int indS
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	returnObject.position[X] = 0;
-	returnObject.position[Y] = 0;
-	returnObject.position[Z] = 0;
-	returnObject.position[W] = 1;
-	returnObject.position[I] = 0;
-	returnObject.position[J] = 1;//1, idk why
-	returnObject.position[K] = 0;
-	normalizeQuat(&returnObject.position[W]);
+	returnObject.position[X_pos] = 0;
+	returnObject.position[Y_pos] = 0;
+	returnObject.position[Z_pos] = 0;
+	returnObject.position[W_pos] = 1;
+	returnObject.position[I_pos] = 0;
+	returnObject.position[J_pos] = 1;//1, idk why
+	returnObject.position[K_pos] = 0;
+	normalizeQuat(&returnObject.position[W_pos]);
 
 	returnObject.updateOpenGLData = 0;
 
@@ -42,8 +42,8 @@ Object createObject(float* vertices, unsigned int* index, int vertSize, int indS
 //draws object as is
 void drawObject(Object* shape) {
 	glBindVertexArray(shape->ID);
-	glUniform3f(ProgramData.cordinatesLoc, shape->position[X], shape->position[Y], shape->position[Z]);
-	glUniform4f(ProgramData.orientationLoc, shape->position[W], shape->position[I], shape->position[J], shape->position[K]);
+	glUniform3f(ProgramData.cordinatesLoc, shape->position[X_pos], shape->position[Y_pos], shape->position[Z_pos]);
+	glUniform4f(ProgramData.orientationLoc, shape->position[W_pos], shape->position[I_pos], shape->position[J_pos], shape->position[K_pos]);
 	glDrawElements(GL_TRIANGLES, shape->indexCount, GL_UNSIGNED_INT, 0);
 }
 
@@ -52,9 +52,9 @@ void drawObject(Object* shape) {
 void drawWorldObject(Object* shape, World* world) {
 	glBindVertexArray(shape->ID);
 	glUniform1i(ProgramData.flagsLoc, 0);
-	glUniform3f(ProgramData.cameraPosLoc, world->camera[X], world->camera[Y], world->camera[Z]);
-	glUniform4f(ProgramData.camAngleLoc, world->camera[W], world->camera[I], world->camera[J], world->camera[K]);
-	glUniform3f(ProgramData.cordinatesLoc, shape->position[X], shape->position[Y], shape->position[Z]);
-	glUniform4f(ProgramData.orientationLoc, shape->position[W], shape->position[I], shape->position[J], shape->position[K]);
+	glUniform3f(ProgramData.cameraPosLoc, world->camera[X_pos], world->camera[Y_pos], world->camera[Z_pos]);
+	glUniform4f(ProgramData.camAngleLoc, world->camera[W_pos], world->camera[I_pos], world->camera[J_pos], world->camera[K_pos]);
+	glUniform3f(ProgramData.cordinatesLoc, shape->position[X_pos], shape->position[Y_pos], shape->position[Z_pos]);
+	glUniform4f(ProgramData.orientationLoc, shape->position[W_pos], shape->position[I_pos], shape->position[J_pos], shape->position[K_pos]);
 	glDrawElements(GL_TRIANGLES, shape->indexCount, GL_UNSIGNED_INT, 0);
 }

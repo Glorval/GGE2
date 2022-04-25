@@ -8,13 +8,13 @@ World createWorld() {
 	newWorld.objectListSize = 0;
 	newWorld.objectRender = NULL;
 	newWorld.objects = NULL;
-	newWorld.camera[X] = 0;
-	newWorld.camera[Y] = 0;
-	newWorld.camera[Z] = 0;
-	newWorld.camera[W] = 1;
-	newWorld.camera[I] = 0;
-	newWorld.camera[J] = 0;
-	newWorld.camera[K] = 0;
+	newWorld.camera[X_pos] = 0;
+	newWorld.camera[Y_pos] = 0;
+	newWorld.camera[Z_pos] = 0;
+	newWorld.camera[W_pos] = 1;
+	newWorld.camera[I_pos] = 0;
+	newWorld.camera[J_pos] = 0;
+	newWorld.camera[K_pos] = 0;
 
 	newWorld.up[0] = 0;
 	newWorld.up[1] = 0;
@@ -68,8 +68,8 @@ void drawWorld(World* world) {
 	int current = 0;
 
 	glUniform1i(ProgramData.flagsLoc, 0);
-	glUniform3f(ProgramData.cameraPosLoc, world->camera[X], world->camera[Y], world->camera[Z]);
-	glUniform4f(ProgramData.camAngleLoc, world->camera[W], world->camera[I], world->camera[J], world->camera[K]);
+	glUniform3f(ProgramData.cameraPosLoc, world->camera[X_pos], world->camera[Y_pos], world->camera[Z_pos]);
+	glUniform4f(ProgramData.camAngleLoc, world->camera[W_pos], world->camera[I_pos], world->camera[J_pos], world->camera[K_pos]);
 	while (current < world->objectCount) {
 		if (world->objectRender[current] == 1) {
 			drawObject(world->objects[current]);
