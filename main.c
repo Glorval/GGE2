@@ -1,30 +1,53 @@
-#pragma once
 #define _CRT_SECURE_NO_WARNINGS
 
-char* fileSelector();//this is because windows.h is being an utter pain
 
 
-#include <windows.h>// <- fuc u
-//#include <mysql.h>
-#include <glad/glad.h>
-#include <GLFW\glfw3.h>
-#include <stdio.h>
-#include <process.h>
+//#include <windows.h>// <- fuc u
 #include <time.h>
+#include <stdio.h>
+#include <mysql.h>
 
-#include "GGE2.h"
-#include "GlorwynUtilities.h"
-#include "DataBase.h"
+//#include "GGE2.h"3
+#include "DataBase.h"//builds upon GGE2
 
 
 World* ourWorld;
 World* ourUI;
-void testmysql();
+
 
 int main() {
 	printf("Hi\n");
-	//	testmysql();
-	
+
+	//sql opening stuff
+	MYSQL* conn;
+	MYSQL_RES* res;
+	MYSQL_ROW row;
+	char server[] = "localhost";
+	char user[] = "root";
+	char password[] = "LizIronheart";
+	char database[] = "main_project";
+
+	conn = mysql_init(NULL);
+	if (!mysql_real_connect(conn, server, user, password, database, 0, NULL, 0)) {
+		fprintf(stderr, "%s\n", mysql_error(conn));
+		exit(1);
+	}
+
+	if (mysql_query(conn, "show tables")) {
+		fprintf(stderr, "%s\n", mysql_error(conn));
+		exit(1);
+	}
+	res = mysql_use_result(conn);
+	printf("MySQL Tables in mysql database:\n");
+	while ((row = mysql_fetch_row(res)) != NULL) {
+		printf("%s \n", row[0]);
+	}
+	mysql_free_result(res);
+	mysql_close(conn);
+
+
+
+
 
 	GLFWwindow* window = startup();
 
@@ -48,15 +71,14 @@ int main() {
 	}
 
 
-	char t = 'c';
-	scanf("%c", &t);
 
 	glfwTerminate();
+	
 	return 0;
 }
 
 
-char* fileSelector() {
+/*char* fileSelector() {
 	int ret = 1;
 	wchar_t path[256] = { 0 };
 	OPENFILENAMEW ofn = {

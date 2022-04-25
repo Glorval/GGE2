@@ -1,9 +1,7 @@
 #pragma once
-
 #define _CRT_SECURE_NO_WARNINGS
 #include "GGE2.h"
-#include <string.h>
-#include "parsing.h"
+
 
 
 //the space allocation of the data of a button
@@ -32,8 +30,5 @@ long long int backendUpload(long long data, short int clickData);
 long long int surveyUpload(long long data, short int clickData);
 
 UnfinObj createButton(float x, float y, float xScale, float yScale, float spacing, float* baseRGB, float* innerRGB);
-long long int testFunction(long long int data);
 void startupDataBase(GLFWwindow* window);
 
-
-void testMYSQL();
