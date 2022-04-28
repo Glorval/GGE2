@@ -31,3 +31,4 @@ void drawElement(UIElement* uiItem);
 UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, void* customAction, char defaultAction, int active, float clickArea[4]);
 
 UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, float* rgb);
+UnfinObj createUnFinTextWithZ(char* text, float xpos, float ypos, float zpos, float fontSize, float* rgb);

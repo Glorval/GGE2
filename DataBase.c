@@ -36,10 +36,35 @@ long long int pageSwitcher(long long int data, short int clickData) {
 		}
 
 		clearTempStuff();
+		
 
 		//enable our desired page
-		masterUIList[ourData[OUR_DESIRED_PAGE]]->active = 1;
-		masterUIList[TEMPSTUFF]->active = 1;
+		switch (ourData[OUR_DESIRED_PAGE]) {
+			case REPORTONE:
+				//create the page upon the temporary page
+				accessKeysReportCreation(masterUIList[TEMPSTUFF]);
+				masterUIList[TEMPSTUFF]->active = 1;
+				programState = ON_REPORT;
+				break;
+			case REPORTTWO:
+				//create the page upon the temporary page
+				masterUIList[TEMPSTUFF]->active = 1;
+				programState = ON_REPORT;
+				break;
+			case REPORTTHREE:
+				//create the page upon the temporary page
+				masterUIList[TEMPSTUFF]->active = 1;
+				programState = ON_REPORT;
+				break;
+			default:
+				//load the premade page and display the temp page in case there needs to be dynamically done stuff
+				masterUIList[ourData[OUR_DESIRED_PAGE]]->active = 1;
+				masterUIList[TEMPSTUFF]->active = 1;
+				programState = 0;
+				break;
+		}	
+		
+		
 	}
 
 
@@ -116,6 +141,10 @@ long long int surveyUpload(long long int filename, short int clickData) {
 }
 
 void startupDataBase(GLFWwindow* window) {
+	connectToDatabase();
+
+	glfwSetKeyCallback(window, ourButtonPresses);
+
 	programState = 0;
 	masterUIList = calloc(10, sizeof(UI*));
 	masterUIListLength = PAGECOUNT;
@@ -134,10 +163,10 @@ void startupDataBase(GLFWwindow* window) {
 	float buttonBaseColour[] = {189.0/255, 115.0 / 255, 58.0 / 255, };
 	float buttonInnerColour[] = { 211.0 / 255, 207.0 / 255, 193.0 / 255, };//{ 157.0 / 255, 199.0 / 255, 225.0 / 255, };
 	float emblem[] = {
-		-1, 1,				.8, 0.8, 0.8, 0.8,//0 
-		-1 + convFromPixelX(150), 1,				0.8, 0.8, 0.8, 0.8,//0 
-		-1, 1 - convFromPixelY(150),				0, 0.8, 0.8, 0.8,//0 
-		-1 + convFromPixelX(150), 1 - convFromPixelY(150),				0.8, 0.8, 0.8, 0.8,//0 
+		-1, 1,																					0.1, 0.8, 0.8, 0.8,//0 
+		-1 + convFromPixelX(150), 1,												0.1, 0.8, 0.8, 0.8,//0 
+		-1, 1 - convFromPixelY(150),												0.1, 0.8, 0.8, 0.8,//0 
+		-1 + convFromPixelX(150), 1 - convFromPixelY(150),			0.1, 0.8, 0.8, 0.8,//0 
 	};
 	unsigned int emblemInds[] = {
 		0,1,2, 1,2,3,
@@ -163,7 +192,7 @@ void startupDataBase(GLFWwindow* window) {
 	buttonBase = mergeUnfinisheds(buttonBase, text);
 	curPos[X_pos] = -1 + convFromPixelX(150);
 	curPos[Y_pos] = 1;
-	curPos[Z_pos] = .8;
+	curPos[Z_pos] = .1;
 	curClick[0] = 150 - (windX/2);
 	curClick[1] = 500 - (windX / 2);
 	curClick[2] = (windY / 2) - 60;
@@ -178,7 +207,7 @@ void startupDataBase(GLFWwindow* window) {
 	buttonBase = mergeUnfinisheds(buttonBase, text);
 	curPos[X_pos] = -1 + convFromPixelX(500);
 	curPos[Y_pos] = 1;
-	curPos[Z_pos] = .8;
+	curPos[Z_pos] = .1;
 	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, pageSwitcher, NULL, NO_ACTION, 1, NULL));
 
 	text = createUnFinText("Update Surveys", convFromPixelX(28), convFromPixelY(-30), 32, textColour);
@@ -186,7 +215,7 @@ void startupDataBase(GLFWwindow* window) {
 	buttonBase = mergeUnfinisheds(buttonBase, text);
 	curPos[X_pos] = -1 + convFromPixelX(850);
 	curPos[Y_pos] = 1;
-	curPos[Z_pos] = .8;
+	curPos[Z_pos] = .1;
 	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
 
 
@@ -195,15 +224,22 @@ void startupDataBase(GLFWwindow* window) {
 	buttonBase = mergeUnfinisheds(buttonBase, text);
 	curPos[X_pos] = -1 + convFromPixelX(150);
 	curPos[Y_pos] = 1 - convFromPixelY(60);
-	curPos[Z_pos] = .8;
-	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
+	curPos[Z_pos] = .1;
+	curClick[0] = -(windX/2) + 150;
+	curClick[1] = -(windX / 2) + 500;
+	curClick[2] = (windY / 2) - 120;
+	curClick[3] = (windY / 2) - 60;
+	curElement = createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, pageSwitcher, NULL, ACTION, 1, curClick);
+	curData = &curElement->data;
+	curData[OUR_DESIRED_PAGE] = REPORTONE;
+	insertElementIntoUI(mainPage, curElement);
 
 	text = createUnFinText("View Backend", convFromPixelX(48), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
 	buttonBase = mergeUnfinisheds(buttonBase, text);
 	curPos[X_pos] = -1 + convFromPixelX(500);
 	curPos[Y_pos] = 1 - convFromPixelY(60);
-	curPos[Z_pos] = .8;
+	curPos[Z_pos] = .1;
 	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
 
 	text = createUnFinText("View Surveys", convFromPixelX(48), convFromPixelY(-30), 32, textColour);
@@ -211,7 +247,7 @@ void startupDataBase(GLFWwindow* window) {
 	buttonBase = mergeUnfinisheds(buttonBase, text);
 	curPos[X_pos] = -1 + convFromPixelX(850);
 	curPos[Y_pos] = 1 - convFromPixelY(60);
-	curPos[Z_pos] = .8;
+	curPos[Z_pos] = .1;
 	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
 		
 	masterUIList[MAINPAGE] = mainPage;
@@ -225,7 +261,7 @@ void startupDataBase(GLFWwindow* window) {
 	text = createUnFinText("   Sir Vey\nAdministrative\n  Interface", convFromPixelX(20), convFromPixelX(-40), 80, zeroPos);
 	curPos[X_pos] = -0.6;
 	curPos[Y_pos] = 0.2;
-	curPos[Z_pos] = 0.8;
+	curPos[Z_pos] = 0.1;
 	insertElementIntoUI(splashScreen, createElement(text.verts, text.indices, text.vLineCount, text.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
 
 	masterUIList[SPLASHSCREEN] = splashScreen;
@@ -240,7 +276,7 @@ void startupDataBase(GLFWwindow* window) {
 	buttonBase = mergeUnfinisheds(buttonBase, text);
 	curPos[X_pos] = -1 + convFromPixelX(100);
 	curPos[Y_pos] = 1 - convFromPixelY(400);
-	curPos[Z_pos] = .8;
+	curPos[Z_pos] = .1;
 	curClick[0] = 100 - (windX / 2);
 	curClick[1] = 450 - (windX / 2);
 	curClick[2] = (windY / 2) - 460;
@@ -313,4 +349,14 @@ char* fileSelector() {
 		charPath[c] = path[c];
 	}
 	return(charPath);
+}
+
+
+void ourButtonPresses(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT) && programState == ON_REPORT) {
+		masterUIList[TEMPSTUFF]->elements[0]->position[1] += 0.025;
+	}
+	else if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT) && programState == ON_REPORT) {
+		masterUIList[TEMPSTUFF]->elements[0]->position[1] -= 0.025;
+	}
 }

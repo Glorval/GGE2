@@ -335,3 +335,4 @@ ASALocalRun/
 GGE2.vcxproj.filters
 GGE2.vcxproj
 GGE2.sln
+*.dll

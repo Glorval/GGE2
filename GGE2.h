@@ -113,13 +113,17 @@ struct unfinishedObject {
 typedef struct unfinishedObject UnfinObj;
 
 void defaultMoustClick(GLFWwindow* window, int button, int action, int mods);
+void defaultButtonPress(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 //Used for easily creating objects, especially from hardcoded stuff that'd die when touched by realloc
 UnfinObj createUnfinObjFromStatic(float* verts, unsigned int* inds, int vLen, int iCount);
 
+UnfinObj freeUnfinObj(UnfinObj obj);
+
 //Appends objTwo into objOne. Needs both to have their arrays dynamically allocated
 void appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo);
 UnfinObj mergeUnfinisheds(UnfinObj objOne, UnfinObj objTwo);
+UnfinObj mergeUnfinishedsFreeing(UnfinObj objOne, UnfinObj objTwo);
 
 #include "ObjectManager.h"
 #include "WorldManager.h"

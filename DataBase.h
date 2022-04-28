@@ -16,7 +16,13 @@
 #define UPTHREE 4
 #define TEMPSTUFF 5
 
+#define REPORTONE 6
+#define REPORTTWO 7
+#define REPORTTHREE 8
+
 #define PAGECOUNT 6
+
+#define ON_REPORT 1
 
 int programState;
 UI* temporaryStuff;
@@ -31,4 +37,5 @@ long long int surveyUpload(long long data, short int clickData);
 
 UnfinObj createButton(float x, float y, float xScale, float yScale, float spacing, float* baseRGB, float* innerRGB);
 void startupDataBase(GLFWwindow* window);
+void ourButtonPresses(GLFWwindow* window, int key, int scancode, int action, int mods);
 
