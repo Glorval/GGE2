@@ -9,4 +9,6 @@ volatile MYSQL* mysqlConnection;
 void connectToDatabase();
 
 void parseAccessKeys(char* fileName);
+void parseSurveyData(char* fileName);
 void accessKeysReportCreation(UI* PageToInsertTo);
+void backendReportCreation(UI* PageToInsertTo);

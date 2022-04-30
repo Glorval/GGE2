@@ -48,6 +48,7 @@ long long int pageSwitcher(long long int data, short int clickData) {
 				break;
 			case REPORTTWO:
 				//create the page upon the temporary page
+				backendReportCreation(masterUIList[TEMPSTUFF]);
 				masterUIList[TEMPSTUFF]->active = 1;
 				programState = ON_REPORT;
 				break;
@@ -97,6 +98,8 @@ long long int accessKeyUploadSelect(long long int data) {
 	UnfinObj buttonText = createUnFinText("Confirm?", convFromPixelX(28), convFromPixelY(-86), 32, textColour);
 	text = mergeUnfinisheds(text, button);
 	text = mergeUnfinisheds(text, buttonText);
+
+	//THIS IS THE DIFFERENTIATING LINE, the button we create here has a function attached to it for the specific upload
 	UIElement* displayedPath = createElement(text.verts, text.indices, text.vLineCount, text.iCount, position, accessKeyUpload, NULL, ACTION, 1, clickarea);
 	displayedPath->data = (long long int)filePath;
 	insertElementIntoUI(masterUIList[TEMPSTUFF], displayedPath);
@@ -105,8 +108,37 @@ long long int accessKeyUploadSelect(long long int data) {
 }
 
 long long int backendUploadSelect(long long int data, short int clickData) {
-	char* test = fileSelector();
-	
+	char* filePath = fileSelector();
+	clearTempStuff();
+	float textColour[] = { 0,0,0 };
+	float position[] = {
+		-1 + convFromPixelX(100),
+		 1 - convFromPixelY(520),
+		 0.8
+	};
+	float buttonBaseColour[] = { 189.0 / 255, 115.0 / 255, 58.0 / 255, };
+	float buttonInnerColour[] = { 211.0 / 255, 207.0 / 255, 193.0 / 255, };
+	float clickarea[] = {
+		-(windX / 2) + 100, //left
+		-(windX / 2) + 320, //right
+		-185, //bottom
+		-126, //top
+	};
+
+	char displayedText[512] = "File:\n";
+	strcat(displayedText, filePath);
+
+	UnfinObj text = createUnFinText(displayedText, convFromPixelX(28), convFromPixelY(16), 32, textColour);
+	UnfinObj button = createButton(0, -56, 220, 60, 5, buttonBaseColour, buttonInnerColour);
+	UnfinObj buttonText = createUnFinText("Confirm?", convFromPixelX(28), convFromPixelY(-86), 32, textColour);
+	text = mergeUnfinisheds(text, button);
+	text = mergeUnfinisheds(text, buttonText);
+
+	//THIS IS THE DIFFERENTIATING LINE, the button we create here has a function attached to it for the specific upload
+	UIElement* displayedPath = createElement(text.verts, text.indices, text.vLineCount, text.iCount, position, backendUpload, NULL, ACTION, 1, clickarea);
+	displayedPath->data = (long long int)filePath;
+	insertElementIntoUI(masterUIList[TEMPSTUFF], displayedPath);
+
 	return(data);
 }
 
@@ -132,8 +164,21 @@ long long int accessKeyUpload(long long int data, short int clickData) {
 	return(0);
 }
 
-long long int backendUpload(long long int filename, short int clickData) {
+long long int backendUpload(long long int data, short int clickData) {
 	//data parsing and upload can go here
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		char* string = data;
+
+		parseSurveyData(string);
+
+		//the cursed line
+		_beginthread(clearTempAfterExecute, 0, &data);
+		free(string);
+		data = 0;
+	}
+	return(0);
 }
 
 long long int surveyUpload(long long int filename, short int clickData) {
@@ -208,7 +253,14 @@ void startupDataBase(GLFWwindow* window) {
 	curPos[X_pos] = -1 + convFromPixelX(500);
 	curPos[Y_pos] = 1;
 	curPos[Z_pos] = .1;
-	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, pageSwitcher, NULL, NO_ACTION, 1, NULL));
+	curClick[0] = 500 - (windX / 2);
+	curClick[1] = 850 - (windX / 2);
+	curClick[2] = (windY / 2) - 60;
+	curClick[3] = (windY / 2);
+	curElement = createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, pageSwitcher, NULL, ACTION, 1, curClick);
+	curData = &curElement->data;
+	curData[OUR_DESIRED_PAGE] = UPTWO;
+	insertElementIntoUI(mainPage, curElement);
 
 	text = createUnFinText("Update Surveys", convFromPixelX(28), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
@@ -240,7 +292,14 @@ void startupDataBase(GLFWwindow* window) {
 	curPos[X_pos] = -1 + convFromPixelX(500);
 	curPos[Y_pos] = 1 - convFromPixelY(60);
 	curPos[Z_pos] = .1;
-	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
+	curClick[0] = -(windX / 2) + 500;
+	curClick[1] = -(windX / 2) + 850;
+	curClick[2] = (windY / 2) - 120;
+	curClick[3] = (windY / 2) - 60;
+	curElement = createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, pageSwitcher, NULL, ACTION, 1, curClick);
+	curData = &curElement->data;
+	curData[OUR_DESIRED_PAGE] = REPORTTWO;
+	insertElementIntoUI(mainPage, curElement);
 
 	text = createUnFinText("View Surveys", convFromPixelX(48), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
@@ -273,7 +332,7 @@ void startupDataBase(GLFWwindow* window) {
 
 	text = createUnFinText("Select File", convFromPixelX(48), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
-	buttonBase = mergeUnfinisheds(buttonBase, text);
+	buttonBase = mergeUnfinishedsFreeing(buttonBase, text);
 	curPos[X_pos] = -1 + convFromPixelX(100);
 	curPos[Y_pos] = 1 - convFromPixelY(400);
 	curPos[Z_pos] = .1;
@@ -283,9 +342,14 @@ void startupDataBase(GLFWwindow* window) {
 	curClick[3] = (windY / 2) - 400;
 	insertElementIntoUI(upone, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, accessKeyUploadSelect, NULL, ACTION, 1, curClick));
 
+	//Upload Two, copies a lot of stuff from upload one
+	UI* uptwo = createUI();
+	uptwo->active = 0;
+	insertElementIntoUI(uptwo, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, backendUploadSelect, NULL, ACTION, 1, curClick));
+
 
 	masterUIList[UPONE] = upone;
-
+	masterUIList[UPTWO] = uptwo;
 }
 
 UnfinObj createButton(float xIn, float yIn, float xScaleIn, float yScaleIn, float spacingIn, float* baseRGB, float* innerRGB) {
@@ -354,9 +418,9 @@ char* fileSelector() {
 
 void ourButtonPresses(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT) && programState == ON_REPORT) {
-		masterUIList[TEMPSTUFF]->elements[0]->position[1] += 0.025;
+		masterUIList[TEMPSTUFF]->elements[0]->position[1] -= 0.035;
 	}
 	else if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT) && programState == ON_REPORT) {
-		masterUIList[TEMPSTUFF]->elements[0]->position[1] -= 0.025;
+		masterUIList[TEMPSTUFF]->elements[0]->position[1] += 0.035;
 	}
 }
