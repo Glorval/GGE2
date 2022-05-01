@@ -1581,6 +1581,101 @@ void setupNumbers() {
 	font['0'] = createUnfinObjFromStatic(Zero, Zeroinds, _countof(Zero) / VERTEX_LENGTH, _countof(Zeroinds));
 }
 
+void setupSymbols() {
+	float colon[] = {
+		//top square
+		-6, 10,			0, 0.8, 0.8, 0.8,//0      
+		-6, 22,			0, 0.8, 0.8, 0.8,//1      
+		6, 10,			0, 0.8, 0.8, 0.8,//2      
+		6, 22,			0, 0.8, 0.8, 0.8,//3     
+
+		//bottom square
+		-6, -20,			0, 0.8, 0.8, 0.8,//4      
+		-6, -8,			0, 0.8, 0.8, 0.8,//5      
+		6, -20,			0, 0.8, 0.8, 0.8,//6      
+		6, -8,			0, 0.8, 0.8, 0.8,//7     
+	};
+	convertPixelSpaceToOpenGL(colon, _countof(colon) / VERTEX_LENGTH);
+
+	unsigned int coloninds[] = {
+		0,1,2, 1,2,3,//top
+		4,5,6, 5,6,7//bottom
+	};
+	font[':'] = createUnfinObjFromStatic(colon, coloninds, _countof(colon) / VERTEX_LENGTH, _countof(coloninds));
+
+	float backslash[] = {
+		//issa line
+		-24, 40,			0, 0.8, 0.8, 0.8,//0      
+		-16, 40,				0, 0.8, 0.8, 0.8,//1      
+		24, -40,			0, 0.8, 0.8, 0.8,//2      
+		16, -40,				0, 0.8, 0.8, 0.8,//3     
+	};
+	convertPixelSpaceToOpenGL(backslash, _countof(backslash) / VERTEX_LENGTH);
+
+	unsigned int backslashinds[] = {
+		0,1,2, 0,2,3,
+	};
+	font['\\'] = createUnfinObjFromStatic(backslash, backslashinds, _countof(backslash) / VERTEX_LENGTH, _countof(backslashinds));
+
+	float forslash[] = {
+		//issa line
+		-24, 40,			0, 0.8, 0.8, 0.8,//0      
+		-16, 40,				0, 0.8, 0.8, 0.8,//1      
+		24, -40,			0, 0.8, 0.8, 0.8,//2      
+		16, -40,				0, 0.8, 0.8, 0.8,//3     
+	};
+	convertPixelSpaceToOpenGL(forslash, _countof(forslash) / VERTEX_LENGTH);
+
+	unsigned int forslashinds[] = {
+		0,1,2, 0,2,3,
+	};
+	font['/'] = createUnfinObjFromStatic(forslash, forslashinds, _countof(forslash) / VERTEX_LENGTH, _countof(forslashinds));
+
+	float dash[] = {
+		//issa line
+		-25, 5,				0, 0.8, 0.8, 0.8,//0      
+		-25, -3,				0, 0.8, 0.8, 0.8,//1      
+		25, -3,				0, 0.8, 0.8, 0.8,//2      
+		25, 5,				0, 0.8, 0.8, 0.8,//3     
+	};
+	convertPixelSpaceToOpenGL(dash, _countof(dash) / VERTEX_LENGTH);
+
+	unsigned dashinds[] = {
+		0,1,2, 0,2,3,
+	};
+	font['-'] = createUnfinObjFromStatic(dash, dashinds, _countof(dash) / VERTEX_LENGTH, _countof(dashinds));
+
+	float question[] = {
+		//?is a squiggly line
+		-17, 40,			0, 0.8, 0.8, 0.8,//0      
+		-25, 32,			0, 0.8, 0.8, 0.8,//1      
+		17, 40,				0, 0.8, 0.8, 0.8,//2      
+		25,32,				0, 0.8, 0.8, 0.8,//3     
+
+		25, 5,				0, 0.8, 0.8, 0.8,//4     
+		17,-3,				0, 0.8, 0.8, 0.8,//5     
+		4, 5,					0, 0.8, 0.8, 0.8,//6     
+		-4,-3,				0, 0.8, 0.8, 0.8,//7     
+
+		-4,-24,				0, 0.8, 0.8, 0.8,//8     
+		4,-24,				0, 0.8, 0.8, 0.8,//9     
+
+		//bottom point
+		4,-40,				0, 0.8, 0.8, 0.8,//10     
+		-4,-40,				0, 0.8, 0.8, 0.8,//11     
+		4,-32,				0, 0.8, 0.8, 0.8,//12     
+		-4,-32,				0, 0.8, 0.8, 0.8,//13     
+	};
+	convertPixelSpaceToOpenGL(question, _countof(question) / VERTEX_LENGTH);
+
+	unsigned questioninds[] = {
+		0,1,2, 1,2,3, 2,3,4, 2,4,5, 4,5,6, 5,6,7, 6,7,8, 6,8,9,//turn-ey line
+		10,11,12, 11,12,13,
+	};
+	font['?'] = createUnfinObjFromStatic(question, questioninds, _countof(question) / VERTEX_LENGTH, _countof(questioninds));
+}
+
+
 void setupUI(int flag) {
 	font = calloc(128, sizeof(UnfinObj));//MEMORYTODO - can reduce consumption by several kb if done differently
 	if (flag) {//Using the default 'built in' characterset
@@ -1590,7 +1685,7 @@ void setupUI(int flag) {
 		setupSectionB();
 		setupSectionC();
 		setupNumbers();
-
+		setupSymbols();
 
 		/*float a[] = {
 			//stem

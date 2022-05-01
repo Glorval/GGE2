@@ -10,5 +10,7 @@ void connectToDatabase();
 
 void parseAccessKeys(char* fileName);
 void parseSurveyData(char* fileName);
+void parseResponseData(char* fileName);
 void accessKeysReportCreation(UI* PageToInsertTo);
 void backendReportCreation(UI* PageToInsertTo);
+void responsesReportCreation(UI* PageToInsertTo);

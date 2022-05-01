@@ -30,13 +30,13 @@ void parseAccessKeys(char* fileName) {
 	int result = 1;
 	char temp[512];
 	fgets(temp, 255, ourCSV);//cut off the top
-	while (result != NULL) {				//0					1				2				3				4					5				6						7				8			9
-		char curLine[512] = { 0 };//AccessKey, SurveyId, CompanyID, UserID, Permissions, BillingPlan, Company Name, Region, UserLevel, Name
+	while (result != NULL) {				//0					1				2				3				4					5				6						7				8			9			10	
+		char curLine[512] = { 0 };//AccessKey, SurveyId, CompanyID, UserID, Permissions, BillingPlan, Company Name, Region, UserLevel, FName		Linit
 		char accessKey[512] = { "INSERT INTO Access_Key (AccessKey, SurveyID, CompanyID, UserID, Permissions) VALUES(" };
 		//char accessKeyFinisher[256] = { "ON DUPLICATE KEY UPDATE " };
 		char company[512] = { "INSERT INTO Company (CompanyID, BillingPlan, CompanyName, Region) VALUES(" };
 		char companyFinisher[256] = { "ON DUPLICATE KEY UPDATE " };
-		char foreignUser[512] = { "INSERT INTO Foreign_User (CompanyID, UserID, UserLevel, Name) VALUES(" };
+		char foreignUser[512] = { "INSERT INTO Foreign_User (CompanyID, UserID, UserLevel, FName, LInit) VALUES(" };
 		char foreignUserFinisher[256] = { "ON DUPLICATE KEY UPDATE " };
 
 
@@ -134,16 +134,6 @@ void parseAccessKeys(char* fileName) {
 		strcat(companyFinisher, "\", ");
 		token = strtok(NULL, delim);
 
-		//Region, non-nullable
-		strcat(company, "\"");
-		strcat(company, token);
-		strcat(company, "\")");//final
-
-		strcat(companyFinisher, " Region = \"");
-		strcat(companyFinisher, token);
-		strcat(companyFinisher, "\"");
-		token = strtok(NULL, delim);
-
 		//Userlevel Non-nullable
 		strcat(foreignUser, "\"");
 		strcat(foreignUser, token);
@@ -154,20 +144,48 @@ void parseAccessKeys(char* fileName) {
 		strcat(foreignUserFinisher, "\", ");
 		token = strtok(NULL, delim);
 
-		//Name, nullable
+		//Region, non-nullable
+		strcat(company, "\"");
+		strcat(company, token);
+		strcat(company, "\")");//final
+
+		strcat(companyFinisher, " Region = \"");
+		strcat(companyFinisher, token);
+		strcat(companyFinisher, "\"");
+		token = strtok(NULL, delim);
+
+		//FName, nullable
+		if (strcmp(token, "NULL") != 0) {
+			strcat(foreignUser, "\"");
+			strcat(foreignUser, token);
+			strcat(foreignUser, "\",");
+
+			strcat(foreignUserFinisher, " FName = \"");
+			strcat(foreignUserFinisher, token);
+			strcat(foreignUserFinisher, "\",");
+		} else {
+			strcat(foreignUser, "NULL, ");
+
+			strcat(foreignUserFinisher, " FName = NULL, ");
+		}
+		token = strtok(NULL, delim);
+
+		//LInit, nullable, last name entry
 		if (strcmp(token, "NULL") != 0) {
 			strcat(foreignUser, "\"");
 			strcat(foreignUser, token);
 			strcat(foreignUser, "\")");//final
 
-			strcat(foreignUserFinisher, " Name = \"");
+			strcat(foreignUserFinisher, " LInit = \"");
 			strcat(foreignUserFinisher, token);
 			strcat(foreignUserFinisher, "\"");
 		} else {
 			strcat(foreignUser, "NULL)");//final
 
-			strcat(foreignUserFinisher, " Name = NULL");
+			strcat(foreignUserFinisher, " LInit = NULL");
 		}
+
+
 		
 		strcat(foreignUser, foreignUserFinisher);
 		strcat(company, companyFinisher);
@@ -207,9 +225,9 @@ void parseSurveyData(char* fileName) {
 	int result = 1;
 	char temp[512];
 	fgets(temp, 255, ourCSV);//cut off the top
-	while (result != NULL) {		//1					2						3					4					5					6					7				8						9						10						11						12					13
-		char curLine[512] = { 0 };//SurveyID	CompanyID	UserID	VisualAssetData	QuestionNo	Language	QuestionType	FormatData	PossibleAnswer	CharacterSet	FlagImage	Description	ExperimentalFlag
-		char survey[1024] = { "INSERT INTO survey (SurveyID, CompanyID, UserID, VisualAssetData, `Language`) VALUES(" };
+	while (result != NULL) {		//1					2						3					4					5					6					7				8						9						10						11						12					13						14
+		char curLine[512] = { 0 };//SurveyID	CompanyID	UserID	VisualAssetData	QuestionNo	Language	QuestionType	FormatData	PossibleAnswer	CharacterSet	FlagImage	Description	ExperimentalFlag		Active
+		char survey[1024] = { "INSERT INTO survey (SurveyID, CompanyID, UserID, VisualAssetData, `Language`, Active) VALUES(" };
 		char surveyFinisher[256] = { "ON DUPLICATE KEY UPDATE " };
 
 		char language[1024] = { "INSERT INTO `language` (`Language`, Character_Set, Flag_Image, `Description`, Experimental) VALUES(" };
@@ -304,16 +322,16 @@ void parseSurveyData(char* fileName) {
 		strcat(questionOptionsFinisher, token);
 		strcat(questionOptionsFinisher, ",");
 
-		//Language, nullable, final for survey table.
+		//Language, nullable
 		token = strtok(NULL, delim);
 		if (strcmp(token, "NULL") != 0) {
 			strcat(survey, "\"");
 			strcat(survey, token);
-			strcat(survey, "\") ");//final
+			strcat(survey, "\",");
 
 			strcat(surveyFinisher, " `Language` = \"");
 			strcat(surveyFinisher, token);
-			strcat(surveyFinisher, "\";");//final
+			strcat(surveyFinisher, "\", ");
 
 			strcat(language, "\"");
 			strcat(language, token);
@@ -323,8 +341,8 @@ void parseSurveyData(char* fileName) {
 			strcat(languageFinisher, token);
 			strcat(languageFinisher, "\", ");
 		} else {
-			strcat(survey, "NULL) ");//final
-			strcat(surveyFinisher, " `Language` = NULL;");
+			strcat(survey, "NULL, ");
+			strcat(surveyFinisher, " `Language` = NULL, ");
 
 			strcat(language, "NULL, ");
 			strcat(languageFinisher, " `Language` = NULL, ");
@@ -415,6 +433,16 @@ void parseSurveyData(char* fileName) {
 		strcat(languageFinisher, token);
 		strcat(languageFinisher, ";");//final
 
+		//Active, non-nullable final for survey
+		token = strtok(NULL, delim);
+		strcat(survey, "");
+		strcat(survey, token);
+		strcat(survey, ") ");//final
+
+		strcat(surveyFinisher, " Active = ");
+		strcat(surveyFinisher, token);
+		strcat(surveyFinisher, ";");//final
+
 
 
 		//adding the 'if we need to update' part to the mains
@@ -449,7 +477,7 @@ void parseSurveyData(char* fileName) {
 	fclose(ourCSV);
 }
 
-void parseSurveyData(char* fileName) {
+void parseResponseData(char* fileName) {
 	MYSQL_RES* res;
 	MYSQL_ROW row;
 
@@ -457,24 +485,20 @@ void parseSurveyData(char* fileName) {
 	ourCSV = fopen(fileName, "r");
 
 
-	//char insertStart[] = "INSERT INTO Access_Key VALUES(";
 	int segment = 0;
 	int result = 1;
 	char temp[512];
-	fgets(temp, 255, ourCSV);//cut off the top
-	while (result != NULL) {		//1					2						3					4					5					6					7				8						9						10						11						12					13
-		char curLine[512] = { 0 };//SurveyID	CompanyID	UserID	VisualAssetData	QuestionNo	Language	QuestionType	FormatData	PossibleAnswer	CharacterSet	FlagImage	Description	ExperimentalFlag
-		char survey[1024] = { "INSERT INTO survey (SurveyID, CompanyID, UserID, VisualAssetData, `Language`) VALUES(" };
-		char surveyFinisher[256] = { "ON DUPLICATE KEY UPDATE " };
+	fgets(temp, 255, ourCSV);//cut off the top	
+	while (result != NULL) {		//1						2						3					4				5					6									7					8					9						10						11					12
+		char curLine[512] = { 0 };//SurveyeeID	HowReached		SurveyID		Region		Account	AllowedToContact	DisplayName		Language		QuestionNo		Question		QuestionType		Answer
+		char surveyee[1024] = { "INSERT INTO surveyee (SurveyeeID, HowReached, Region, Account, AllowedToContact, DisplayName) VALUES(" };
+		char surveyeeF[256] = { "ON DUPLICATE KEY UPDATE " };
 
-		char language[1024] = { "INSERT INTO `language` (`Language`, Character_Set, Flag_Image, `Description`, Experimental) VALUES(" };
-		char languageFinisher[256] = { "ON DUPLICATE KEY UPDATE " };
+		char sQ[1024] = { "INSERT INTO survey_questions (SurveyID, `Language`, QuestionNo, Question, QuestionType) VALUES(" };
+		char sQF[256] = { "ON DUPLICATE KEY UPDATE " };
 
-		char questionOptions[1024] = { "INSERT INTO question_options (SurveyID, QuestionNo, QuestionType, PossibleAnswer) VALUES(" };
-		char questionOptionsFinisher[256] = { "ON DUPLICATE KEY UPDATE " };
-
-		char questionTypes[1024] = { "INSERT INTO question_types (QuestionType, FormatData) VALUES(" };
-		char questionTypesFinisher[256] = { "ON DUPLICATE KEY UPDATE " };
+		char sR[1024] = { "INSERT INTO survey_responses (SurveyeeID, SurveyID,QuestionNo, Answer) VALUES(" };
+		char sRF[256] = { "ON DUPLICATE KEY UPDATE " };
 
 
 		result = fgets(curLine, 510, ourCSV);
@@ -490,49 +514,166 @@ void parseSurveyData(char* fileName) {
 		char delim[] = ",";
 		char* token = strtok(curLine, delim);
 
-		//SurveyID, non nullable int on both
-		strcat(survey, token);
-		strcat(survey, ",");
+		
+		//surveyeeID, non nullable int
+		strcat(surveyee, token);
+		strcat(surveyee, ",");
+		strcat(surveyeeF, "surveyeeID = ");
+		strcat(surveyeeF, token);
+		strcat(surveyeeF, ", ");
 
-		strcat(surveyFinisher, "SurveyID = ");
-		strcat(surveyFinisher, token);
-		strcat(surveyFinisher, ", ");
-
-		strcat(questionOptions, token);
-		strcat(questionOptions, ",");
-
-		strcat(questionOptionsFinisher, "SurveyID = ");
-		strcat(questionOptionsFinisher, token);
-		strcat(questionOptionsFinisher, ", ");
-
-		//CompanyID, nullable int
+		strcat(sR, token);
+		strcat(sR, ",");
+		strcat(sRF, "surveyeeID = ");
+		strcat(sRF, token);
+		strcat(sRF, ", ");
+		
+		
+		//HowReached, nullable
 		token = strtok(NULL, delim);
+		if (strcmp(token, "NULL") != 0) {
+			strcat(surveyee, "\"");
+			strcat(surveyee, token);
+			strcat(surveyee, "\",");
+			strcat(surveyeeF, "HowReached = \"");
+			strcat(surveyeeF, token);
+			strcat(surveyeeF, "\", ");
+		} else {
+			strcat(surveyee, "NULL");
+			strcat(surveyeeF, "HowReached = NULL,");
+		}
 		
 
-		//adding the 'if we need to update' part to the mains
-		strcat(language, languageFinisher);
-		strcat(questionOptions, questionOptionsFinisher);
-		strcat(survey, surveyFinisher);
-		strcat(questionTypes, questionTypesFinisher);
+		//SurveyID, non nullable int on all 3
+		token = strtok(NULL, delim);
+
+		strcat(sQ, token);
+		strcat(sQ, ",");
+		strcat(sQF, "SurveyID = ");
+		strcat(sQF, token);
+		strcat(sQF, ", ");
+
+		strcat(sR, token);
+		strcat(sR, ",");
+		strcat(sRF, "SurveyID = ");
+		strcat(sRF, token);
+		strcat(sRF, ", ");
+
+		//Region, non nullable
+		token = strtok(NULL, delim);
+		strcat(surveyee, "\"");
+		strcat(surveyee, token);
+		strcat(surveyee, "\",");
+		strcat(surveyeeF, "Region = \"");
+		strcat(surveyeeF, token);
+		strcat(surveyeeF, "\", ");
+
+		///Account, nullable
+		token = strtok(NULL, delim);
+		if (strcmp(token, "NULL") != 0) {
+			strcat(surveyee, "\"");
+			strcat(surveyee, token);
+			strcat(surveyee, "\",");
+			strcat(surveyeeF, "Account = \"");
+			strcat(surveyeeF, token);
+			strcat(surveyeeF, "\", ");
+		} else {
+			strcat(surveyee, "NULL, ");
+			strcat(surveyeeF, "Account = NULL,");
+		}
+
+		//Allowed To contact,  nullable int
+		token = strtok(NULL, delim);
+		strcat(surveyee, token);
+		strcat(surveyee, ",");
+		strcat(surveyeeF, "AllowedToContact = ");
+		strcat(surveyeeF, token);
+		strcat(surveyeeF, ", ");
+
+		///Display name, nullable, final entry for surveyee
+		token = strtok(NULL, delim);
+		if (strcmp(token, "NULL") != 0) {
+			strcat(surveyee, "\"");
+			strcat(surveyee, token);
+			strcat(surveyee, "\")");
+
+			strcat(surveyeeF, "DisplayName = \"");
+			strcat(surveyeeF, token);
+			strcat(surveyeeF, "\";");
+		} else {
+			strcat(surveyee, "NULL)");
+			strcat(surveyeeF, "DisplayName = NULL;");
+		}
+
+
+		//Language, non nullable
+		token = strtok(NULL, delim);
+		strcat(sQ, "\"");
+		strcat(sQ, token);
+		strcat(sQ, "\",");
+		strcat(sQF, "`Language` = \"");
+		strcat(sQF, token);
+		strcat(sQF, "\", ");
+
+		//Question Number, non nullable int
+		token = strtok(NULL, delim);
+		strcat(sQ, token);
+		strcat(sQ, ",");
+		strcat(sQF, "QuestionNo = ");
+		strcat(sQF, token);
+		strcat(sQF, ", ");
+
+		strcat(sR, token);
+		strcat(sR, ",");
+		strcat(sRF, "QuestionNo = ");
+		strcat(sRF, token);
+		strcat(sRF, ", ");
+
+		//Question, non nullable
+		token = strtok(NULL, delim);
+		strcat(sQ, "\"");
+		strcat(sQ, token);
+		strcat(sQ, "\",");
+		strcat(sQF, "Question = \"");
+		strcat(sQF, token);
+		strcat(sQF, "\", ");
+
+		//Question Type, non nullable, final for survey questions
+		token = strtok(NULL, delim);
+		strcat(sQ, "\"");
+		strcat(sQ, token);
+		strcat(sQ, "\") ");
+		strcat(sQF, "QuestionType = \"");
+		strcat(sQF, token);
+		strcat(sQF, "\";");
+
+		//Answer, non nullable, final for resposnes
+		token = strtok(NULL, delim);
+		strcat(sR, "\"");
+		strcat(sR, token);
+		strcat(sR, "\") ");
+		strcat(sRF, "Answer = \"");
+		strcat(sRF, token);
+		strcat(sRF, "\";");
+
+
+		strcat(sQ, sQF);
+		strcat(sR, sRF);
+		strcat(surveyee, surveyeeF);
 
 		////PRINTFS ARE DEBUG
-		printf("\n\n%s\n", language);
-		if (mysql_query(mysqlConnection, language)) {
+		printf("\n\n%s\n", sQ);
+		if (mysql_query(mysqlConnection, sQ)) {
 			printf("%s\n", mysql_error(mysqlConnection));
 		}
 
-		printf("%s\n", questionTypes);
-		if (mysql_query(mysqlConnection, questionTypes)) {
+		printf("%s\n", surveyee);
+		if (mysql_query(mysqlConnection, surveyee)) {
 			printf("%s\n", mysql_error(mysqlConnection));
 		}
 
-		printf("%s\n", survey);
-		if (mysql_query(mysqlConnection, survey)) {
-			printf("%s\n", mysql_error(mysqlConnection));
-		}
-
-		printf("%s\n", questionOptions);
-		if (mysql_query(mysqlConnection, questionOptions)) {
+		printf("%s\n", sR);
+		if (mysql_query(mysqlConnection, sR)) {
 			printf("%s\n", mysql_error(mysqlConnection));
 		}
 
@@ -543,7 +684,7 @@ void parseSurveyData(char* fileName) {
 
 void accessKeysReportCreation(UI* PageToInsertTo) {
 	
-	mysql_query(mysqlConnection, "SELECT company.CompanyName, company.CompanyID, company.CompanyNo, company.Region, company.BillingPlan, access_key.AccessKey, access_key.SurveyID, access_key.Permissions, foreign_user.userID, foreign_user.Name, foreign_user.UserLevel FROM access_key LEFT JOIN company ON access_key.CompanyID = company.CompanyID LEFT JOIN foreign_user ON access_key.UserID = foreign_user.UserID ORDER BY CompanyID DESC, foreign_user.Name;");
+	mysql_query(mysqlConnection, "SELECT company.CompanyName, company.CompanyID, company.CompanyNo, company.Region, company.BillingPlan, access_key.AccessKey, access_key.SurveyID, access_key.Permissions, foreign_user.userID, foreign_user.FName, foreign_user.LInit, foreign_user.UserLevel FROM access_key LEFT JOIN company ON access_key.CompanyID = company.CompanyID LEFT JOIN foreign_user ON access_key.UserID = foreign_user.UserID ORDER BY CompanyID DESC, foreign_user.FName;");
 	MYSQL_RES* datablock = mysql_store_result(mysqlConnection);
 	MYSQL_ROW row;
 
@@ -608,7 +749,7 @@ void accessKeysReportCreation(UI* PageToInsertTo) {
 			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 
 			//set up our title bar
-			curThing = createUnFinTextWithZ("Name          CID  CNO  Region    Billing", xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
+			curThing = createUnFinTextWithZ("Name           CID  CNO  Region   Billing", xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
 			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 			curOffset += titleOffset;	
 
@@ -637,7 +778,7 @@ void accessKeysReportCreation(UI* PageToInsertTo) {
 
 			vertsLight[1] = curOffset + convFromPixelY((titlefontsize/2));
 			vertsLight[1 + VERTEX_LENGTH] = curOffset + convFromPixelY((titlefontsize / 2));
-			curThing = createUnFinTextWithZ("Key   SurveyID   Perms   UID   Name     User Level", xPosRightoffset, curOffset, zpos, datafontsize, rgb);
+			curThing = createUnFinTextWithZ("Key   SurveyID Perms  UID  FName  LInit User Level", xPosRightoffset, curOffset, zpos, datafontsize, rgb);
 			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 			curOffset += titleOffset;
 
@@ -662,33 +803,42 @@ void accessKeysReportCreation(UI* PageToInsertTo) {
 			}
 
 			//perms
-			curThing = createUnFinTextWithZ(row[7], xPosRightoffset + (12 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+			curThing = createUnFinTextWithZ(row[7], xPosRightoffset + (11 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
 			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 
 			//user id
 			if (row[8] == NULL) {
-				curThing = createUnFinTextWithZ("NULL", xPosRightoffset + (18 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+				curThing = createUnFinTextWithZ("NULL", xPosRightoffset + (15 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
 				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 			} else {
-				curThing = createUnFinTextWithZ(row[8], xPosRightoffset + (18 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+				curThing = createUnFinTextWithZ(row[8], xPosRightoffset + (16 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
 				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 			}
 
-			//username
+			//Fname
 			if (row[9] == NULL) {
-				curThing = createUnFinTextWithZ("NULL", xPosRightoffset + (21 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+				curThing = createUnFinTextWithZ("NULL", xPosRightoffset + (19 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
 				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 			} else {
-				curThing = createUnFinTextWithZ(row[9], xPosRightoffset + (21 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+				curThing = createUnFinTextWithZ(row[9], xPosRightoffset + (19 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+			}
+
+			//Linit
+			if (row[10] == NULL) {
+				curThing = createUnFinTextWithZ("NULL", xPosRightoffset + (25 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+			} else {
+				curThing = createUnFinTextWithZ(row[10], xPosRightoffset + (25 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
 				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 			}
 
 			//user level
-			if (row[10] == NULL) {
+			if (row[11] == NULL) {
 				curThing = createUnFinTextWithZ("NULL", xPosRightoffset + (30 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
 				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 			} else {
-				curThing = createUnFinTextWithZ(row[10], xPosRightoffset + (30 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+				curThing = createUnFinTextWithZ(row[11], xPosRightoffset + (30 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
 				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 			}
 		}
@@ -739,18 +889,27 @@ void accessKeysReportCreation(UI* PageToInsertTo) {
 				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 
 				//set up our title bar
-				curThing = createUnFinTextWithZ("Name          UserID", xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
+				curThing = createUnFinTextWithZ("First Name  LInit  UserID", xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
 				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 				curOffset += titleOffset;
 
 				//Displaying user specific data
 
-				//name
+				//Fname
 				curThing = createUnFinTextWithZ(row[9], xPosLeftmost, curOffset, zpos, datafontsize, rgb);
 				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 
+				//Linit
+				if (row[10] == NULL) {
+					curThing = createUnFinTextWithZ("NULL", xPosRightoffset + (10 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+					displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+				} else {
+					curThing = createUnFinTextWithZ(row[10], xPosRightoffset + (10 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+					displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+				}
+
 				//userID
-				curThing = createUnFinTextWithZ(row[8], xPosLeftmost + (14 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
+				curThing = createUnFinTextWithZ(row[8], xPosLeftmost + (19 * convFromPixelX(datafontsize)), curOffset, zpos, datafontsize, rgb);
 				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
 				curOffset += titleOffset;
 
@@ -811,7 +970,7 @@ void accessKeysReportCreation(UI* PageToInsertTo) {
 
 
 void backendReportCreation(UI* PageToInsertTo) {
-	mysql_query(mysqlConnection, "select sv.SurveyID, sv.CompanyID, sv.UserID, sv.`Language`, qo.QuestionNo, qo.QuestionType, qo.PossibleAnswer, sv.VisualAssetData, qt.FormatData, ln.`Description`, ln.Experimental, ln.Character_Set, ln.Flag_Image from question_options as qo 	LEFT JOIN Question_Types as qt on qo.QuestionType = qt.QuestionType	LEFT JOIN survey as sv on qo.SurveyID = sv.SurveyID LEFT JOIN `language` as ln on sv.`Language` = ln.`Language`;");
+	mysql_query(mysqlConnection, "select sv.SurveyID, sv.CompanyID, sv.UserID, sv.`Language`, qo.QuestionNo, qo.QuestionType, qo.PossibleAnswer, sv.VisualAssetData, qt.FormatData, ln.`Description`, ln.Experimental, ln.Character_Set, ln.Flag_Image from question_options as qo 	LEFT JOIN Question_Types as qt on qo.QuestionType = qt.QuestionType	LEFT JOIN survey as sv on qo.SurveyID = sv.SurveyID LEFT JOIN `language` as ln on sv.`Language` = ln.`Language` ORDER BY surveyID, QuestionNo;;");
 	MYSQL_RES* datablock = mysql_store_result(mysqlConnection);
 	MYSQL_ROW row;
 
@@ -867,7 +1026,7 @@ void backendReportCreation(UI* PageToInsertTo) {
 			break;
 		}
 
-		strcpy(curID, row[1]);//save our current id
+		strcpy(curID, row[0]);//save our current id
 
 		//set up our title bar, 'Survey: #\n ~title bar stuffs~'
 		UnfinObj curThing = createUnFinTextWithZ(strcat(strcat(ts,"Survey: "), row[0]), xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
@@ -960,8 +1119,8 @@ void backendReportCreation(UI* PageToInsertTo) {
 				//fetch the next entry
 				row = mysql_fetch_row(datablock);
 
-				//if we're out of rows or onto the next question, break out of the loop.
-				if (row == NULL || strcmp(curQuestion, row[4]) != 0) {
+				//if we're out of rows or onto the next question/survey break out of the loop.
+				if (row == NULL || strcmp(curQuestion, row[4]) != 0 || strcmp(curID, row[0]) != 0) {
 					break;
 				}
 			}//End of possible answers loop
@@ -1016,6 +1175,224 @@ void backendReportCreation(UI* PageToInsertTo) {
 			break;
 		}
 	}//end of survey loop
+
+
+	//complete the big dark rectangle
+	vertsDark[2 * VERTEX_LENGTH + 1] = curOffset;
+	vertsDark[3 * VERTEX_LENGTH + 1] = curOffset;
+	UnfinObj finishingHighlight = createUnfinObjFromStatic(vertsDark, inds, 4, 6);
+	displayObject = mergeUnfinishedsFreeing(displayObject, finishingHighlight);
+	mysql_free_result(datablock);
+	UIElement* finalElement = createElement(displayObject.verts, displayObject.indices, displayObject.vLineCount, displayObject.iCount, zeropos, NULL, NULL, NO_ACTION, 1, NULL);
+	insertElementIntoUI(PageToInsertTo, finalElement);
+	freeUnfinObj(displayObject);
+}
+
+void responsesReportCreation(UI* PageToInsertTo) {
+	mysql_query(mysqlConnection, "select s.SurveyeeId, s.DisplayName, s.Account, s.Region, s.AllowedToContact, s.HowReached, sr.SurveyID, sq.`Language`, sq.QuestionNo, sq.QuestionType, sq.Question, sr.Answer from surveyee as s JOIN survey_responses as sr ON s.SurveyeeID = sr.SurveyeeID JOIN survey_questions as sq ON sr.SurveyID = sq.SurveyID AND sr.QuestionNo = sq.QuestionNo ORDER BY s.SurveyeeID, sr.SurveyID, sr.QuestionNo;");
+	MYSQL_RES* datablock = mysql_store_result(mysqlConnection);
+	MYSQL_ROW row;
+
+	float rgb[] = { 0,0,0 };
+	float zeropos[] = { 0,0,0 };
+	//these will be manipulated around to create multiple rectangles as we go
+	float vertsDark[] = {
+		-1 + convFromPixelX(50), convFromPixelY(120), 0.79,			189.0 / 255, 115.0 / 255, 58.0 / 255,
+		1 - convFromPixelX(100), convFromPixelY(120), 0.79,			189.0 / 255, 115.0 / 255, 58.0 / 255,
+		-1 + convFromPixelX(50), convFromPixelY(0), 0.79,			189.0 / 255, 115.0 / 255, 58.0 / 255,
+		1 - convFromPixelX(100), convFromPixelY(0), 0.79,			189.0 / 255, 115.0 / 255, 58.0 / 255,
+	};
+	float vertsLight[] = {
+		-1 + convFromPixelX(100), 0, 0.79,					211.0 / 255, 207.0 / 255, 193.0 / 255,
+		1 - convFromPixelX(150), 0, 0.79,			211.0 / 255, 207.0 / 255, 193.0 / 255,
+		-1 + convFromPixelX(100), 0, 0.79,					211.0 / 255, 207.0 / 255, 193.0 / 255,
+		1 - convFromPixelX(150), 0, 0.79,			211.0 / 255, 207.0 / 255, 193.0 / 255,
+	};
+	unsigned int inds[] = {
+		0,1,2, 1,2,3
+	};
+
+
+	UnfinObj displayObject = createUnFinTextWithZ("Surveyees", -1 + convFromPixelX(80), convFromPixelY(70), 0.7, 64, rgb);
+
+
+	float curOffset = 0;
+	float width = convFromPixelX((windX - 100));
+	float xPosLeftmost = -1 + convFromPixelX(80);
+	float xPosMiddle = -1 + convFromPixelX(120);
+	float xPosRightmost = -1 + convFromPixelX(160);
+	float zpos = 0.6;
+	int titlefontsize = 32;
+	int datafontsize = 24;
+	float titleOffset = -convFromPixelY(40);
+	float dataOffset = -convFromPixelY(32);
+
+	char* surveeNo = calloc(10, sizeof(char));
+
+	if (surveeNo == NULL) {
+		exit(1);
+	}
+	surveeNo[0] = '-';
+	surveeNo[1] = '1';
+
+	//How it works:
+	//Outer loop for all unique surveyees,
+	//middle loop for all their surveys they have answered, 
+	//Inner loop for every question within said survey,
+	//deep inner loop for getting all the answers to the question, fuck you multiselect
+
+	row = mysql_fetch_row(datablock);
+	char tempstr[256] = { 0 };
+	while (1) {//loop through surveyees
+		if (row == NULL) {//If we have no entries, end it
+			break;
+		}
+
+		strcpy(surveeNo, row[0]);
+
+		//Print out our current surveyeee's information
+		tempstr[0] = '\0';
+		UnfinObj curThing = createUnFinTextWithZ(strcat(strcat(tempstr, "Surveyee No "), row[0]), xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
+		displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+
+		tempstr[0] = '\0';
+		if (row[1] != NULL) {
+			curThing = createUnFinTextWithZ(strcat(strcat(tempstr, "Username: "), row[1]), xPosLeftmost + (15 * convFromPixelX(titlefontsize)), curOffset, zpos, titlefontsize, rgb);
+			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+		} else {
+			curThing = createUnFinTextWithZ("Username: No Name", xPosLeftmost + (15 * convFromPixelX(titlefontsize)), curOffset, zpos, titlefontsize, rgb);
+			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+		}
+		
+		curOffset += titleOffset;
+
+		tempstr[0] = '\0';
+		if (row[2] != NULL) {
+			curThing = createUnFinTextWithZ(strcat(strcat(tempstr, "Account: "), row[2]), xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
+			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+		} else {
+			curThing = createUnFinTextWithZ("Account: No Account", xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
+			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+		}
+
+		tempstr[0] = '\0';
+		if (row[3] != NULL) {
+			curThing = createUnFinTextWithZ(strcat(strcat(tempstr, "Region: "), row[3]), xPosLeftmost + (24 * convFromPixelX(titlefontsize)), curOffset, zpos, titlefontsize, rgb);
+			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+		} else {
+			curThing = createUnFinTextWithZ("Region: NULL", xPosLeftmost + (24 * convFromPixelX(titlefontsize)), curOffset, zpos, titlefontsize, rgb);
+			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+		}
+		
+		curOffset += titleOffset;
+
+		tempstr[0] = '\0';
+		if (row[4] != NULL) {
+			curThing = createUnFinTextWithZ(strcat(strcat(tempstr, "Allowed To Contact: "), row[4]), xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
+			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+		} else {
+			curThing = createUnFinTextWithZ("Allowed To Contact: NA", xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
+			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+		}
+		curOffset += titleOffset;
+
+		tempstr[0] = '\0';
+		curThing = createUnFinTextWithZ(strcat(strcat(tempstr, "How Reached: "), row[5]), xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
+		displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+		curOffset += titleOffset;
+
+		curThing = createUnFinTextWithZ("Responses", xPosLeftmost, curOffset, zpos, titlefontsize, rgb);
+		displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+		curOffset += titleOffset;
+
+		//set the lighter rectangle top
+		vertsLight[0 * VERTEX_LENGTH + 1] = curOffset + convFromPixelY((datafontsize / 2));
+		vertsLight[1 * VERTEX_LENGTH + 1] = curOffset + convFromPixelY((datafontsize / 2));
+		//then give a lil headroom
+		curOffset += dataOffset/2;
+
+		while (1) {//start looping through all surveys
+			tempstr[0] = '\0';
+			curThing = createUnFinTextWithZ(strcat(strcat(strcat(strcat(tempstr, "SurveyID: "), row[6]), "    Lan: "), row[7]), xPosMiddle, curOffset, zpos, datafontsize, rgb);
+			displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+			curOffset += titleOffset;
+
+			char survNo[20] = "";
+			strcpy(survNo, row[6]);//save our surveyid
+
+			
+			while (1) {//loop through all questions of this survey
+				tempstr[0] = '\0';
+				curThing = createUnFinTextWithZ(strcat(strcat(strcat(strcat(tempstr, "Qnum: "), row[8]), "    QType: "), row[9]), xPosRightmost, curOffset, zpos, datafontsize, rgb);
+				displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+				curOffset += dataOffset;
+
+
+				tempstr[0] = '\0';
+				int stringlength = strlen(row[10]);
+				if (stringlength > 50) {
+					strncat(strcat(tempstr, "Q: "), row[10], 50);
+					strcat(tempstr, "\n");
+					strcat(tempstr, &row[10][50]);
+					curThing = createUnFinTextWithZ(tempstr, xPosRightmost, curOffset, zpos, datafontsize, rgb);
+					displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+					curOffset += 2 * dataOffset;
+				} else {
+					curThing = createUnFinTextWithZ(strcat(strcat(tempstr, "Q: "), row[10]), xPosRightmost, curOffset, zpos, datafontsize, rgb);
+					displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+					curOffset += dataOffset;
+				}
+				
+
+				char qNo[20] = "";
+				strcpy(qNo, row[8]);//Save our current question number
+				while (1) {//Loop through all answers to the given question
+					tempstr[0] = '\0';
+					stringlength = strlen(row[11]);
+					if (stringlength > 50) {
+						strncat(strcat(tempstr, "A: "), row[11], 50);
+						strcat(tempstr, "\n");
+						strcat(tempstr, &row[11][50]);
+						curThing = createUnFinTextWithZ(tempstr, xPosRightmost, curOffset, zpos, datafontsize, rgb);
+						displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+						curOffset += 2 * dataOffset;
+					} else {
+						curThing = createUnFinTextWithZ(strcat(strcat(tempstr, "A: "), row[11]), xPosRightmost, curOffset, zpos, datafontsize, rgb);
+						displayObject = mergeUnfinishedsFreeing(displayObject, curThing);
+						curOffset += dataOffset;
+					}
+					
+					//otherwise, get the next row for us to print here
+					row = mysql_fetch_row(datablock);
+					//If we have moved on to a new question, survey, or surveyee we are done here looping through the answers. Also will end on the final row
+					if (row == NULL || strcmp(qNo, row[8]) != 0 || strcmp(survNo, row[6]) != 0 || strcmp(surveeNo, row[0]) != 0) {
+						break;
+					}
+				}
+
+				//If we have moved on to a new survey or surveyee we are done here in looping through the questions.
+				if (row == NULL || strcmp(survNo, row[6]) != 0 || strcmp(surveeNo, row[0]) != 0) {
+					break;
+				}
+			}//End of looping through all questions
+
+			//set the lighter rectangle bottom
+			vertsLight[2 * VERTEX_LENGTH + 1] = curOffset + convFromPixelY((datafontsize / 2));
+			vertsLight[3 * VERTEX_LENGTH + 1] = curOffset + convFromPixelY((datafontsize / 2));
+			UnfinObj highlight = createUnfinObjFromStatic(vertsLight, inds, 4, 6);
+			displayObject = mergeUnfinishedsFreeing(displayObject, highlight);
+
+			//give a lil headroom before the next entry
+			curOffset += dataOffset/2;
+
+			//If we have moved on to another user, then we are done looping through this one's survey data
+			if (row == NULL || strcmp(surveeNo, row[0]) != 0) {
+				break;
+			}
+		}//End of surveys taken by this surveyee
+
+	}//End of surveyees
+
 
 
 	//complete the big dark rectangle

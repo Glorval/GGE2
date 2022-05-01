@@ -54,6 +54,7 @@ long long int pageSwitcher(long long int data, short int clickData) {
 				break;
 			case REPORTTHREE:
 				//create the page upon the temporary page
+				responsesReportCreation(masterUIList[TEMPSTUFF]);
 				masterUIList[TEMPSTUFF]->active = 1;
 				programState = ON_REPORT;
 				break;
@@ -143,7 +144,36 @@ long long int backendUploadSelect(long long int data, short int clickData) {
 }
 
 long long int  surveyUploadSelect(long long int data, short int clickData) {
-	char* test = fileSelector();
+	char* filePath = fileSelector();
+	clearTempStuff();
+	float textColour[] = { 0,0,0 };
+	float position[] = {
+		-1 + convFromPixelX(100),
+		 1 - convFromPixelY(520),
+		 0.8
+	};
+	float buttonBaseColour[] = { 189.0 / 255, 115.0 / 255, 58.0 / 255, };
+	float buttonInnerColour[] = { 211.0 / 255, 207.0 / 255, 193.0 / 255, };
+	float clickarea[] = {
+		-(windX / 2) + 100, //left
+		-(windX / 2) + 320, //right
+		-185, //bottom
+		-126, //top
+	};
+
+	char displayedText[512] = "File:\n";
+	strcat(displayedText, filePath);
+
+	UnfinObj text = createUnFinText(displayedText, convFromPixelX(28), convFromPixelY(16), 32, textColour);
+	UnfinObj button = createButton(0, -56, 220, 60, 5, buttonBaseColour, buttonInnerColour);
+	UnfinObj buttonText = createUnFinText("Confirm?", convFromPixelX(28), convFromPixelY(-86), 32, textColour);
+	text = mergeUnfinisheds(text, button);
+	text = mergeUnfinisheds(text, buttonText);
+
+	//THIS IS THE DIFFERENTIATING LINE, the button we create here has a function attached to it for the specific upload
+	UIElement* displayedPath = createElement(text.verts, text.indices, text.vLineCount, text.iCount, position, surveyUpload, NULL, ACTION, 1, clickarea);
+	displayedPath->data = (long long int)filePath;
+	insertElementIntoUI(masterUIList[TEMPSTUFF], displayedPath);
 
 	return(data);
 }
@@ -181,8 +211,21 @@ long long int backendUpload(long long int data, short int clickData) {
 	return(0);
 }
 
-long long int surveyUpload(long long int filename, short int clickData) {
+long long int surveyUpload(long long int data, short int clickData) {
 	//data parsing and upload can go here
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		char* string = data;
+
+		parseResponseData(string);
+
+		//the cursed line
+		_beginthread(clearTempAfterExecute, 0, &data);
+		free(string);
+		data = 0;
+	}
+	return(0);
 }
 
 void startupDataBase(GLFWwindow* window) {
@@ -208,15 +251,29 @@ void startupDataBase(GLFWwindow* window) {
 	float buttonBaseColour[] = {189.0/255, 115.0 / 255, 58.0 / 255, };
 	float buttonInnerColour[] = { 211.0 / 255, 207.0 / 255, 193.0 / 255, };//{ 157.0 / 255, 199.0 / 255, 225.0 / 255, };
 	float emblem[] = {
-		-1, 1,																					0.1, 0.8, 0.8, 0.8,//0 
-		-1 + convFromPixelX(150), 1,												0.1, 0.8, 0.8, 0.8,//0 
-		-1, 1 - convFromPixelY(150),												0.1, 0.8, 0.8, 0.8,//0 
-		-1 + convFromPixelX(150), 1 - convFromPixelY(150),			0.1, 0.8, 0.8, 0.8,//0 
+		-1, 1,																					0.1, 0.83, 0.81, 0.75,//0 
+		-1 + convFromPixelX(150), 1,												0.1, 0.83, 0.81, 0.75,//1 
+		-1, 1 - convFromPixelY(150),												0.1, 0.83, 0.81, 0.75,//2 
+		-1 + convFromPixelX(150), 1 - convFromPixelY(150),			0.1, 0.83, 0.81, 0.75,//3 
+
+		-1 + convFromPixelX(75), 1 - convFromPixelY(140),			0.0, 50.0/255.0, 175.0/255, 1,//4 
+		-1 + convFromPixelX(25), 1 - convFromPixelY(110),			0.0, 50.0 / 255, 175.0 / 255, 1,//5
+		-1 + convFromPixelX(125), 1 - convFromPixelY(110),			0, 50.0 / 255.0, 175.0 / 255, 1,//6  
+		-1 + convFromPixelX(25), 1 - convFromPixelY(25),			0, 50.0 / 255.0, 175.0 / 255, 1,//7  
+		-1 + convFromPixelX(125), 1 - convFromPixelY(25),			0, 50.0 / 255.0, 175.0 / 255, 1,//8  
+
+		-1 + convFromPixelX(100), 1 - convFromPixelY(15),			0, 50.0 / 255.0, 175.0 / 255, 1,//9  
+		-1 + convFromPixelX(50), 1 - convFromPixelY(15),			0, 50.0 / 255.0, 175.0 / 255, 1,//10  
 	};
 	unsigned int emblemInds[] = {
-		0,1,2, 1,2,3,
+		0,1,2, 1,2,3,//background
+		4,5,6, 5,6,7, 6,7,8, 7,8,9, 7,9,10,//shield base
 	};
-	insertElementIntoUI(mainPage, createElement(emblem, emblemInds, 4, 6, zeroPos, NULL, NULL, NULL, 1, NULL));
+	float rgbEmblemText[] = {0.7, 0.1,0.1};
+	UnfinObj emblemBase = createUnfinObjFromStatic(emblem, emblemInds, 11, sizeof(emblemInds) / sizeof(unsigned int));
+	emblemBase = mergeUnfinishedsFreeing(emblemBase, createUnFinTextWithZ("S", -1 + convFromPixelX(64), 1 - convFromPixelY(60), -0.01, 64, rgbEmblemText));
+	emblemBase = mergeUnfinishedsFreeing(emblemBase, createUnFinTextWithZ("V", -1 + convFromPixelX(80), 1 - convFromPixelY(90), -0.01, 64, rgbEmblemText));
+	insertElementIntoUI(mainPage, createElement(emblemBase.verts, emblemBase.indices, emblemBase.vLineCount, emblemBase.iCount, zeroPos, NULL, NULL, NULL, 1, NULL));
 
 	float background[] = {
 		-1, 1, .9, 73.0/255.0, 102.0/255.0, 156.0 / 255.0,
@@ -262,13 +319,20 @@ void startupDataBase(GLFWwindow* window) {
 	curData[OUR_DESIRED_PAGE] = UPTWO;
 	insertElementIntoUI(mainPage, curElement);
 
-	text = createUnFinText("Update Surveys", convFromPixelX(28), convFromPixelY(-30), 32, textColour);
+	text = createUnFinText("Update Answers", convFromPixelX(28), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
 	buttonBase = mergeUnfinisheds(buttonBase, text);
 	curPos[X_pos] = -1 + convFromPixelX(850);
 	curPos[Y_pos] = 1;
 	curPos[Z_pos] = .1;
-	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
+	curClick[0] = 850 - (windX / 2);
+	curClick[1] = (windX / 2);
+	curClick[2] = (windY / 2) - 60;
+	curClick[3] = (windY / 2);
+	curElement = createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, pageSwitcher, NULL, ACTION, 1, curClick);
+	curData = &curElement->data;
+	curData[OUR_DESIRED_PAGE] = UPTHREE;
+	insertElementIntoUI(mainPage, curElement);
 
 
 	text = createUnFinText("View Accesses", convFromPixelX(32), convFromPixelY(-30), 32, textColour);
@@ -301,13 +365,20 @@ void startupDataBase(GLFWwindow* window) {
 	curData[OUR_DESIRED_PAGE] = REPORTTWO;
 	insertElementIntoUI(mainPage, curElement);
 
-	text = createUnFinText("View Surveys", convFromPixelX(48), convFromPixelY(-30), 32, textColour);
+	text = createUnFinText("View Answers", convFromPixelX(48), convFromPixelY(-30), 32, textColour);
 	buttonBase = createButton(0, 0, 350, 60, 5, buttonBaseColour, buttonInnerColour);
 	buttonBase = mergeUnfinisheds(buttonBase, text);
 	curPos[X_pos] = -1 + convFromPixelX(850);
 	curPos[Y_pos] = 1 - convFromPixelY(60);
 	curPos[Z_pos] = .1;
-	insertElementIntoUI(mainPage, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, NULL, NULL, NO_ACTION, 1, NULL));
+	curClick[0] = -(windX / 2) + 850;
+	curClick[1] = (windX / 2);
+	curClick[2] = (windY / 2) - 120;
+	curClick[3] = (windY / 2) - 60;
+	curElement = createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, pageSwitcher, NULL, ACTION, 1, curClick);
+	curData = &curElement->data;
+	curData[OUR_DESIRED_PAGE] = REPORTTHREE;
+	insertElementIntoUI(mainPage, curElement);
 		
 	masterUIList[MAINPAGE] = mainPage;
 	
@@ -347,9 +418,14 @@ void startupDataBase(GLFWwindow* window) {
 	uptwo->active = 0;
 	insertElementIntoUI(uptwo, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, backendUploadSelect, NULL, ACTION, 1, curClick));
 
+	//Upload Three, copies a lot of stuff from upload one
+	UI* upthree = createUI();
+	upthree->active = 0;
+	insertElementIntoUI(upthree, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, surveyUploadSelect, NULL, ACTION, 1, curClick));
 
 	masterUIList[UPONE] = upone;
 	masterUIList[UPTWO] = uptwo;
+	masterUIList[UPTHREE] = upthree;
 }
 
 UnfinObj createButton(float xIn, float yIn, float xScaleIn, float yScaleIn, float spacingIn, float* baseRGB, float* innerRGB) {
