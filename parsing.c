@@ -457,15 +457,15 @@ void parseSurveyData(char* fileName) {
 			printf("%s\n", mysql_error(mysqlConnection));
 		}
 
-		printf("%s\n", questionTypes);
-		if (mysql_query(mysqlConnection, questionTypes)) {
-			printf("%s\n", mysql_error(mysqlConnection));
-		}
-
 		printf("%s\n", survey);
 		if (mysql_query(mysqlConnection, survey)) {
 			printf("%s\n", mysql_error(mysqlConnection));
 		}	
+
+		printf("%s\n", questionTypes);
+		if (mysql_query(mysqlConnection, questionTypes)) {
+			printf("%s\n", mysql_error(mysqlConnection));
+		}
 
 		printf("%s\n", questionOptions);
 		if (mysql_query(mysqlConnection, questionOptions)) {

@@ -14,7 +14,7 @@
 #define CUSTOM_ACTION 1
 #define NO_ACTION -1
 
-#define APPLICATIONNAME "GGE2"
+#define APPLICATIONNAME "Sir Vey Access Terminal"//"GGE2"
 
 //#define ERROR -1
 #define SUCCESS 0
@@ -100,8 +100,8 @@ struct ui {
 };
 typedef struct ui UI;
 
-UI** masterUIList;
-int masterUIListLength;
+volatile UI** masterUIList;
+volatile  int masterUIListLength;
 
 
 struct unfinishedObject {

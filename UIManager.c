@@ -1673,6 +1673,20 @@ void setupSymbols() {
 		10,11,12, 11,12,13,
 	};
 	font['?'] = createUnfinObjFromStatic(question, questioninds, _countof(question) / VERTEX_LENGTH, _countof(questioninds));
+
+	float period[] = {
+		//it's a dot...
+		-4, -40,			0, 0.8, 0.8, 0.8,//0      
+		-4, -32,			0, 0.8, 0.8, 0.8,//1      
+		4, -40,				0, 0.8, 0.8, 0.8,//2      
+		4,-32,				0, 0.8, 0.8, 0.8,//3     
+	};
+	convertPixelSpaceToOpenGL(period, _countof(period) / VERTEX_LENGTH);
+
+	unsigned periodinds[] = {
+		0,1,2, 1,2,3,
+	};
+	font['.'] = createUnfinObjFromStatic(period, periodinds, _countof(period) / VERTEX_LENGTH, _countof(periodinds));
 }
 
 

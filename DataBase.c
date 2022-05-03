@@ -411,17 +411,20 @@ void startupDataBase(GLFWwindow* window) {
 	curClick[1] = 450 - (windX / 2);
 	curClick[2] = (windY / 2) - 460;
 	curClick[3] = (windY / 2) - 400;
-	insertElementIntoUI(upone, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, accessKeyUploadSelect, NULL, ACTION, 1, curClick));
+	curElement = createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, accessKeyUploadSelect, NULL, ACTION, 1, curClick);
+	insertElementIntoUI(upone, curElement);
 
 	//Upload Two, copies a lot of stuff from upload one
 	UI* uptwo = createUI();
 	uptwo->active = 0;
-	insertElementIntoUI(uptwo, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, backendUploadSelect, NULL, ACTION, 1, curClick));
+	curElement = createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, backendUploadSelect, NULL, ACTION, 1, curClick);
+	insertElementIntoUI(uptwo, curElement);
 
 	//Upload Three, copies a lot of stuff from upload one
 	UI* upthree = createUI();
 	upthree->active = 0;
-	insertElementIntoUI(upthree, createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, surveyUploadSelect, NULL, ACTION, 1, curClick));
+	curElement = createElement(buttonBase.verts, buttonBase.indices, buttonBase.vLineCount, buttonBase.iCount, curPos, surveyUploadSelect, NULL, ACTION, 1, curClick);
+	insertElementIntoUI(upthree, curElement);
 
 	masterUIList[UPONE] = upone;
 	masterUIList[UPTWO] = uptwo;

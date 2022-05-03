@@ -15,7 +15,8 @@ World* ourWorld;
 World* ourUI;
 
 
-int main() {
+int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
+//int main(){
 	printf("Hi\n");
 
 	//sql opening stuff
@@ -57,7 +58,7 @@ int main() {
 
 	
 	float counter = 1;
-	while (1) {
+	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

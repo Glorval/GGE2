@@ -211,7 +211,7 @@ void defaultMoustClick(GLFWwindow* window, int button, int action, int mods) {
 	ypos += (windY / 2);
 	//printf("%f, %f\n", xpos, ypos);
 	for (int masterPos = 0; masterPos < masterUIListLength; masterPos++) {
-		if (masterUIList[masterPos] != NULL) {//safety
+		if (masterUIList[masterPos] != NULL && masterUIList[masterPos]->active == 1) {//safety & active checker
 			for (int cItem = 0; cItem < masterUIList[masterPos]->elementCount; cItem++) {
 				if (masterUIList[masterPos]->elements[cItem]->elementActive == 1 && masterUIList[masterPos]->elements[cItem]->actionNeeded == READY_FOR_ACTION) {
 					UIElement* ref = masterUIList[masterPos]->elements[cItem];
