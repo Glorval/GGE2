@@ -4,6 +4,9 @@
 #include <windows.h>
 #include "parsing.h"
 
+volatile int dragdropflag = 0;
+char dragdropfilepath[250] = { 0 };
+
 void clearTempStuff() {
 	for (int cElement = 0; cElement < temporaryStuff->elementCount; cElement++) {
 		free(temporaryStuff->elements[cElement]);
@@ -62,7 +65,7 @@ long long int pageSwitcher(long long int data, short int clickData) {
 				//load the premade page and display the temp page in case there needs to be dynamically done stuff
 				masterUIList[ourData[OUR_DESIRED_PAGE]]->active = 1;
 				masterUIList[TEMPSTUFF]->active = 1;
-				programState = 0;
+				programState = ourData[OUR_DESIRED_PAGE];
 				break;
 		}	
 		
@@ -188,7 +191,7 @@ long long int accessKeyUpload(long long int data, short int clickData) {
 		parseAccessKeys(string);
 
 		_beginthread(clearTempAfterExecute, 0, &data);
-		free(string);
+		//free(string);
 		data = 0;
 	}
 	return(0);
@@ -205,7 +208,7 @@ long long int backendUpload(long long int data, short int clickData) {
 
 		//the cursed line
 		_beginthread(clearTempAfterExecute, 0, &data);
-		free(string);
+		//free(string);
 		data = 0;
 	}
 	return(0);
@@ -222,7 +225,7 @@ long long int surveyUpload(long long int data, short int clickData) {
 
 		//the cursed line
 		_beginthread(clearTempAfterExecute, 0, &data);
-		free(string);
+		//free(string);
 		data = 0;
 	}
 	return(0);
@@ -232,6 +235,8 @@ void startupDataBase(GLFWwindow* window) {
 	connectToDatabase();
 
 	glfwSetKeyCallback(window, ourButtonPresses);
+	glfwSetScrollCallback(window, scrolling);
+	glfwSetDropCallback(window, drop_callback);
 
 	programState = 0;
 	masterUIList = calloc(10, sizeof(UI*));
@@ -469,9 +474,6 @@ UnfinObj createButton(float xIn, float yIn, float xScaleIn, float yScaleIn, floa
 }
 
 
-
-
-
 char* fileSelector() {
 	int ret = 1;
 	wchar_t path[256] = { 0 };
@@ -502,4 +504,93 @@ void ourButtonPresses(GLFWwindow* window, int key, int scancode, int action, int
 	else if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT) && programState == ON_REPORT) {
 		masterUIList[TEMPSTUFF]->elements[0]->position[1] += 0.035;
 	}
+}
+
+void scrolling(GLFWwindow* window, double xoffset, double yoffset){
+	if (programState == ON_REPORT) {
+		masterUIList[TEMPSTUFF]->elements[0]->position[1] -= yoffset/6;
+	}
+}
+
+void drop_callback(GLFWwindow* window, int count, const char** paths) {
+	dragdropfilepath[0] = '\0';
+	strcat(dragdropfilepath, paths[0]);
+	dragdropflag = 1;
+}
+
+void checkDragDrop() {
+	if (dragdropflag == 1) {
+
+		float textColour[] = { 0,0,0 };
+		float position[] = {
+			-1 + convFromPixelX(100),
+			 1 - convFromPixelY(520),
+			 0.8
+		};
+		float buttonBaseColour[] = { 189.0 / 255, 115.0 / 255, 58.0 / 255, };
+		float buttonInnerColour[] = { 211.0 / 255, 207.0 / 255, 193.0 / 255, };
+		float clickarea[] = {
+			-(windX / 2) + 100, //left
+			-(windX / 2) + 320, //right
+			-185, //bottom
+			-126, //top
+		};
+
+		UnfinObj text;
+		UnfinObj button;
+		UnfinObj buttonText;
+		UIElement* displayedPath;
+		char displayedText[512] = "File:\n";
+		switch (programState) {
+			case UPONE:
+				clearTempStuff();
+				strcat(displayedText, dragdropfilepath);
+
+				text = createUnFinText(displayedText, convFromPixelX(28), convFromPixelY(16), 32, textColour);
+				button = createButton(0, -56, 220, 60, 5, buttonBaseColour, buttonInnerColour);
+				buttonText = createUnFinText("Confirm?", convFromPixelX(28), convFromPixelY(-86), 32, textColour);
+				text = mergeUnfinisheds(text, button);
+				text = mergeUnfinisheds(text, buttonText);
+
+				//THIS IS THE DIFFERENTIATING LINE, the button we create here has a function attached to it for the specific upload
+				displayedPath = createElement(text.verts, text.indices, text.vLineCount, text.iCount, position, accessKeyUpload, NULL, ACTION, 1, clickarea);
+				displayedPath->data = (long long int)dragdropfilepath;
+				insertElementIntoUI(masterUIList[TEMPSTUFF], displayedPath);
+				break;
+
+			case UPTWO:
+				clearTempStuff();
+				strcat(displayedText, dragdropfilepath);
+
+				text = createUnFinText(displayedText, convFromPixelX(28), convFromPixelY(16), 32, textColour);
+				button = createButton(0, -56, 220, 60, 5, buttonBaseColour, buttonInnerColour);
+				buttonText = createUnFinText("Confirm?", convFromPixelX(28), convFromPixelY(-86), 32, textColour);
+				text = mergeUnfinisheds(text, button);
+				text = mergeUnfinisheds(text, buttonText);
+
+				//THIS IS THE DIFFERENTIATING LINE, the button we create here has a function attached to it for the specific upload
+				displayedPath = createElement(text.verts, text.indices, text.vLineCount, text.iCount, position, backendUpload, NULL, ACTION, 1, clickarea);
+				displayedPath->data = (long long int)dragdropfilepath;
+				insertElementIntoUI(masterUIList[TEMPSTUFF], displayedPath);
+				break;
+
+			case UPTHREE:
+				clearTempStuff();
+				strcat(displayedText, dragdropfilepath);
+
+				text = createUnFinText(displayedText, convFromPixelX(28), convFromPixelY(16), 32, textColour);
+				button = createButton(0, -56, 220, 60, 5, buttonBaseColour, buttonInnerColour);
+				buttonText = createUnFinText("Confirm?", convFromPixelX(28), convFromPixelY(-86), 32, textColour);
+				text = mergeUnfinisheds(text, button);
+				text = mergeUnfinisheds(text, buttonText);
+
+				//THIS IS THE DIFFERENTIATING LINE, the button we create here has a function attached to it for the specific upload
+				displayedPath = createElement(text.verts, text.indices, text.vLineCount, text.iCount, position, surveyUpload, NULL, ACTION, 1, clickarea);
+				displayedPath->data = (long long int)dragdropfilepath;
+				insertElementIntoUI(masterUIList[TEMPSTUFF], displayedPath);
+				break;
+		}
+	}
+
+	dragdropflag = 0;
 }

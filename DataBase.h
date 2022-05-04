@@ -38,4 +38,6 @@ long long int surveyUpload(long long data, short int clickData);
 UnfinObj createButton(float x, float y, float xScale, float yScale, float spacing, float* baseRGB, float* innerRGB);
 void startupDataBase(GLFWwindow* window);
 void ourButtonPresses(GLFWwindow* window, int key, int scancode, int action, int mods);
-
+void scrolling(GLFWwindow* window, double xoffset, double yoffset);
+void drop_callback(GLFWwindow* window, int count, const char** paths);
+void checkDragDrop();

@@ -65,7 +65,7 @@ int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int n
 
 		//drawWorld(&world);//We dont need the world, just the UI right now
 		runMasterUI();
-		
+		checkDragDrop();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
