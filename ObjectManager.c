@@ -121,3 +121,48 @@ void drawWorldObject(Object* shape, World* world) {
 	}
 	
 }
+
+
+//Centres the entire list of vertices perfectly around 0,0,0 assumes first, second, and third entry per line are x,y,z respectively
+void naturallyCentreVertices(float* input, int lines, int linewidth) {
+	float maxLeft = 0;
+	float maxRight = 0;
+	float maxUp = 0;
+	float maxDown = 0;
+	float maxForward = 0;
+	float maxBack = 0;
+
+	for (int cLine = 0; cLine < lines; cLine++) {
+		//max side checking
+		if (input[cLine * linewidth] > maxRight) {
+			maxRight = input[cLine * linewidth];
+		}else if (input[cLine * linewidth] < maxLeft) {
+			maxLeft = input[cLine * linewidth];
+		}
+
+		//max vertical checking
+		if (input[(cLine * linewidth) + 1] > maxUp) {
+			maxUp = input[cLine * linewidth];
+		} else if (input[(cLine * linewidth) + 1] < maxDown) {
+			maxDown = input[cLine * linewidth];
+		}
+
+		//max depth checking
+		if (input[(cLine * linewidth) + 2] > maxForward) {
+			maxForward = input[cLine * linewidth];
+		} else if (input[(cLine * linewidth) + 2] < maxBack) {
+			maxBack = input[cLine * linewidth];
+		}
+	}
+
+
+	float verticalOffset = (maxUp + maxDown) / 2;
+	float sideOffset = (maxLeft + maxRight) / 2;
+	float depthOffset = (maxBack + maxForward) / 2;
+
+	for (int cLine = 0; cLine < lines; cLine++) {
+		input[cLine * linewidth] += sideOffset;
+		input[(cLine * linewidth) + 1] += verticalOffset;
+		input[(cLine * linewidth) + 2] += depthOffset;
+	}
+}

@@ -14,7 +14,10 @@ UI (Usually 2d stuff rendered in triangle mode like standard and with colours on
 */
 
 #define windX 1200
-#define windY 900//(windX * 3)/4
+#define windY 900
+
+#define FOV (float)45
+
 
 #define READY_FOR_ACTION 0 //Is ready to be activated
 #define COMMITTING_ACTION -1 //Is in the process of being activated
@@ -43,6 +46,11 @@ UI (Usually 2d stuff rendered in triangle mode like standard and with colours on
 
 #define VECTOR_VERTEX_LENGTH 3//The length of the vertices, 3 entries per for just vector graphics
 
+#define RENDER_MODE_NORMAL 0
+#define RENDER_MODE_POS_ONLY 1
+#define RENDER_MODE_VECTOR 2
+#define RENDER_MODE_VECT_POS_ONLY 3
+
 struct programData {
     int shaderID;
     int cordinatesLoc;
@@ -53,11 +61,13 @@ struct programData {
     int camAngleLoc;
     int flagsLoc;
     int colourLoc;
+    int windowRatioLoc;
 };
 struct programData ProgramData;
 
 GLFWwindow* startup();
 int setupShaders();
+void window_resize_handler(GLFWwindow* window, int width, int height);
 
 
 struct object {
@@ -94,14 +104,15 @@ struct uielement {
     unsigned int ID, VBO, EBO;
     int indexCount;
     float scale;
-    int elementActive;
+    short int elementActive;
     int actionNeeded;
     float clickArea[4];//left x, right x, top y, bottom y.
     float position[3];//xyz position on the screen
     char defaultAction;
     long long int data; //Can be used as a pointer, too
     short int clickData;
-    long long int(*action)(long long int, short int);//short int for the 'click data', like left click, right click, etc.
+    long long int(*action)(void*, long long int, short int);//short int for the 'click data', like left click, right click, etc.
+    short int renderMode;
 };
 typedef struct uielement UIElement;
 

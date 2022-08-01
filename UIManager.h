@@ -27,8 +27,12 @@ void insertElementIntoUI(UI* ui, UIElement* element);
 void removeElementFromUI(UI* ui, UIElement* element);
 void drawElement(UIElement* uiItem);
 
-//'click area' is leftmost, rightmost, bottommost, topmost
-UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, void* customAction, char defaultAction, int active, float clickArea[4]);
+//'click area' is how far to the left, how far to the right, how far up, how far down, from 'position'.
+//IE, if position is -1, 0, 0 and click area is '0, 0.2, 0.1, 0.1', the click area will go to the right 0.2, up and down 0.1 from the position.
+//This is because the UI needs to stay at the given proportions, but the window may rescale. Doing things this way allows for 'side anchoring', set the position
+//to be a side of the screen and have everything go away from the side and it'll always stay on the side and in proportion.
+UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, int active, float clickArea[4]);
+UIElement* createVectorElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, int active, float clickArea[4]);
 
 UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, float* rgb);
 UnfinObj createUnFinTextWithZ(char* text, float xpos, float ypos, float zpos, float fontSize, float* rgb);

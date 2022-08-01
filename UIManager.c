@@ -1760,7 +1760,7 @@ void drawUI(UI* ui) {
 	int current = 0;
 	glUniform1i(ProgramData.flagsLoc, 1);
 	while (current < ui->elementCount) {
-		if (ui->elements[current]->elementActive == 1) {
+		if (ui->elements[current]->elementActive == 1) {//check if this UI ELEMENT is active
 			drawElement(ui->elements[current]);
 		}
 		current++;
@@ -1770,7 +1770,7 @@ void drawUI(UI* ui) {
 void runMasterUI() {
 	for (int c = 0; c < masterUIListLength; c++) {
 		if (masterUIList[c] != NULL) {//safety
-			if (masterUIList[c]->active == 1) {
+			if (masterUIList[c]->active == 1) {//check if this UI BLOCK is active, not individual element!
 				runUI(masterUIList[c]);
 			}
 		}
@@ -1778,11 +1778,12 @@ void runMasterUI() {
 	}
 }
 
+//Runs a UI block, includes rendering and actions
 void runUI(UI* ui) {
 	int current = 0;
-	glUniform1i(ProgramData.flagsLoc, 1);
+	//glUniform1i(ProgramData.flagsLoc, 1);
 	while (current < ui->elementCount) {
-		if (ui->elements[current]->elementActive == 1) {
+		if (ui->elements[current]->elementActive == 1) {//Check to see if the element is active
 			Object* temp = ui->elements[current];
 			drawElement(ui->elements[current]);
 		}
@@ -1792,7 +1793,7 @@ void runUI(UI* ui) {
 			ui->elements[current]->actionNeeded = COMMITTING_ACTION;
 			//switch (ui->elements[current]->defaultAction) {
 				//case ACTION:
-					ui->elements[current]->data = ui->elements[current]->action(ui->elements[current]->data, ui->elements[current]->clickData);
+					ui->elements[current]->data = ui->elements[current]->action(ui->elements[current], ui->elements[current]->data, ui->elements[current]->clickData);
 					//break;
 				//case CUSTOM_ACTION:
 					//*ui->elements[current]->blockData = ui->elements[current]->customAction(ui->elements[current]->blockData, ui->elements[current]->clickData);
@@ -1803,6 +1804,22 @@ void runUI(UI* ui) {
 
 		current++;
 	}
+}
+
+void drawElement(UIElement* uiItem) {
+	glBindVertexArray(uiItem->ID);
+	glUniform1i(ProgramData.flagsLoc, uiItem->renderMode);
+	glUniform3f(ProgramData.cordinatesLoc, uiItem->position[X_pos], uiItem->position[Y_pos], uiItem->position[Z_pos]);
+	if (uiItem->renderMode == RENDER_MODE_NORMAL) {
+		glDrawElements(GL_TRIANGLES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
+	} else if (uiItem->renderMode == RENDER_MODE_POS_ONLY) {
+		glDrawElements(GL_TRIANGLES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
+	} else if (uiItem->renderMode == RENDER_MODE_VECTOR) {
+		glDrawElements(GL_LINES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
+	} else if (uiItem->renderMode == RENDER_MODE_VECT_POS_ONLY) {
+		glDrawElements(GL_LINES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
+	}
+
 }
 
 void insertElementIntoUI(UI* ui, UIElement* element){
@@ -1834,15 +1851,8 @@ void removeElementFromUI(UI* ui, UIElement* element) {
 	}
 }
 
-
-void drawElement(UIElement* uiItem) {
-	glBindVertexArray(uiItem->ID);
-	glUniform3f(ProgramData.cordinatesLoc, uiItem->position[X_pos], uiItem->position[Y_pos], uiItem->position[Z_pos]);
-	glDrawElements(GL_TRIANGLES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
-}
-
 //'click area' is leftmost, rightmost, bottommost, topmost
-UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, void* customAction, char defaultAction, int active, float clickArea[4]){
+UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, int active, float clickArea[4]){
 	//unsigned int VBO;
 	UIElement* returnElement = calloc(1, sizeof(UIElement));
 	//returnElement.ID = ID;
@@ -1867,8 +1877,6 @@ UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int
 	glEnableVertexAttribArray(1);
 
 	returnElement->action = action;
-	//returnElement->customAction = customAction;
-	returnElement->defaultAction = defaultAction;
 	returnElement->elementActive = active;
 	returnElement->position[X_pos] = pos[X_pos];
 	returnElement->position[Y_pos] = pos[Y_pos];
@@ -1886,8 +1894,45 @@ UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int
 		returnElement->clickArea[3] = ((clickArea[3] * -1) + 1) * windY / 2;*/
 	}	
 	//printf("%f, %f, %f, %f\n", returnElement->clickArea[0], returnElement->clickArea[1], returnElement->clickArea[2], returnElement->clickArea[3]);
+	returnElement->renderMode = RENDER_MODE_POS_ONLY;
 
+	return(returnElement);
+}
 
+UIElement* createVectorElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, int active, float clickArea[4]) {
+	//unsigned int VBO;
+	UIElement* returnElement = calloc(1, sizeof(UIElement));
+	//returnElement.ID = ID;
+
+	returnElement->indexCount = indSize;
+	glGenVertexArrays(1, &returnElement->ID);
+	glGenBuffers(1, &returnElement->VBO);
+	glGenBuffers(1, &returnElement->EBO);
+	// bind the Vertex Array Element first, then bind and set vertex buffer(s), and then configure vertex attributes(s)->
+	glBindVertexArray(returnElement->ID);
+
+	glBindBuffer(GL_ARRAY_BUFFER, returnElement->VBO);
+	glBufferData(GL_ARRAY_BUFFER, vertSize * VERTEX_SIZE * VECTOR_VERTEX_LENGTH, vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, returnElement->EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indSize * IND_SIZE, index, GL_STATIC_DRAW);
+
+	// position attribute, first three
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	returnElement->action = action;
+	returnElement->elementActive = active;
+	returnElement->position[X_pos] = pos[X_pos];
+	returnElement->position[Y_pos] = pos[Y_pos];
+	returnElement->position[Z_pos] = pos[Z_pos];
+
+	if (clickArea != NULL) {
+		returnElement->clickArea[0] = clickArea[0];
+		returnElement->clickArea[1] = clickArea[1];
+		returnElement->clickArea[2] = clickArea[2];
+		returnElement->clickArea[3] = clickArea[3];
+	}
+	returnElement->renderMode = RENDER_MODE_VECT_POS_ONLY;
 	return(returnElement);
 }
 

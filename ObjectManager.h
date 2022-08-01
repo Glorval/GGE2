@@ -9,3 +9,5 @@ void drawStandardObject(Object* shape);
 void drawVectorObject(Object* shape);
 
 void drawWorldObject(Object* shape, World* world);
+
+void naturallyCentreVertices(float* input, int lines, int linewidth);

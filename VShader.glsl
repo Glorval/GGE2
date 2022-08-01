@@ -4,14 +4,14 @@ layout(location = 1) in vec3 aColor;
 
 uniform mat4 perspective;
 
-uniform vec3 cordinates;
-uniform vec4 orientation;
-
-uniform vec4 vectorColours;
-uniform int flags; 
-
+uniform vec3 cordinates; //Of the object
+uniform vec4 orientation; //of the object
 uniform vec3 cameraPosition;
 uniform vec4 cameraOrientation;
+	
+uniform float windowRatio;
+uniform vec4 vectorColours;
+uniform int flags;//Currently only for rendering mode
 
 out vec4 fColor;
 
@@ -52,47 +52,37 @@ void main() {
 
 
 	
-	
+	//Standard rendering, good for most things
 	if(flags == 0){
-
-	//vec4 orientationNorm = normalizeQuat(orientation);
-		
-	vec4 orientated = quatMult(quatMult(orientation, cordFour), quatConj(orientation));
-
-
-	//Notes: Clipping problem was because Z goes -1, 1, right? But I was double purposing Z as perspective number as well
-	//so when trying to rotate it'd go all fucky wucky
-	//vec3 worldPos = orientated.yzw + cordinates;
-	
-	vec3 worldPos = orientated.yzw + cordinates - cameraPosition;
-	vec4 reposToCam = vec4(0, worldPos);
-	reposToCam =  quatMult(quatMult(cameraOrientation, reposToCam), quatConj(cameraOrientation));
-
-	gl_Position = perspective * vec4(reposToCam.yzw, 1);
-	fColor = vec4(aColor, 1);
-
-		//vec4 orientated = quatMult(quatMult(orientation, cordFour), quatConj(orientation));
-		//vec3 worldPos = orientated.yzw + cordinates - cameraPosition;
-		//vec4 reposToCam = vec4(0, worldPos);
-		//reposToCam =  quatMult(quatMult(cameraOrientation, reposToCam), quatConj(cameraOrientation));
-		//gl_Position = perspective * vec4(reposToCam.yzw, 1);
-		//fColor = vec4(aColor, 1);
-	}
-	if(flags == 1){
-		gl_Position = vec4(corePos.x + cordinates.x, corePos.y + cordinates.y, corePos.z + cordinates.z, 1);
-		fColor = vec4(aColor, 1);
-	}
-	if(flags == 2){
 		vec4 orientated = quatMult(quatMult(orientation, cordFour), quatConj(orientation));
 		vec3 worldPos = orientated.yzw + cordinates - cameraPosition;
 		vec4 reposToCam = vec4(0, worldPos);
 		reposToCam =  quatMult(quatMult(cameraOrientation, reposToCam), quatConj(cameraOrientation));
-		//gl_Position = perspective * vec4(reposToCam.yzw, 1);
-		vec4 placeholder = vec4(reposToCam.yzw, 1);
-		placeholder.x = (placeholder.x / 4) * 3;
-		gl_Position =  perspective * placeholder;
+
+		gl_Position = perspective * vec4(reposToCam.yzw, 1);
+		fColor = vec4(aColor, 1);
+	}
+	//Just position offsetting, good for UI
+	else if(flags == 1){
+		gl_Position = vec4(corePos.x + cordinates.x, corePos.y + cordinates.y, corePos.z + cordinates.z, 1);
+		fColor = vec4(aColor, 1);
+	}
+	//Vector graphics mode
+	else if(flags == 2){
+		vec4 orientated = quatMult(quatMult(orientation, cordFour), quatConj(orientation));
+		vec3 worldPos = orientated.yzw + cordinates - cameraPosition;
+		vec4 reposToCam = vec4(0, worldPos);
+		reposToCam =  quatMult(quatMult(cameraOrientation, reposToCam), quatConj(cameraOrientation));
+		reposToCam.y = reposToCam.y * windowRatio;
+		//vec4 windowCompensator = vec4(reposToCam.yzw, 1);
+		//windowCompensator.x = windowCompensator.x * windowRatio;
+		gl_Position =  perspective * vec4(reposToCam.yzw, 1);//windowCompensator;
 		fColor = vectorColours;
 	}
-	//fColor = vec4(1,1,1,1);
+	//Vector graphics barebones mode- uses colours uniform rather than the location colour
+	else if(flags == 3){
+		gl_Position = vec4((corePos.x * windowRatio) + cordinates.x, corePos.y + cordinates.y, corePos.z + cordinates.z, 1);
+		fColor = vectorColours;
+	}
 	
 }

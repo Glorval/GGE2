@@ -11,6 +11,7 @@ GLFWwindow* startup() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 
@@ -39,9 +40,10 @@ GLFWwindow* startup() {
 	ProgramData.camAngleLoc = glGetUniformLocation(ProgramData.shaderID, "cameraOrientation");
 	ProgramData.flagsLoc = glGetUniformLocation(ProgramData.shaderID, "flags");
 	ProgramData.colourLoc = glGetUniformLocation(ProgramData.shaderID, "vectorColours");
+	ProgramData.windowRatioLoc = glGetUniformLocation(ProgramData.shaderID, "windowRatio");
 
 	float aspect = windX / windY;
-	float fov = 45;
+	//float fov = 45;
 	float far = 1000;
 	float near = 0.1;
 
@@ -49,7 +51,7 @@ GLFWwindow* startup() {
 	float f = 1000;
 	float n = 0.1;
 
-	float tanHalfFovy = tan(fov / 2);
+	float tanHalfFovy = tan(FOV / 2);
 
 	for (int c = 0; c < 4; c++) {
 		for (int a = 0; a < 4; a++) {
@@ -62,9 +64,10 @@ GLFWwindow* startup() {
 	perspective[2][2] = f / (n - f);
 	perspective[2][3] = -1.0;
 	perspective[3][2] = -((f * n) / (f - n));
-
-
 	glUniformMatrix4fv(ProgramData.perspectiveLoc, 1, 0, perspective);
+	glUniform1f(ProgramData.windowRatioLoc, ((float)windY / (float)windX));
+
+	glfwSetWindowSizeCallback(window, window_resize_handler);
 
 	glfwSetMouseButtonCallback(window, defaultMoustClick);
 	glfwSetKeyCallback(window, defaultButtonPress);
@@ -119,6 +122,37 @@ int setupShaders() {
 	return(shaderProgram);
 }
 
+void window_resize_handler(GLFWwindow* window, int width, int height) {
+	printf("%d, %d\n", width, height);
+	if (width == 0 || height == 0) {//safety
+		return;
+	}
+	float aspect = width / height;
+	//float fov = 45;
+	float far = 1000;
+	float near = 0.1;
+
+	float perspective[4][4];
+	float f = 1000;
+	float n = 0.1;
+
+	float tanHalfFovy = tan(FOV / 2);
+
+	for (int c = 0; c < 4; c++) {
+		for (int a = 0; a < 4; a++) {
+			perspective[c][a] = 0;
+		}
+	}
+
+	perspective[0][0] = 1 / (aspect * tanHalfFovy);
+	perspective[1][1] = 1 / (tanHalfFovy);
+	perspective[2][2] = f / (n - f);
+	perspective[2][3] = -1.0;
+	perspective[3][2] = -((f * n) / (f - n));
+	glUniformMatrix4fv(ProgramData.perspectiveLoc, 1, 0, perspective);
+	glUniform1f(ProgramData.windowRatioLoc, ((float)height / (float)width));
+	glViewport(0, 0, width, height);
+}
 
 UnfinObj createUnfinObjFromStatic(float* verts, unsigned int* inds, int vLen, int iCount) {
 	UnfinObj returnObj;
@@ -173,31 +207,53 @@ UnfinObj appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo) {
 
 //The default handler of mouse clicks
 void defaultMoustClick(GLFWwindow* window, int button, int action, int mods) {
-	/*
+	
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
 
-	xpos -= (windX / 2);
-	ypos *= -1;
-	ypos += (windY / 2);
-	//printf("%f, %f\n", xpos, ypos);
-	for (int masterPos = 0; masterPos < masterUIListLength; masterPos++) {
-		if (masterUIList[masterPos] != NULL && masterUIList[masterPos]->active == 1) {//safety & active checker
-			for (int cItem = 0; cItem < masterUIList[masterPos]->elementCount; cItem++) {
-				if (masterUIList[masterPos]->elements[cItem]->elementActive == 1 && masterUIList[masterPos]->elements[cItem]->actionNeeded == READY_FOR_ACTION) {
-					UIElement* ref = masterUIList[masterPos]->elements[cItem];
-					if (xpos > ref->clickArea[0] && xpos < ref->clickArea[1] && ypos > ref->clickArea[2] && ypos < ref->clickArea[3]) {
-						masterUIList[masterPos]->elements[cItem]->actionNeeded = AWAITING_ACTION;
-						char* modifier = &masterUIList[masterPos]->elements[cItem]->clickData;
-						modifier[0] = button;
-						modifier[1] = action;
-					}
+	int width;
+	int height;
+	glfwGetWindowSize(window, &width, &height);
+	float wiRat = ((float)width / (float)height);
 
+	xpos = xpos * wiRat;
+	xpos = (xpos * 2)/ width;
+	xpos -= wiRat;
+	
+	ypos *= -1;
+	ypos = (ypos * 2)/ height;
+	ypos += 1;
+	//printf("%f, %f\n", xpos, ypos);
+	for (int masterPos = 0; masterPos < masterUIListLength; masterPos++) {//go through all UI layers
+		if (masterUIList[masterPos] != NULL && masterUIList[masterPos]->active == 1) {//safety & active UI layer checker
+			for (int cItem = 0; cItem < masterUIList[masterPos]->elementCount; cItem++) {//Go through all UI elements in the layer
+				UIElement* cItm = masterUIList[masterPos]->elements[cItem];//make the following lines less massive
+				//check to see if this button is both active and has an action set, no action set = we cant do anything anyhow
+				if (cItm->elementActive == 1 && cItm->action != NULL) {
+					//make sure we're not on a pending action, would be painful to miss stuff or muddy up our memory
+					if (cItm->actionNeeded == READY_FOR_ACTION) {						
+						/*float temp = cItm->clickArea[0] + (cItm->position[X_pos] * wiRat);
+						temp = (cItm->clickArea[1] + (cItm->position[X_pos] * wiRat));
+						temp = (cItm->clickArea[2] + cItm->position[Y_pos]);
+						temp = (-cItm->clickArea[3] + cItm->position[Y_pos]);*/
+						//check if click is within click area
+						if (xpos > (-cItm->clickArea[0] + (cItm->position[X_pos]*wiRat)) && 
+							xpos < (cItm->clickArea[1] + (cItm->position[X_pos] * wiRat)) && 
+							ypos < (cItm->clickArea[2] + cItm->position[Y_pos]) && //Y pos is not changed via window shape, all of it is done on X
+							ypos > (-cItm->clickArea[3] + cItm->position[Y_pos])
+							) {
+							masterUIList[masterPos]->elements[cItem]->actionNeeded = AWAITING_ACTION;
+							char* modifier = &masterUIList[masterPos]->elements[cItem]->clickData;
+							modifier[0] = button;
+							modifier[1] = action;
+						}
+					}
 				}
+				
 			}
 		}
 
-	}*/
+	}
 }
 
 void defaultButtonPress(GLFWwindow* window, int key, int scancode, int action, int mods) {
