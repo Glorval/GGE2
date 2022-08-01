@@ -1,5 +1,5 @@
 #pragma once
-#include "GGE2.h"
+#include "GGE2_1.h"
 #include "ObjectManager.h"
 #include "GlorwynUtilities.h"
 #include <math.h>
@@ -38,8 +38,9 @@ GLFWwindow* startup() {
 	ProgramData.cameraPosLoc = glGetUniformLocation(ProgramData.shaderID, "cameraPosition");
 	ProgramData.camAngleLoc = glGetUniformLocation(ProgramData.shaderID, "cameraOrientation");
 	ProgramData.flagsLoc = glGetUniformLocation(ProgramData.shaderID, "flags");
+	ProgramData.colourLoc = glGetUniformLocation(ProgramData.shaderID, "vectorColours");
 
-	float aspect = 4 / 3;
+	float aspect = windX / windY;
 	float fov = 45;
 	float far = 1000;
 	float near = 0.1;
@@ -67,7 +68,7 @@ GLFWwindow* startup() {
 
 	glfwSetMouseButtonCallback(window, defaultMoustClick);
 	glfwSetKeyCallback(window, defaultButtonPress);
-	
+
 
 	//int cameraDefault[4] = { 0, 0, 1, 0 };
 	//glUniformMatrix4fv(ProgramData.cameraLoc, 1, 0, cameraDefault);
@@ -118,6 +119,7 @@ int setupShaders() {
 	return(shaderProgram);
 }
 
+
 UnfinObj createUnfinObjFromStatic(float* verts, unsigned int* inds, int vLen, int iCount) {
 	UnfinObj returnObj;
 	returnObj.iCount = iCount;
@@ -143,69 +145,38 @@ UnfinObj freeUnfinObj(UnfinObj obj) {
 	return(obj);
 }
 
-UnfinObj mergeUnfinisheds(UnfinObj objOne, UnfinObj objTwo) {
+UnfinObj appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo) {
 	UnfinObj returnObj = { 0 };
 
-	returnObj.verts = calloc(objOne.vLineCount + objTwo.vLineCount, VERTEX_LENGTH * VERTEX_SIZE);
-	returnObj.indices = calloc(objOne.iCount + objTwo.iCount, IND_SIZE);
-	returnObj.iCount = objOne.iCount + objTwo.iCount;
-	returnObj.vLineCount = objOne.vLineCount + objTwo.vLineCount;
+	returnObj.verts = calloc(objOne->vLineCount + objTwo->vLineCount, VERTEX_LENGTH * VERTEX_SIZE);
+	returnObj.indices = calloc(objOne->iCount + objTwo->iCount, IND_SIZE);
+	returnObj.iCount = objOne->iCount + objTwo->iCount;
+	returnObj.vLineCount = objOne->vLineCount + objTwo->vLineCount;
 
-	for (int cInd = 0; cInd < objOne.iCount; cInd++) {//Copy the first one over
-		returnObj.indices[cInd] = objOne.indices[cInd];
+	for (int cInd = 0; cInd < objOne->iCount; cInd++) {//Copy the first one over
+		returnObj.indices[cInd] = objOne->indices[cInd];
 	}
-	for (int cInd = objOne.iCount; cInd < objOne.iCount + objTwo.iCount; cInd++) {//Copy the second over with the offset to point at the correct vertex
-		returnObj.indices[cInd] = objTwo.indices[cInd - objOne.iCount] + objOne.vLineCount;
+	for (int cInd = objOne->iCount; cInd < objOne->iCount + objTwo->iCount; cInd++) {//Copy the second over with the offset to point at the correct vertex
+		returnObj.indices[cInd] = objTwo->indices[cInd - objOne->iCount] + objOne->vLineCount;
 	}
 
-	for (int cVert = 0; cVert < objOne.vLineCount * VERTEX_LENGTH; cVert++) {//Copy first over
-		returnObj.verts[cVert] = objOne.verts[cVert];
+	for (int cVert = 0; cVert < objOne->vLineCount * VERTEX_LENGTH; cVert++) {//Copy first over
+		returnObj.verts[cVert] = objOne->verts[cVert];
 	}
-	for (int cVert = objOne.vLineCount * VERTEX_LENGTH; cVert < (objOne.vLineCount + objTwo.vLineCount) * VERTEX_LENGTH; cVert++) {//Copy second over
-		returnObj.verts[cVert] = objTwo.verts[cVert - (objOne.vLineCount * VERTEX_LENGTH)];
+	for (int cVert = objOne->vLineCount * VERTEX_LENGTH; cVert < (objOne->vLineCount + objTwo->vLineCount) * VERTEX_LENGTH; cVert++) {//Copy second over
+		returnObj.verts[cVert] = objTwo->verts[cVert - (objOne->vLineCount * VERTEX_LENGTH)];
 	}
 
 	return(returnObj);
 }
-
-UnfinObj mergeUnfinishedsFreeing(UnfinObj objOne, UnfinObj objTwo) {
-	UnfinObj returnObj = { 0 };
-
-	returnObj.verts = calloc(objOne.vLineCount + objTwo.vLineCount, VERTEX_LENGTH * VERTEX_SIZE);
-	returnObj.indices = calloc(objOne.iCount + objTwo.iCount, IND_SIZE);
-	returnObj.iCount = objOne.iCount + objTwo.iCount;
-	returnObj.vLineCount = objOne.vLineCount + objTwo.vLineCount;
-
-	for (int cInd = 0; cInd < objOne.iCount; cInd++) {//Copy the first one over
-		returnObj.indices[cInd] = objOne.indices[cInd];
-	}
-	for (int cInd = objOne.iCount; cInd < objOne.iCount + objTwo.iCount; cInd++) {//Copy the second over with the offset to point at the correct vertex
-		returnObj.indices[cInd] = objTwo.indices[cInd - objOne.iCount] + objOne.vLineCount;
-	}
-
-	for (int cVert = 0; cVert < objOne.vLineCount * VERTEX_LENGTH; cVert++) {//Copy first over
-		returnObj.verts[cVert] = objOne.verts[cVert];
-	}
-	for (int cVert = objOne.vLineCount * VERTEX_LENGTH; cVert < (objOne.vLineCount + objTwo.vLineCount) * VERTEX_LENGTH; cVert++) {//Copy second over
-		returnObj.verts[cVert] = objTwo.verts[cVert - (objOne.vLineCount * VERTEX_LENGTH)];
-	}
-
-	freeUnfinObj(objOne);
-	freeUnfinObj(objTwo);
-	return(returnObj);
-}
-
-void appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo) {
-	printf("guck");
-}
-
 
 
 //The default handler of mouse clicks
 void defaultMoustClick(GLFWwindow* window, int button, int action, int mods) {
+	/*
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
-	
+
 	xpos -= (windX / 2);
 	ypos *= -1;
 	ypos += (windY / 2);
@@ -225,10 +196,10 @@ void defaultMoustClick(GLFWwindow* window, int button, int action, int mods) {
 				}
 			}
 		}
-		
-	}
+
+	}*/
 }
 
 void defaultButtonPress(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	
+
 }

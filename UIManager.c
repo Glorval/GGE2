@@ -1,5 +1,4 @@
 #include "UIManager.h"
-#include <string.h>
 
 void convertPixelSpaceToOpenGL(float* input, int lines) {
 	for (int cLine = 0; cLine < lines; cLine++) {
@@ -1791,14 +1790,14 @@ void runUI(UI* ui) {
 		//UI actions
 		if (ui->elements[current]->actionNeeded == 1 && ui->elements[current]->defaultAction != NO_ACTION) {
 			ui->elements[current]->actionNeeded = COMMITTING_ACTION;
-			switch (ui->elements[current]->defaultAction) {
-				case ACTION:
+			//switch (ui->elements[current]->defaultAction) {
+				//case ACTION:
 					ui->elements[current]->data = ui->elements[current]->action(ui->elements[current]->data, ui->elements[current]->clickData);
-					break;
-				case CUSTOM_ACTION:
-					*ui->elements[current]->blockData = ui->elements[current]->customAction(ui->elements[current]->blockData, ui->elements[current]->clickData);
-					break;
-			}
+					//break;
+				//case CUSTOM_ACTION:
+					//*ui->elements[current]->blockData = ui->elements[current]->customAction(ui->elements[current]->blockData, ui->elements[current]->clickData);
+					//break;
+			//}
 			ui->elements[current]->actionNeeded = READY_FOR_ACTION;
 		}
 
@@ -1868,7 +1867,7 @@ UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int
 	glEnableVertexAttribArray(1);
 
 	returnElement->action = action;
-	returnElement->customAction = customAction;
+	//returnElement->customAction = customAction;
 	returnElement->defaultAction = defaultAction;
 	returnElement->elementActive = active;
 	returnElement->position[X_pos] = pos[X_pos];
@@ -1908,7 +1907,7 @@ UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, flo
 
 	for (int cChar = 0; cChar < textLength; cChar++) {
 		UnfinObj temp = { 0 };
-		UnfinObj character = mergeUnfinisheds(temp, font[text[cChar]]);//so as to not mess up the font
+		UnfinObj character = appendUnfinisheds(&temp, &font[text[cChar]]);//so as to not mess up the font
 
 		//printf("Cur Index: %d,\t", cChar);
 		//printf("Cur char: %c\n", text[cChar]);
@@ -1932,7 +1931,7 @@ UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, flo
 			xOffset += fontWidth;
 			//printf("\n\n");
 			//appendUnfinisheds(&returnData, &temp);
-			returnData = mergeUnfinisheds(returnData, character);
+			returnData = appendUnfinisheds(&returnData, &character);
 			free(character.verts);
 			free(character.indices);
 		} else {
@@ -1964,7 +1963,7 @@ UnfinObj createUnFinTextWithZ(char* text, float xpos, float ypos, float zpos, fl
 
 	for (int cChar = 0; cChar < textLength; cChar++) {
 		UnfinObj temp = { 0 };
-		UnfinObj character = mergeUnfinisheds(temp, font[text[cChar]]);//so as to not mess up the font
+		UnfinObj character = appendUnfinisheds(&temp, &font[text[cChar]]);//so as to not mess up the font
 
 		//printf("Cur Index: %d,\t", cChar);
 		//printf("Cur char: %c\n", text[cChar]);
@@ -1989,7 +1988,7 @@ UnfinObj createUnFinTextWithZ(char* text, float xpos, float ypos, float zpos, fl
 			xOffset += fontWidth;
 			//printf("\n\n");
 			//appendUnfinisheds(&returnData, &temp);
-			returnData = mergeUnfinisheds(returnData, character);
+			returnData = appendUnfinisheds(&returnData, &character);
 			free(character.verts);
 			free(character.indices);
 		} else {

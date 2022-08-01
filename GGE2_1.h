@@ -2,6 +2,16 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
+#include <string.h>
+#include "GlorwynMemory.h"
+#include "GlorwynUtilities.h"
+
+/*
+There are 3 types of objects:
+Standard (3d solid stuff with colours on each vector)
+Vector (3d vector things with no colours, rendered in line mode)
+UI (Usually 2d stuff rendered in triangle mode like standard and with colours on each vector)
+*/
 
 #define windX 1200
 #define windY 900//(windX * 3)/4
@@ -14,22 +24,24 @@
 #define CUSTOM_ACTION 1
 #define NO_ACTION -1
 
-#define APPLICATIONNAME "Sir Vey Access Terminal"//"GGE2"
+#define APPLICATIONNAME "GGE2.1"//"GGE2"
 
 //#define ERROR -1
 #define SUCCESS 0
 
-#define X_pos 0
-#define Y_pos 1
-#define Z_pos 2
-#define W_pos 3
-#define I_pos 4
-#define J_pos 5
-#define K_pos 6
+//#define X_pos 0
+//#define Y_pos 1
+//#define Z_pos 2
+//#define W_pos 3
+//#define I_pos 4
+//#define J_pos 5
+//#define K_pos 6
 
 #define IND_SIZE sizeof(unsigned int)
 #define VERTEX_LENGTH 6//The length of the vertices, 6 entries per,  x/y/z r/g/b
 #define VERTEX_SIZE sizeof(float)//The size in bytes of a vertex, sizeof(float)
+
+#define VECTOR_VERTEX_LENGTH 3//The length of the vertices, 3 entries per for just vector graphics
 
 struct programData {
     int shaderID;
@@ -40,6 +52,7 @@ struct programData {
     int cameraPosLoc;
     int camAngleLoc;
     int flagsLoc;
+    int colourLoc;
 };
 struct programData ProgramData;
 
@@ -59,13 +72,15 @@ typedef struct object Object;
 
 struct world {
     Object** objects;//List of all items, ptp because it allows easy deletion of items
+    char worldType;//0 = full, 1 = vector
     int objectCount;
     int objectListSize;//size of the pointer
-    int* objectRender;
+    int* renderObject;
     float camera[7];
     float up[4];
     float back[4];
     float left[4];
+    float vecColour[4];
 };
 typedef struct world World;
 
@@ -84,16 +99,14 @@ struct uielement {
     float clickArea[4];//left x, right x, top y, bottom y.
     float position[3];//xyz position on the screen
     char defaultAction;
-    long long int data;
+    long long int data; //Can be used as a pointer, too
     short int clickData;
-    Block* blockData;
-    long long int(*action)(long long int, short int);
-    Block (*customAction)(Block*);
+    long long int(*action)(long long int, short int);//short int for the 'click data', like left click, right click, etc.
 };
 typedef struct uielement UIElement;
 
 struct ui {
-    UIElement** elements;//List of all items, ptp because it allows easy deletion of items
+    UIElement** elements;//List of all items, ptp because it allows easier deletion of items
     int elementCount;
     int elementListSize;//size of the pointer
     int active;
@@ -101,7 +114,7 @@ struct ui {
 typedef struct ui UI;
 
 volatile UI** masterUIList;
-volatile  int masterUIListLength;
+volatile int masterUIListLength;
 
 
 struct unfinishedObject {
@@ -117,13 +130,11 @@ void defaultButtonPress(GLFWwindow* window, int key, int scancode, int action, i
 
 //Used for easily creating objects, especially from hardcoded stuff that'd die when touched by realloc
 UnfinObj createUnfinObjFromStatic(float* verts, unsigned int* inds, int vLen, int iCount);
-
 UnfinObj freeUnfinObj(UnfinObj obj);
 
 //Appends objTwo into objOne. Needs both to have their arrays dynamically allocated
-void appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo);
-UnfinObj mergeUnfinisheds(UnfinObj objOne, UnfinObj objTwo);
-UnfinObj mergeUnfinishedsFreeing(UnfinObj objOne, UnfinObj objTwo);
+UnfinObj appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo);
+
 
 #include "ObjectManager.h"
 #include "WorldManager.h"

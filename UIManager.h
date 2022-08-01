@@ -1,5 +1,5 @@
 #pragma once
-#include "GGE2.h"
+#include "GGE2_1.h"
 #define USE_BUILT_IN_FONT 1
 #define FONT_NAME NULL
 

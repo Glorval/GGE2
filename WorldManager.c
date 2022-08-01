@@ -1,12 +1,11 @@
 #pragma once
-#include <malloc.h>
 #include "WorldManager.h"
 
-World createWorld() {
+World createWorld(int worldType) {
 	World newWorld;
 	newWorld.objectCount = 0;
 	newWorld.objectListSize = 0;
-	newWorld.objectRender = NULL;
+	newWorld.renderObject = NULL;
 	newWorld.objects = NULL;
 	newWorld.camera[X_pos] = 0;
 	newWorld.camera[Y_pos] = 0;
@@ -31,6 +30,8 @@ World createWorld() {
 	newWorld.left[2] = 0;
 	newWorld.left[3] = 0;
 
+	newWorld.worldType = worldType;
+
 	return(newWorld);
 }
 
@@ -42,8 +43,8 @@ void insertObjectIntoWorld(World* world, Object* object, int renderIt) {
 		world->objects = realloc(world->objects, world->objectCount * sizeof(Object*));
 		world->objects[world->objectCount - 1] = object;
 
-		world->objectRender = realloc(world->objectRender, world->objectCount * sizeof(int*));
-		world->objectRender[world->objectCount - 1] = renderIt;
+		world->renderObject = realloc(world->renderObject, world->objectCount * sizeof(int*));
+		world->renderObject[world->objectCount - 1] = renderIt;
 	}
 }
 
@@ -67,13 +68,27 @@ void removeObjectFromWorld(World* world, int ID, int FreeIt) {
 void drawWorld(World* world) {
 	int current = 0;
 
-	glUniform1i(ProgramData.flagsLoc, 0);
+	
 	glUniform3f(ProgramData.cameraPosLoc, world->camera[X_pos], world->camera[Y_pos], world->camera[Z_pos]);
 	glUniform4f(ProgramData.camAngleLoc, world->camera[W_pos], world->camera[I_pos], world->camera[J_pos], world->camera[K_pos]);
-	while (current < world->objectCount) {
-		if (world->objectRender[current] == 1) {
-			drawObject(world->objects[current]);
+
+	if (world->worldType == STANDARD_WORLD) {
+		glUniform1i(ProgramData.flagsLoc, 0);
+		while (current < world->objectCount) {
+			if (world->renderObject[current] == 1) {
+				drawStandardObject(world->objects[current]);
+			}
+			current++;
 		}
-		current++;
+	} else if (world->worldType == VECTOR_WORLD) {
+		glUniform1i(ProgramData.flagsLoc, 2);
+		glUniform4f(ProgramData.colourLoc, world->vecColour[0], world->vecColour[1], world->vecColour[2], world->vecColour[3]);// 4, world->vecColour);
+		while (current < world->objectCount) {
+			if (world->renderObject[current] == 1) {
+				drawVectorObjectSET(world->objects[current]);
+			}
+			current++;
+		}
 	}
+	
 }
