@@ -26,6 +26,7 @@ void runUI(UI* ui);
 void insertElementIntoUI(UI* ui, UIElement* element);
 void removeElementFromUI(UI* ui, UIElement* element);
 void drawElement(UIElement* uiItem);
+void drawVecElement(UIElement* uiItem);
 
 //'click area' is how far to the left, how far to the right, how far up, how far down, from 'position'.
 //IE, if position is -1, 0, 0 and click area is '0, 0.2, 0.1, 0.1', the click area will go to the right 0.2, up and down 0.1 from the position.

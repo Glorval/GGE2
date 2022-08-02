@@ -67,37 +67,14 @@ int main(){
 	setupMainMenu();
 
 	float counter = 1;
+	int gameFlag = IN_MAIN_MENU;
 	srand(time(NULL));
 	while (!glfwWindowShouldClose(window)) {
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		//glLineWidth(2);
-
-		//drawWorld(&testworld);
-		
-		
-
-		//float rotateQuat[4] = { cosf(0.0018726646 / 2), 0 , 1 * sinf(0.0018726646 / 2), 0 };
-		//float rotQuatConj[4] = { rotateQuat[0], 0, -rotateQuat[2], 0 };
-		//normalizeQuat(&rotateQuat);
-		//normalizeQuat(&rotQuatConj);
-		//quatMult(rotateQuat, &vectorobj.position[W_pos]);
-
-		//vectorobj.position[X_pos] += ((float)((rand()%100) - 50))/5000;
-		//vectorobj.position[Y_pos] += ((float)((rand()%100) - 50))/5000;
-		//vectorobj.position[Z_pos] += 0.20;// + (counter/5000);
-			
-		/*objtwo.position[X_pos] += ((float)((rand() % 100) - 50)) / 5000;
-		objtwo.position[Y_pos] += ((float)((rand() % 100) - 50)) / 5000;
-		objtwo.position[Z_pos] += 0.20;// + (counter/5000);
-
-		objthree.position[X_pos] += ((float)((rand() % 100) - 50)) / 5000;
-		objthree.position[Y_pos] += (((float)((rand() % 100) - 50)) / 5000) + 0.003;
-		objthree.position[Z_pos] += 0.20;// + (counter/5000);*/
-		
+		//drawWorld(lineworld);
+		//runMasterUI();
+		runGame(window, gameFlag);
+		gameFlag = getsetGamestate(DONT_STATE_CHANGE);
 		counter += 1;
-		
 	}
 
 

@@ -73,7 +73,7 @@ void drawWorld(World* world) {
 	glUniform4f(ProgramData.camAngleLoc, world->camera[W_pos], world->camera[I_pos], world->camera[J_pos], world->camera[K_pos]);
 
 	if (world->worldType == STANDARD_WORLD) {
-		glUniform1i(ProgramData.flagsLoc, 0);
+		glUniform1i(ProgramData.flagsLoc, RENDER_MODE_NORMAL);
 		while (current < world->objectCount) {
 			if (world->renderObject[current] == 1) {
 				drawStandardObject(world->objects[current]);
@@ -81,7 +81,7 @@ void drawWorld(World* world) {
 			current++;
 		}
 	} else if (world->worldType == VECTOR_WORLD) {
-		glUniform1i(ProgramData.flagsLoc, 2);
+		glUniform1i(ProgramData.flagsLoc, RENDER_MODE_VECTOR);
 		glUniform4f(ProgramData.colourLoc, world->vecColour[0], world->vecColour[1], world->vecColour[2], world->vecColour[3]);// 4, world->vecColour);
 		while (current < world->objectCount) {
 			if (world->renderObject[current] == 1) {

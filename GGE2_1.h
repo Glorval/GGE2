@@ -112,7 +112,6 @@ struct uielement {
     long long int data; //Can be used as a pointer, too
     short int clickData;
     long long int(*action)(void*, long long int, short int);//short int for the 'click data', like left click, right click, etc.
-    short int renderMode;
 };
 typedef struct uielement UIElement;
 
@@ -121,6 +120,8 @@ struct ui {
     int elementCount;
     int elementListSize;//size of the pointer
     int active;
+    char renderMode;
+    float vecColour[4];
 };
 typedef struct ui UI;
 

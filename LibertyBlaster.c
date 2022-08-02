@@ -1,13 +1,20 @@
 #include "LibertyBlaster.h"
 #include "Entities.c"
 
-#define IN_MAIN_MENU 0
-#define IN_GAME 1
+
+int getsetGamestate(int flag) {
+	static int ourState = IN_MAIN_MENU;
+	if (flag != DONT_STATE_CHANGE) {
+		ourState = flag;
+	}
+	return ourState;
+}
 
 void runGame(GLFWwindow* window, int flagSetting) {
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (flagSetting == IN_MAIN_MENU) {
 		runMasterUI();
-		
 	}
 	else if (flagSetting == IN_GAME) {
 		drawWorld(&gameworld);
@@ -36,6 +43,11 @@ void setupMainMenu() {
 	masterUIList = calloc(1, sizeof(UI*));
 	masterUIList[0] = calloc(1, sizeof(UI));
 	MainMenuUI->active = 1;
+	MainMenuUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
+	MainMenuUI->vecColour[0] = 0;
+	MainMenuUI->vecColour[1] = 1;
+	MainMenuUI->vecColour[2] = 0;
+	MainMenuUI->vecColour[3] = 1;
 	float gameStartButton[] = {
 		-0.3, 0.06, -0.5,
 		0.3, 0.06, -0.5,
@@ -63,7 +75,9 @@ long long int startGameButton(void* ourself, long long int data, short int click
 		testship->ID = masterObjList[0].ID;
 		testship->indexCount = masterObjList[0].indlen;
 		testship->position[W_pos] = 1;
-		testship->position[Z_pos] = -10;
+		testship->position[Z_pos] = -50;
+		testship->position[Y_pos] = 0.5;
 		insertObjectIntoWorld(&gameworld, testship, 1);
+		getsetGamestate(IN_GAME);
 	}
 }

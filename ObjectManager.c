@@ -117,7 +117,7 @@ void drawWorldObject(Object* shape, World* world) {
 	if (world->worldType == STANDARD_WORLD) {
 		glDrawElements(GL_TRIANGLES, shape->indexCount, GL_UNSIGNED_INT, 0);
 	} else if (world->worldType == VECTOR_WORLD) {
-		glDrawElements(GL_TRIANGLES, shape->indexCount, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_LINES, shape->indexCount, GL_UNSIGNED_INT, 0);
 	}
 	
 }

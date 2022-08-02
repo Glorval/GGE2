@@ -1781,46 +1781,55 @@ void runMasterUI() {
 //Runs a UI block, includes rendering and actions
 void runUI(UI* ui) {
 	int current = 0;
-	//glUniform1i(ProgramData.flagsLoc, 1);
-	while (current < ui->elementCount) {
-		if (ui->elements[current]->elementActive == 1) {//Check to see if the element is active
-			Object* temp = ui->elements[current];
-			drawElement(ui->elements[current]);
+	glUniform1i(ProgramData.flagsLoc, ui->renderMode);
+	glUniform4f(ProgramData.colourLoc, ui->vecColour[0], ui->vecColour[1], ui->vecColour[2], ui->vecColour[3]);
+	//all that SHOULD differ is the 'drawElement' function, they're just like this for efficiency of not checking
+	//the UI's render mode on each object :p
+	if (ui->renderMode == RENDER_MODE_VECT_POS_ONLY) {
+		while (current < ui->elementCount) {
+			if (ui->elements[current]->elementActive == 1) {//Check to see if the element is active
+				Object* temp = ui->elements[current];
+				drawVecElement(ui->elements[current]);
+			}
+			//UI actions
+			if (ui->elements[current]->actionNeeded == 1 && ui->elements[current]->defaultAction != NO_ACTION) {
+				ui->elements[current]->actionNeeded = COMMITTING_ACTION;
+				ui->elements[current]->data = ui->elements[current]->action(ui->elements[current], ui->elements[current]->data, ui->elements[current]->clickData);
+				ui->elements[current]->actionNeeded = READY_FOR_ACTION;
+			}
+			current++;
 		}
-
-		//UI actions
-		if (ui->elements[current]->actionNeeded == 1 && ui->elements[current]->defaultAction != NO_ACTION) {
-			ui->elements[current]->actionNeeded = COMMITTING_ACTION;
-			//switch (ui->elements[current]->defaultAction) {
-				//case ACTION:
-					ui->elements[current]->data = ui->elements[current]->action(ui->elements[current], ui->elements[current]->data, ui->elements[current]->clickData);
-					//break;
-				//case CUSTOM_ACTION:
-					//*ui->elements[current]->blockData = ui->elements[current]->customAction(ui->elements[current]->blockData, ui->elements[current]->clickData);
-					//break;
-			//}
-			ui->elements[current]->actionNeeded = READY_FOR_ACTION;
+	} else {
+		while (current < ui->elementCount) {
+			if (ui->elements[current]->elementActive == 1) {//Check to see if the element is active
+				Object* temp = ui->elements[current];
+				drawElement(ui->elements[current]);
+			}
+			//UI actions
+			if (ui->elements[current]->actionNeeded == 1 && ui->elements[current]->defaultAction != NO_ACTION) {
+				ui->elements[current]->actionNeeded = COMMITTING_ACTION;
+				ui->elements[current]->data = ui->elements[current]->action(ui->elements[current], ui->elements[current]->data, ui->elements[current]->clickData);
+				ui->elements[current]->actionNeeded = READY_FOR_ACTION;
+			}
+			current++;
 		}
-
-		current++;
 	}
 }
 
 void drawElement(UIElement* uiItem) {
 	glBindVertexArray(uiItem->ID);
-	glUniform1i(ProgramData.flagsLoc, uiItem->renderMode);
 	glUniform3f(ProgramData.cordinatesLoc, uiItem->position[X_pos], uiItem->position[Y_pos], uiItem->position[Z_pos]);
-	if (uiItem->renderMode == RENDER_MODE_NORMAL) {
-		glDrawElements(GL_TRIANGLES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
-	} else if (uiItem->renderMode == RENDER_MODE_POS_ONLY) {
-		glDrawElements(GL_TRIANGLES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
-	} else if (uiItem->renderMode == RENDER_MODE_VECTOR) {
-		glDrawElements(GL_LINES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
-	} else if (uiItem->renderMode == RENDER_MODE_VECT_POS_ONLY) {
-		glDrawElements(GL_LINES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
-	}
-
+	glDrawElements(GL_TRIANGLES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
 }
+
+void drawVecElement(UIElement* uiItem) {
+	glBindVertexArray(uiItem->ID);
+	glUniform3f(ProgramData.cordinatesLoc, uiItem->position[X_pos], uiItem->position[Y_pos], uiItem->position[Z_pos]);
+	glDrawElements(GL_LINES, uiItem->indexCount, GL_UNSIGNED_INT, 0);
+}
+
+
+
 
 void insertElementIntoUI(UI* ui, UIElement* element){
 	if (ui->elementCount > ui->elementListSize) {//This is because the list might be bigger than the current count from deleting elements 
@@ -1894,7 +1903,6 @@ UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int
 		returnElement->clickArea[3] = ((clickArea[3] * -1) + 1) * windY / 2;*/
 	}	
 	//printf("%f, %f, %f, %f\n", returnElement->clickArea[0], returnElement->clickArea[1], returnElement->clickArea[2], returnElement->clickArea[3]);
-	returnElement->renderMode = RENDER_MODE_POS_ONLY;
 
 	return(returnElement);
 }
@@ -1932,7 +1940,6 @@ UIElement* createVectorElement(float* vertices, unsigned int* index, int vertSiz
 		returnElement->clickArea[2] = clickArea[2];
 		returnElement->clickArea[3] = clickArea[3];
 	}
-	returnElement->renderMode = RENDER_MODE_VECT_POS_ONLY;
 	return(returnElement);
 }
 
