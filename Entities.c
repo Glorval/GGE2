@@ -11,7 +11,7 @@ void addRefEntry(unsigned int ID, int indlen, char* name) {
 }
 
 unsigned int loadEnemyShip() {
-	float vertices_two[] = {
+	float shipVerts[] = {
 		//windshield
 		-0.05, 0.0, 0.0,					//0
 		0.05, 0.0, 0.0,					//1
@@ -41,9 +41,9 @@ unsigned int loadEnemyShip() {
 		-0.08, -0.08, -0.45,			//19//back middle
 		0.08, -0.08, -0.45,			//20
 	};
-	naturallyCentreVertices(vertices_two, 21, 3);
+	naturallyCentreVertices(shipVerts, 21, 3);
 
-	unsigned int indstwo[] = {
+	unsigned int shipInds[] = {
 		0,1, 0,2, 2,3, 3,1, 0,4, 1,5, 4,2, 5,3,//windshield
 		0,6, 6,1, 6,7, 6,8, 7,8, 0,7, 1,8, 7,4, 8,5,//front frame and attaching to windshield
 		7,9, 9,4, 8,10, 10,5, 9,11, 10,12, 7,11, 8,12,//wings
@@ -51,7 +51,7 @@ unsigned int loadEnemyShip() {
 		7,19, 8,20, 19,20, 11,19, 12,20, //bottom frame and its connections
 	};
 
-	Object vectorobj = createStaticVectorObject(vertices_two, indstwo, (sizeof(vertices_two) / VECTOR_VERTEX_LENGTH) / sizeof(float), sizeof(indstwo) / sizeof(unsigned int));
+	Object vectorobj = createStaticVectorObject(shipVerts, shipInds, (sizeof(shipVerts) / VECTOR_VERTEX_LENGTH) / sizeof(float), sizeof(shipInds) / sizeof(unsigned int));
 
 	//char* enemyShip = calloc(sizeof("Enemy Ship"), 1);
 	//memcpy(enemyShip, "Enemy Ship", sizeof("Enemy Ship") / sizeof(char));

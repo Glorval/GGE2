@@ -24,4 +24,7 @@ float* quatMultRS(float* o, float* c);
 
 float* quatMultNS(float* o, float* c);
 
+double* quatMultRSD(double* o, double* c);
+double* quatMultD(double* o, double* c);
+
 float* quatConj(float q[4]);

@@ -34,7 +34,6 @@ Object createStaticStandardObject(float* vertices, unsigned int* index, int vert
 	returnObject.position[K_pos] = 0;
 	normalizeQuat(&returnObject.position[W_pos]);
 
-	returnObject.updateOpenGLData = 0;
 
 	return(returnObject);
 }
@@ -68,8 +67,6 @@ Object createStaticVectorObject(float* vertices, unsigned int* index, int vertSi
 	returnObject.position[J_pos] = 1;//1, idk why
 	returnObject.position[K_pos] = 0;
 	normalizeQuat(&returnObject.position[W_pos]);
-
-	returnObject.updateOpenGLData = 0;
 
 	return(returnObject);
 }

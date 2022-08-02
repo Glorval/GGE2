@@ -79,6 +79,36 @@ float* quatMultRS(float* o, float* c) {
 	return(temp);
 }
 
+double* quatMultD(double* o, double* c) {
+	double temp[4];
+	temp[X_pos] = (o[X_pos] * c[X_pos]) - (o[Y_pos] * c[Y_pos]) - (o[Z_pos] * c[Z_pos]) - (o[W_pos] * c[W_pos]);
+	temp[Y_pos] = (o[X_pos] * c[Y_pos]) + (o[Y_pos] * c[X_pos]) + (o[Z_pos] * c[W_pos]) - (o[W_pos] * c[Z_pos]);
+	temp[Z_pos] = (o[X_pos] * c[Z_pos]) - (o[Y_pos] * c[W_pos]) + (o[Z_pos] * c[X_pos]) + (o[W_pos] * c[Y_pos]);
+	temp[W_pos] = (o[X_pos] * c[W_pos]) + (o[Y_pos] * c[Z_pos]) - (o[Z_pos] * c[Y_pos]) + (o[W_pos] * c[X_pos]);
+
+	c[X_pos] = temp[X_pos];
+	c[Y_pos] = temp[Y_pos];
+	c[Z_pos] = temp[Z_pos];
+	c[W_pos] = temp[W_pos];
+
+	return(temp);
+}
+
+double* quatMultRSD(double* o, double* c) {
+	double temp[4];
+	temp[X_pos] = (o[X_pos] * c[X_pos]) - (o[Y_pos] * c[Y_pos]) - (o[Z_pos] * c[Z_pos]) - (o[W_pos] * c[W_pos]);
+	temp[Y_pos] = (o[X_pos] * c[Y_pos]) + (o[Y_pos] * c[X_pos]) + (o[Z_pos] * c[W_pos]) - (o[W_pos] * c[Z_pos]);
+	temp[Z_pos] = (o[X_pos] * c[Z_pos]) - (o[Y_pos] * c[W_pos]) + (o[Z_pos] * c[X_pos]) + (o[W_pos] * c[Y_pos]);
+	temp[W_pos] = (o[X_pos] * c[W_pos]) + (o[Y_pos] * c[Z_pos]) - (o[Z_pos] * c[Y_pos]) + (o[W_pos] * c[X_pos]);
+
+	o[X_pos] = temp[X_pos];
+	o[Y_pos] = temp[Y_pos];
+	o[Z_pos] = temp[Z_pos];
+	o[W_pos] = temp[W_pos];
+
+	return(temp);
+}
+
 float* quatMultNS(float* o, float* c) {
 	float temp[4];
 	temp[X_pos] = (o[X_pos] * c[X_pos]) - (o[Y_pos] * c[Y_pos]) - (o[Z_pos] * c[Z_pos]) - (o[W_pos] * c[W_pos]);

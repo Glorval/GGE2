@@ -15,8 +15,6 @@ void moveCam(World* ourWorld);
 int main(){
 	printf("Hi\n");
 
-	GLFWwindow* window = startup();
-
 	//testworld = createWorld(STANDARD_WORLD);	
 
 	volatile World* lineworld = loadGame();
@@ -69,10 +67,11 @@ int main(){
 	float counter = 1;
 	int gameFlag = IN_MAIN_MENU;
 	srand(time(NULL));
-	while (!glfwWindowShouldClose(window)) {
+	while (!glfwWindowShouldClose(gamewindow)) {
 		//drawWorld(lineworld);
 		//runMasterUI();
-		runGame(window, gameFlag);
+		runGame(gamewindow, gameFlag);
+		
 		gameFlag = getsetGamestate(DONT_STATE_CHANGE);
 		counter += 1;
 	}

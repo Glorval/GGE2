@@ -1,10 +1,12 @@
 #pragma once
 #define _CRT_SECURE_NO_WARNINGS
+#include "GlorwynMemory.h"
+#include "GlorwynUtilities.h"
+
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
 #include <string.h>
-#include "GlorwynMemory.h"
-#include "GlorwynUtilities.h"
+#include <math.h>
 
 /*
 There are 3 types of objects:
@@ -76,7 +78,6 @@ struct object {
 
     float position[7]; //x,y,z, quaternion orientation
     float scale;
-    int updateOpenGLData; //Whether or not we need to refresh this object to OpenGL (For multithreading mainly)
 };
 typedef struct object Object;
 

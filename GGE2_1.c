@@ -6,7 +6,7 @@
 
 
 
-GLFWwindow* startup() {
+GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -69,8 +69,17 @@ GLFWwindow* startup() {
 
 	glfwSetWindowSizeCallback(window, window_resize_handler);
 
-	glfwSetMouseButtonCallback(window, defaultMoustClick);
-	glfwSetKeyCallback(window, defaultButtonPress);
+	if (clickfunc != NULL) {
+		glfwSetMouseButtonCallback(window, clickfunc);//defaultMoustClick);
+	} else {
+		glfwSetMouseButtonCallback(window, defaultMoustClick);
+	}
+	
+	if (keypressfunc != NULL) {
+		glfwSetKeyCallback(window, keypressfunc);//defaultMoustClick);
+	} else {
+		glfwSetKeyCallback(window, defaultButtonPress);
+	}
 
 
 	//int cameraDefault[4] = { 0, 0, 1, 0 };
