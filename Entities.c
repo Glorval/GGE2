@@ -1,6 +1,12 @@
 #pragma once
 //#include "Entities.h"
 
+#define ENSHIP "Enemy Ship"
+
+struct idset {
+	unsigned int ID, indC;
+};
+typedef struct idset idSet;
 
 void addRefEntry(unsigned int ID, int indlen, char* name) {
 	masterObjLenght++;
@@ -9,6 +15,18 @@ void addRefEntry(unsigned int ID, int indlen, char* name) {
 	masterObjList[masterObjLenght - 1].objName = name;
 	masterObjList[masterObjLenght - 1].indlen = indlen;
 }
+
+idSet getRefID(char* refName) {
+	idSet returns = { 0 };
+	for (int cItem = 0; cItem < masterObjLenght; cItem++) {
+		if (strcmp(refName, masterObjList[cItem].objName) == 0) {
+			returns.ID = masterObjList[cItem].ID;
+			returns.indC = masterObjList[cItem].indlen;
+			return(returns);
+		}
+	}
+}
+
 
 unsigned int loadEnemyShip() {
 	float shipVerts[] = {
@@ -55,7 +73,7 @@ unsigned int loadEnemyShip() {
 
 	//char* enemyShip = calloc(sizeof("Enemy Ship"), 1);
 	//memcpy(enemyShip, "Enemy Ship", sizeof("Enemy Ship") / sizeof(char));
-	static char* enemyShip = "Enemy Ship";
+	static char* enemyShip = ENSHIP;
 	addRefEntry(vectorobj.ID, vectorobj.indexCount, enemyShip);
 
 }

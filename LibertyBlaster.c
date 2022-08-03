@@ -14,16 +14,26 @@ int getsetGamestate(int flag) {
 void runGame(GLFWwindow* window, int flagSetting) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	volatile static EnShip* enemyShipList = NULL;
+
 	if (flagSetting == IN_MAIN_MENU) {
 		runMasterUI();
 	}
-	else if (flagSetting == IN_GAME) {
+	else if (flagSetting == STARTING_GAME) {
+		enemyShipList = calloc(DEFAULT_ENEMY_MAX, sizeof(EnShip));
+		for (int cShip = 0; cShip < DEFAULT_ENEMY_MAX; cShip++) {
+			resetShipVariation(&enemyShipList[cShip]);
+			insertObjectIntoWorld(&gameworld, &enemyShipList[cShip], 1);
+		}
+		getsetGamestate(IN_GAME);
+	}else if (flagSetting == IN_GAME) {
 		drawWorld(&gameworld);
-		//gameworld.objects[0]->position[Z_pos] += 0.2;
+		
 		runMasterUI();
 
 		gameCursorMovement();		
 		ourShipMotionHandler();
+		enemyShipList = enemyShipHandler(enemyShipList, 0);
 	}
 	glfwSwapBuffers(window);
 	glfwPollEvents();
@@ -76,32 +86,7 @@ long long int startGameButton(void* ourself, long long int data, short int click
 	char* ourData = &data;
 	//standard left click
 	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
-		Object* testship = calloc(1, sizeof(Object));
-		testship->ID = masterObjList[0].ID;
-		testship->indexCount = masterObjList[0].indlen;
-		testship->position[W_pos] = 1;
-		testship->position[Z_pos] = -1;
-		testship->position[Y_pos] = 0.5;
-		insertObjectIntoWorld(&gameworld, testship, 1);
-
-		
-		Object*  ship2 = calloc(1, sizeof(Object));
-		ship2->ID = masterObjList[0].ID;
-		ship2->indexCount = masterObjList[0].indlen;
-		ship2->position[W_pos] = 1;
-		ship2->position[Z_pos] = 2;
-		ship2->position[Y_pos] = 0;
-		insertObjectIntoWorld(&gameworld, ship2, 1);
-
-		Object* ship3 = calloc(1, sizeof(Object));
-		ship3->ID = masterObjList[0].ID;
-		ship3->indexCount = masterObjList[0].indlen;
-		ship3->position[W_pos] = 1;
-		ship3->position[Z_pos] = 0;
-		ship3->position[Y_pos] = 0;
-		ship3->position[X_pos] = 2;
-		insertObjectIntoWorld(&gameworld, ship3, 1);
-		getsetGamestate(IN_GAME);
+		getsetGamestate(STARTING_GAME);
 		glfwSetInputMode(gamewindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 }
@@ -159,6 +144,12 @@ void keypressHandler(GLFWwindow* window, int key, int scancode, int action, int 
 			OurShip.keysHolding[ckey] = 0;
 		}
 	}
+
+	if (key == GLFW_KEY_Z) {
+		OurShip.heading[X_pos] = 0;
+		OurShip.heading[Y_pos]  = 0;
+		OurShip.heading[Z_pos]  = 0;
+	}
 }
 
 void ourShipMotionHandler() {
@@ -207,6 +198,122 @@ void ourShipMotionHandler() {
 	gameworld.camera[Z_pos] += OurShip.heading[Z_pos];
 }
 
+EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
+	static int maxShipCount = DEFAULT_ENEMY_MAX;
+	static int framesSinceLastSpawn = 0;
+	static int shipSpawnSpeed = STARTING_SPAWN_SPEED;
+	
+	if (enemyShipList == NULL) {
+		enemyShipList = calloc(maxShipCount, sizeof(EnShip));
+	}
+	if (upEnemyShips != 0) {
+		maxShipCount = upEnemyShips;
+		enemyShipList = realloc(enemyShipList, maxShipCount * sizeof(EnShip));
+	}
+
+	for (int cShip = 0; cShip < maxShipCount; cShip++) {
+		enemyShipList[cShip].position[X_pos] += enemyShipList[cShip].heading[X_pos];
+		enemyShipList[cShip].position[Y_pos] += enemyShipList[cShip].heading[Y_pos];
+		enemyShipList[cShip].position[Z_pos] += enemyShipList[cShip].heading[Z_pos];
+	}
+
+	framesSinceLastSpawn++;
+	if (framesSinceLastSpawn >= shipSpawnSpeed) {
+		for (int cShip = 0; cShip < maxShipCount; cShip++) {		
+			//It's greater than because people come out of the void of the negative Z's
+			if (enemyShipList[cShip].position[Z_pos] > gameworld.camera[Z_pos] + ENEMY_DISTANCE) {
+				framesSinceLastSpawn = 0;
+				resetShip(&enemyShipList[cShip]);
+				return(enemyShipList);
+			}
+			if (enemyShipList[cShip].hp == 0) {
+				framesSinceLastSpawn = 0;
+				resetShip(&enemyShipList[cShip]);
+				return(enemyShipList);
+			}
+		}
+	}
+	return(enemyShipList);
+}
+
+void resetShip(EnShip* enemyShip) {
+	printf("Resetting Ship\n");
+	static char weHaveFound = 0;
+	static idSet enShipStuff;
+	if (weHaveFound != 0) {
+		enemyShip->ID = enShipStuff.ID;
+		enemyShip->indexCount = enShipStuff.indC;
+		enemyShip->hp = ENEMY_HP_DEFAULT;
+		enemyShip->position[X_pos] = 0;
+		enemyShip->position[Y_pos] = 0;
+		enemyShip->position[Z_pos] = -ENEMY_DISTANCE;
+		enemyShip->position[W_pos] = 1;
+		enemyShip->position[I_pos] = 0;
+		enemyShip->position[J_pos] = 0;
+		enemyShip->position[K_pos] = 0;
+
+		enemyShip->heading[X_pos] = 0;
+		enemyShip->heading[Y_pos] = 0;
+		enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
+	} else {
+		enShipStuff = getRefID(ENSHIP);
+		weHaveFound++;
+		enemyShip->ID = enShipStuff.ID;
+		enemyShip->indexCount = enShipStuff.indC;
+		enemyShip->hp = ENEMY_HP_DEFAULT;
+		enemyShip->position[X_pos] = 0;
+		enemyShip->position[Y_pos] = 0;
+		enemyShip->position[Z_pos] = -ENEMY_DISTANCE;
+		enemyShip->position[W_pos] = 1;
+		enemyShip->position[I_pos] = 0;
+		enemyShip->position[J_pos] = 0;
+		enemyShip->position[K_pos] = 0;
+
+		enemyShip->heading[X_pos] = 0;
+		enemyShip->heading[Y_pos] = 0;
+		enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
+	}
+}
+
+void resetShipVariation(EnShip* enemyShip) {
+	printf("Resetting Ship\n");
+	static char weHaveFound = 0;
+	static idSet enShipStuff;
+	if (weHaveFound != 0) {
+		enemyShip->ID = enShipStuff.ID;
+		enemyShip->indexCount = enShipStuff.indC;
+		enemyShip->hp = ENEMY_HP_DEFAULT;
+		enemyShip->position[X_pos] = ((float)(rand() % ENEMY_POS_RANGE)- (ENEMY_POS_RANGE / 2))/ 50.0;
+		enemyShip->position[Y_pos] = ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 50.0;
+		enemyShip->position[Z_pos] = -ENEMY_DISTANCE + ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 10.0;
+		enemyShip->position[W_pos] = 1;
+		enemyShip->position[I_pos] = 0;
+		enemyShip->position[J_pos] = 0;
+		enemyShip->position[K_pos] = 0;
+
+		enemyShip->heading[X_pos] = 0;
+		enemyShip->heading[Y_pos] = 0;
+		enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
+	} else {
+		enShipStuff = getRefID(ENSHIP);
+		weHaveFound++;
+		enemyShip->ID = enShipStuff.ID;
+		enemyShip->indexCount = enShipStuff.indC;
+		enemyShip->hp = ENEMY_HP_DEFAULT;
+		enemyShip->position[X_pos] = ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 50.0;
+		enemyShip->position[Y_pos] = ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 50.0;
+		enemyShip->position[Z_pos] = -ENEMY_DISTANCE + ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 5.0;
+		enemyShip->position[W_pos] = 1;
+		enemyShip->position[I_pos] = 0;
+		enemyShip->position[J_pos] = 0;
+		enemyShip->position[K_pos] = 0;
+
+		enemyShip->heading[X_pos] = 0;
+		enemyShip->heading[Y_pos] = 0;
+		enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
+	}
+}
+
 void gameCursorMovement() {
 	double xpos, ypos;
 	glfwGetCursorPos(gamewindow, &xpos, &ypos);
@@ -221,9 +328,9 @@ void gameCursorMovement() {
 		ypos = -MAX_MOUSE_MOVEMENT;
 	}
 
-	float orgCamPos[4] = {
-		gameworld.camera[W_pos],gameworld.camera[I_pos],gameworld.camera[J_pos],gameworld.camera[K_pos],
-	};
+	//float orgCamPos[4] = {
+	//	gameworld.camera[W_pos],gameworld.camera[I_pos],gameworld.camera[J_pos],gameworld.camera[K_pos],
+	//};
 
 	float rotateQuat[4] = { cos(xpos / MOUSE_MOVEMENT_DAMPER), 0 , 1 * sin(xpos / MOUSE_MOVEMENT_DAMPER), 0 };
 	float rotQuatConj[4] = { rotateQuat[0], -rotateQuat[1], -rotateQuat[2], -rotateQuat[3] };
@@ -232,8 +339,10 @@ void gameCursorMovement() {
 	quatMultRS(&gameworld.camera[W_pos],rotateQuat);
 	//normalizeQuat(&ourWorld->camera[W_pos]);
 
-	quatMult(rotateQuat, &gameworld.up);
-	quatMultRS(&gameworld.up, rotQuatConj);
+	quatMultRS(&gameworld.up, rotateQuat);
+	quatMult(rotQuatConj, &gameworld.up);
+	//quatMult(rotateQuat, &gameworld.up);
+	//quatMultRS(&gameworld.up, rotQuatConj);
 	gameworld.up[0] = 0;
 
 	quatMult(rotQuatConj, &gameworld.back);
@@ -245,7 +354,7 @@ void gameCursorMovement() {
 	quatMultRS(gameworld.left, rotateQuat);	
 	gameworld.left[0] = 0;
 	//printf("\n%f, %f, %f, %f\n", gameworld.left[0], gameworld.left[1], gameworld.left[2], gameworld.left[3]);
-	printf("\n%f, %f, %f, %f\n", gameworld.camera[W_pos], gameworld.camera[I_pos], gameworld.camera[J_pos], gameworld.camera[K_pos]);
+	//printf("\n%f, %f, %f, %f\n", gameworld.camera[W_pos], gameworld.camera[I_pos], gameworld.camera[J_pos], gameworld.camera[K_pos]);
 
 	float secondCamPos[4] = {
 		gameworld.camera[W_pos],gameworld.camera[I_pos],gameworld.camera[J_pos],gameworld.camera[K_pos],
@@ -271,13 +380,13 @@ void gameCursorMovement() {
 	//printf("\n%f, %f, %f, %f\n", gameworld.back[0], gameworld.back[1], gameworld.back[2], gameworld.back[3]);
 	gameworld.back[0] = 0;
 
-	//quatMult(rotateQuatTwo, gameworld.left);
-	//quatMultRS(gameworld.left, rotQuatConjTwo);
+	quatMult(rotateQuatTwo, gameworld.left);
+	quatMultRS(gameworld.left, rotQuatConjTwo);
 	//printf("\n%f, %f, %f, %f\n", gameworld.left[0], gameworld.left[1], gameworld.left[2], gameworld.left[3]);
-	//gameworld.left[0] = 0;
+	gameworld.left[0] = 0;
 	//printf("%f, %f, %f, %f\n\n", gameworld.camera[W_pos], gameworld.camera[I_pos], gameworld.camera[J_pos], gameworld.camera[K_pos]);
 	
-	gameworld.camera[J_pos] = secondCamPos[2];
+	//gameworld.camera[J_pos] = secondCamPos[2];
 	//printf("%f, %f\n", xpos, ypos);
 	glfwSetCursorPos(gamewindow, 0.0, 0.0);
 }

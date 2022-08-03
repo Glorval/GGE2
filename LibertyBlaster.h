@@ -5,10 +5,19 @@
 #define DONT_STATE_CHANGE -1
 
 #define IN_MAIN_MENU 0
-#define IN_GAME 1
+#define STARTING_GAME 1
+#define IN_GAME 2
 
 #define MAX_MOUSE_MOVEMENT (double)20
 #define MOUSE_MOVEMENT_DAMPER (double)1000
+
+#define ENEMY_HP_DEFAULT 5
+#define ENEMY_DISTANCE 150
+#define ENEMY_MAX_SPEED 0.4
+#define ENEMY_START_SPEED 0.25
+#define STARTING_SPAWN_SPEED 20.0
+#define DEFAULT_ENEMY_MAX 10
+#define ENEMY_POS_RANGE 100
 
 enum heading{Xhead, YHead, ZHead, Velocity};
 enum holdingKeys{wkey, akey, skey,dkey,qkey,ekey,vkey,ckey};
@@ -67,7 +76,9 @@ void runGame(GLFWwindow* window, int flagSetting);
 long long int startGameButton(void* ourself, long long int data, short int clickData);
 
 
-
+EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips);
+void resetShip(EnShip* enemyShip);
+void resetShipVariation(EnShip* enemyShip);
 void ourShipMotionHandler();
 
 void expandedMouseClick(GLFWwindow* window, int button, int action, int mods);
