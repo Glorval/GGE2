@@ -15,6 +15,10 @@ Vector (3d vector things with no colours, rendered in line mode)
 UI (Usually 2d stuff rendered in triangle mode like standard and with colours on each vector)
 */
 
+
+
+#define countof(thing) sizeof(thing)/sizeof(thing[0])
+
 #define windX 1200
 #define windY 900
 
@@ -135,6 +139,7 @@ struct unfinishedObject {
     unsigned int* indices;
     int vLineCount;
     int iCount;
+    float scale;
 };
 typedef struct unfinishedObject UnfinObj;
 
@@ -147,6 +152,8 @@ UnfinObj freeUnfinObj(UnfinObj obj);
 
 //Appends objTwo into objOne. Needs both to have their arrays dynamically allocated
 UnfinObj appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo);
+
+UnfinObj appendVec(UnfinObj* objOne, UnfinObj* objTwo);
 
 
 #include "ObjectManager.h"

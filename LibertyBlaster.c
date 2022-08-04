@@ -2,6 +2,7 @@
 #include "Entities.c"
 
 struct ourShip OurShip = { 0 };
+idSet enShipStuff = { 0 };
 
 int getsetGamestate(int flag) {
 	static int ourState = IN_MAIN_MENU;
@@ -16,15 +17,22 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	volatile static EnShip* enemyShipList = NULL;
 
+
 	if (flagSetting == IN_MAIN_MENU) {
 		runMasterUI();
+		MainMenuUI->elements[1]->position[X_pos] += 0.001;
+		MainMenuUI->elements[1]->position[Y_pos] += 0.001;
 	}
 	else if (flagSetting == STARTING_GAME) {
 		enemyShipList = calloc(DEFAULT_ENEMY_MAX, sizeof(EnShip));
+		enShipStuff = getRefID(ENSHIP);
 		for (int cShip = 0; cShip < DEFAULT_ENEMY_MAX; cShip++) {
-			resetShipVariation(&enemyShipList[cShip]);
+			enemyShipList[cShip].ID = enShipStuff.ID;
+			enemyShipList[cShip].indexCount = enShipStuff.indC;
+			//resetShipVariation(&enemyShipList[cShip]);
 			insertObjectIntoWorld(&gameworld, &enemyShipList[cShip], 1);
 		}
+		
 		getsetGamestate(IN_GAME);
 	}else if (flagSetting == IN_GAME) {
 		drawWorld(&gameworld);
@@ -58,6 +66,7 @@ World* loadGame() {
 void setupMainMenu() {	
 	masterUIList = calloc(1, sizeof(UI*));
 	masterUIList[0] = calloc(1, sizeof(UI));
+	masterUIListLength++;
 	MainMenuUI->active = 1;
 	MainMenuUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
 	MainMenuUI->vecColour[0] = 0;
@@ -76,7 +85,19 @@ void setupMainMenu() {
 	float pos[] = { 0,0.3,0};
 	float clickarea[] = { 0.2,0.2,0.06,0.06 };
 	insertElementIntoUI(MainMenuUI, createVectorElement(gameStartButton, gameStartInds, (sizeof(gameStartButton) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(gameStartInds) / sizeof(unsigned int), pos, startGameButton, 1, clickarea));
-	masterUIListLength++;
+	
+
+	float posTwo[] = { -0.6,-0.2,-0.1 };
+	UnfinObj bigA = createVecText("ABCDEFGHI\nJKLMNOPQR\nSTUVWXYZ", posTwo, 0.2);
+	UIElement* temp = createVectorElement(bigA.verts, bigA.indices, bigA.vLineCount, bigA.iCount, posTwo, NULL, 1, NULL);
+	temp->scale = 0.2;
+	insertElementIntoUI(MainMenuUI, temp);
+
+
+
+
+
+
 }
 
 long long int startGameButton(void* ourself, long long int data, short int clickData) {
@@ -203,9 +224,9 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 	static int framesSinceLastSpawn = 0;
 	static int shipSpawnSpeed = STARTING_SPAWN_SPEED;
 	
-	if (enemyShipList == NULL) {
+	/*if (enemyShipList == NULL) {
 		enemyShipList = calloc(maxShipCount, sizeof(EnShip));
-	}
+	}*/
 	if (upEnemyShips != 0) {
 		maxShipCount = upEnemyShips;
 		enemyShipList = realloc(enemyShipList, maxShipCount * sizeof(EnShip));
@@ -223,12 +244,12 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 			//It's greater than because people come out of the void of the negative Z's
 			if (enemyShipList[cShip].position[Z_pos] > gameworld.camera[Z_pos] + ENEMY_DISTANCE) {
 				framesSinceLastSpawn = 0;
-				resetShip(&enemyShipList[cShip]);
+				resetShipVariation(&enemyShipList[cShip]);
 				return(enemyShipList);
 			}
 			if (enemyShipList[cShip].hp == 0) {
 				framesSinceLastSpawn = 0;
-				resetShip(&enemyShipList[cShip]);
+				resetShipVariation(&enemyShipList[cShip]);
 				return(enemyShipList);
 			}
 		}
@@ -237,81 +258,40 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 }
 
 void resetShip(EnShip* enemyShip) {
-	printf("Resetting Ship\n");
-	static char weHaveFound = 0;
-	static idSet enShipStuff;
-	if (weHaveFound != 0) {
-		enemyShip->ID = enShipStuff.ID;
-		enemyShip->indexCount = enShipStuff.indC;
-		enemyShip->hp = ENEMY_HP_DEFAULT;
-		enemyShip->position[X_pos] = 0;
-		enemyShip->position[Y_pos] = 0;
-		enemyShip->position[Z_pos] = -ENEMY_DISTANCE;
-		enemyShip->position[W_pos] = 1;
-		enemyShip->position[I_pos] = 0;
-		enemyShip->position[J_pos] = 0;
-		enemyShip->position[K_pos] = 0;
+	printf("Setting Ship\n");
+	enShipStuff = getRefID(ENSHIP);
+	enemyShip->ID = enShipStuff.ID;
+	enemyShip->indexCount = enShipStuff.indC;
+	enemyShip->hp = 0;
+	enemyShip->position[X_pos] = 0;
+	enemyShip->position[Y_pos] = 0;
+	enemyShip->position[Z_pos] = ENEMY_DISTANCE;
+	enemyShip->position[W_pos] = 1;
+	enemyShip->position[I_pos] = 0;
+	enemyShip->position[J_pos] = 0;
+	enemyShip->position[K_pos] = 0;
 
-		enemyShip->heading[X_pos] = 0;
-		enemyShip->heading[Y_pos] = 0;
-		enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
-	} else {
-		enShipStuff = getRefID(ENSHIP);
-		weHaveFound++;
-		enemyShip->ID = enShipStuff.ID;
-		enemyShip->indexCount = enShipStuff.indC;
-		enemyShip->hp = ENEMY_HP_DEFAULT;
-		enemyShip->position[X_pos] = 0;
-		enemyShip->position[Y_pos] = 0;
-		enemyShip->position[Z_pos] = -ENEMY_DISTANCE;
-		enemyShip->position[W_pos] = 1;
-		enemyShip->position[I_pos] = 0;
-		enemyShip->position[J_pos] = 0;
-		enemyShip->position[K_pos] = 0;
-
-		enemyShip->heading[X_pos] = 0;
-		enemyShip->heading[Y_pos] = 0;
-		enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
-	}
+	enemyShip->heading[X_pos] = 0;
+	enemyShip->heading[Y_pos] = 0;
+	enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
 }
 
 void resetShipVariation(EnShip* enemyShip) {
 	printf("Resetting Ship\n");
-	static char weHaveFound = 0;
-	static idSet enShipStuff;
-	if (weHaveFound != 0) {
-		enemyShip->ID = enShipStuff.ID;
-		enemyShip->indexCount = enShipStuff.indC;
-		enemyShip->hp = ENEMY_HP_DEFAULT;
-		enemyShip->position[X_pos] = ((float)(rand() % ENEMY_POS_RANGE)- (ENEMY_POS_RANGE / 2))/ 50.0;
-		enemyShip->position[Y_pos] = ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 50.0;
-		enemyShip->position[Z_pos] = -ENEMY_DISTANCE + ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 10.0;
-		enemyShip->position[W_pos] = 1;
-		enemyShip->position[I_pos] = 0;
-		enemyShip->position[J_pos] = 0;
-		enemyShip->position[K_pos] = 0;
+	enemyShip->ID = enShipStuff.ID;
+	enemyShip->indexCount = enShipStuff.indC;
+	enemyShip->hp = ENEMY_HP_DEFAULT;
+	enemyShip->position[X_pos] = ((float)(rand() % ENEMY_POS_RANGE)- (ENEMY_POS_RANGE / 2))/ 50.0 + gameworld.camera[X_pos];
+	enemyShip->position[Y_pos] = ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 50.0 + gameworld.camera[Y_pos];
+	enemyShip->position[Z_pos] = -ENEMY_DISTANCE + ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 10.0 + gameworld.camera[Z_pos];
+	enemyShip->position[W_pos] = 1;
+	enemyShip->position[I_pos] = 0;
+	enemyShip->position[J_pos] = 0;
+	enemyShip->position[K_pos] = 0;
 
-		enemyShip->heading[X_pos] = 0;
-		enemyShip->heading[Y_pos] = 0;
-		enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
-	} else {
-		enShipStuff = getRefID(ENSHIP);
-		weHaveFound++;
-		enemyShip->ID = enShipStuff.ID;
-		enemyShip->indexCount = enShipStuff.indC;
-		enemyShip->hp = ENEMY_HP_DEFAULT;
-		enemyShip->position[X_pos] = ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 50.0;
-		enemyShip->position[Y_pos] = ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 50.0;
-		enemyShip->position[Z_pos] = -ENEMY_DISTANCE + ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 5.0;
-		enemyShip->position[W_pos] = 1;
-		enemyShip->position[I_pos] = 0;
-		enemyShip->position[J_pos] = 0;
-		enemyShip->position[K_pos] = 0;
-
-		enemyShip->heading[X_pos] = 0;
-		enemyShip->heading[Y_pos] = 0;
-		enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
-	}
+	enemyShip->heading[X_pos] = 0;
+	enemyShip->heading[Y_pos] = 0;
+	enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
 }
 
 void gameCursorMovement() {

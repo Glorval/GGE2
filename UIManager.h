@@ -1,6 +1,7 @@
 #pragma once
 #include "GGE2_1.h"
 #define USE_BUILT_IN_FONT 1
+#define USE_BUILT_IN_VECTOR_FONT 0
 #define FONT_NAME NULL
 
 #define FONT_SIZE_Y 80
@@ -11,6 +12,10 @@
 
 //UI* font;
 UnfinObj* font;
+
+//Vector fonts are 'new', as such they operate differently
+//Each character has its 'start' be the bottom left, so you can more easily define 'I want text starting here'
+UnfinObj** vecFont;
 
 //Used when making fonts such that the font can be given in 'pixels' and thusly converted into OpenGL coords no matter what the set up window size is.
 //Assumes it's in the format used, however, that is x/y/z/r/g/b on each line and length is how many lines
@@ -34,6 +39,9 @@ void drawVecElement(UIElement* uiItem);
 //to be a side of the screen and have everything go away from the side and it'll always stay on the side and in proportion.
 UIElement* createElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, int active, float clickArea[4]);
 UIElement* createVectorElement(float* vertices, unsigned int* index, int vertSize, int indSize, float* pos, void* action, int active, float clickArea[4]);
+
+
+UnfinObj createVecText(char* text, float* pos/*3*/, float size);
 
 UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, float* rgb);
 UnfinObj createUnFinTextWithZ(char* text, float xpos, float ypos, float zpos, float fontSize, float* rgb);

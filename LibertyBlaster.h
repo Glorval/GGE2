@@ -1,6 +1,7 @@
 #pragma once
 #include "GGE2_1.h"
 
+
 #define MainMenuUI masterUIList[0]
 #define DONT_STATE_CHANGE -1
 
@@ -8,16 +9,16 @@
 #define STARTING_GAME 1
 #define IN_GAME 2
 
-#define MAX_MOUSE_MOVEMENT (double)20
-#define MOUSE_MOVEMENT_DAMPER (double)1000
+#define MAX_MOUSE_MOVEMENT (double)30
+#define MOUSE_MOVEMENT_DAMPER (double)1500
 
 #define ENEMY_HP_DEFAULT 5
-#define ENEMY_DISTANCE 150
-#define ENEMY_MAX_SPEED 0.4
-#define ENEMY_START_SPEED 0.25
-#define STARTING_SPAWN_SPEED 20.0
-#define DEFAULT_ENEMY_MAX 10
-#define ENEMY_POS_RANGE 100
+#define ENEMY_DISTANCE 350
+#define ENEMY_MAX_SPEED 0.8
+#define ENEMY_START_SPEED 0.6
+#define STARTING_SPAWN_SPEED 40.0
+#define DEFAULT_ENEMY_MAX 50
+#define ENEMY_POS_RANGE 2500
 
 enum heading{Xhead, YHead, ZHead, Velocity};
 enum holdingKeys{wkey, akey, skey,dkey,qkey,ekey,vkey,ckey};

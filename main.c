@@ -21,45 +21,6 @@ int main(){
 
 	
 
-	/*Object vectorobj = createStaticVectorObject(vertices_two, indstwo, (sizeof(vertices_two)/VECTOR_VERTEX_LENGTH)/sizeof(float), sizeof(indstwo)/sizeof(unsigned int));
-	vectorobj.position[X_pos] = 0;
-	vectorobj.position[Y_pos] = 0;
-	vectorobj.position[Z_pos] = -2;
-	vectorobj.position[W_pos] = 1;
-	vectorobj.position[I_pos] = 0;
-	vectorobj.position[J_pos] = 0;
-	vectorobj.position[K_pos] = 0;
-	normalizeQuat(&vectorobj.position[W_pos]);
-	insertObjectIntoWorld(&lineworld, &vectorobj, 1);
-
-	/*Object objtwo = createStaticVectorObject(vertices_two, indstwo, (sizeof(vertices_two) / VECTOR_VERTEX_LENGTH) / sizeof(float), sizeof(indstwo) / sizeof(unsigned int));
-	objtwo.position[X_pos] = 1;
-	objtwo.position[Y_pos] = 0;
-	objtwo.position[Z_pos] = -100;
-	objtwo.position[W_pos] = 1;
-	objtwo.position[I_pos] = 0;
-	objtwo.position[J_pos] = 0;
-	objtwo.position[K_pos] = 0;
-	normalizeQuat(&objtwo.position[W_pos]);
-
-	
-	insertObjectIntoWorld(&lineworld, &objtwo, 1);
-
-
-	Object objthree = createStaticVectorObject(vertices_two, indstwo, (sizeof(vertices_two) / VECTOR_VERTEX_LENGTH) / sizeof(float), sizeof(indstwo) / sizeof(unsigned int));
-	objthree.position[X_pos] = -1;
-	objthree.position[Y_pos] = -1;
-	objthree.position[Z_pos] = -110;
-	objthree.position[W_pos] = 1;
-	objthree.position[I_pos] = -0.2;
-	objthree.position[J_pos] = 0;
-	objthree.position[K_pos] = 0;
-	normalizeQuat(&objthree.position[W_pos]);
-
-	insertObjectIntoWorld(&lineworld, &objthree, 1);
-	*/
-
-	//_beginthread(moveCam, 0, &testworld);
 	_beginthread(moveCam, 0, lineworld);
 	
 	setupMainMenu();

@@ -8,7 +8,8 @@ uniform vec3 cordinates; //Of the object
 uniform vec4 orientation; //of the object
 uniform vec3 cameraPosition;
 uniform vec4 cameraOrientation;
-	
+
+uniform float scale;
 uniform float windowRatio;
 uniform vec4 vectorColours;
 uniform int flags;//Currently only for rendering mode
@@ -50,7 +51,9 @@ void main() {
 	cordFour.w = corePos.z;
 
 
-
+	if(scale > 0.00001){
+		cordFour = vec4(0, cordFour.y * scale, cordFour.z * scale, cordFour.w * scale);
+	}
 	
 	//Standard rendering, good for most things
 	if(flags == 0){
@@ -81,7 +84,12 @@ void main() {
 	}
 	//Vector graphics barebones mode- uses colours uniform rather than the location colour
 	else if(flags == 3){
-		gl_Position = vec4((corePos.x * windowRatio) + cordinates.x, corePos.y + cordinates.y, corePos.z + cordinates.z, 1);
+		vec2 fffffff = vec2(corePos.x, corePos.y);
+		if(scale > 0.00001){
+			fffffff.x *= scale;
+			fffffff.y *= scale;
+		}
+		gl_Position = vec4((fffffff.x * windowRatio) + cordinates.x, fffffff.y + cordinates.y, corePos.z + cordinates.z, 1);
 		fColor = vectorColours;
 	}
 	
