@@ -8,20 +8,34 @@
 #define IN_MAIN_MENU 0
 #define STARTING_GAME 1
 #define IN_GAME 2
+#define IN_SETTINGS 3
 
 #define MAX_MOUSE_MOVEMENT (double)30
 #define MOUSE_MOVEMENT_DAMPER (double)1500
 
 #define ENEMY_HP_DEFAULT 5
-#define ENEMY_DISTANCE 350
-#define ENEMY_MAX_SPEED 0.8
-#define ENEMY_START_SPEED 0.6
-#define STARTING_SPAWN_SPEED 40.0
+#define ENEMY_DISTANCE 200//350
+#define ENEMY_MAX_SPEED 1.0
+#define ENEMY_START_SPEED 0.8//0.6
+#define STARTING_SPAWN_SPEED 10.0
 #define DEFAULT_ENEMY_MAX 50
-#define ENEMY_POS_RANGE 2500
+#define ENEMY_POS_RANGE 2000//2500
+
+#define OUR_ACCELERATION 0.0008 //How much holding a key adds to heading
+#define OUR_MAX_SPEED 0.8 //max speed
+#define FORWARD_BACK_MULT 2 //How much more powerful forward/back is in relation to the other controls
 
 enum heading{Xhead, YHead, ZHead, Velocity};
-enum holdingKeys{wkey, akey, skey,dkey,qkey,ekey,vkey,ckey};
+//enum holdingKeys{wkey, akey, skey,dkey,qkey,ekey,vkey,ckey};
+static int wkey = 0;
+static int akey = 1;
+static int skey = 2;
+static int dkey = 3;
+static int qkey = 4;
+static int ekey = 5;
+static int vkey = 6;
+static int ckey = 7;
+
 
 struct referObj {
 	int ID;

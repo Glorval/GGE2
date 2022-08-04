@@ -61,6 +61,38 @@ unsigned int loadEnemyShip() {
 	};
 	naturallyCentreVertices(shipVerts, 21, 3);
 
+	float shipVertsBig[] = {
+		//windshield
+		-0.10, 0.0, 0.0,					//0
+		0.10, 0.0, 0.0,					//1
+		-0.12, 0.2, -0.28, 				//2
+		0.12, 0.2, -0.28,				//3
+		-0.16, 0.0, -0.14,				//4
+		0.16, 0.0, -0.14,					//5 
+
+		//front frame	
+		0, -0.10, 0.16,					//6 - front point
+		-0.14, -0.16, 0.04,				//7 
+		0.14, -0.16, 0.04,				//8 
+
+		//wings
+		-0.30, -0.08, -0.12,			//9
+		0.30, -0.08, -0.12,				//10
+		-0.8, -0.08, -1.10,				//11
+		0.8, -0.08, -1.10,				//12
+
+		//back frame
+		-0.16, 0.0, -0.90,				//13
+		0.16, 0.0, -0.90,				//14
+		-0.12, 0.2, -0.60,				//15//back of the windshield
+		0.12, 0.2, -0.60,				//16
+		-0.16, 0.0, -0.76,				//17
+		0.16, 0.0, -0.76,				//18
+		-0.16, -0.16, -0.90,			//19//back middle
+		0.16, -0.16, -0.90,				//20
+	};
+	naturallyCentreVertices(shipVertsBig, 21, 3);
+
 	unsigned int shipInds[] = {
 		0,1, 0,2, 2,3, 3,1, 0,4, 1,5, 4,2, 5,3,//windshield
 		0,6, 6,1, 6,7, 6,8, 7,8, 0,7, 1,8, 7,4, 8,5,//front frame and attaching to windshield
@@ -69,8 +101,8 @@ unsigned int loadEnemyShip() {
 		7,19, 8,20, 19,20, 11,19, 12,20, //bottom frame and its connections
 	};
 
-	Object vectorobj = createStaticVectorObject(shipVerts, shipInds, (sizeof(shipVerts) / VECTOR_VERTEX_LENGTH) / sizeof(float), sizeof(shipInds) / sizeof(unsigned int));
-
+	Object vectorobj = createStaticVectorObject(shipVertsBig, shipInds, (sizeof(shipVerts) / VECTOR_VERTEX_LENGTH) / sizeof(float), sizeof(shipInds) / sizeof(unsigned int));
+	//vectorobj.scale = 3;
 	//char* enemyShip = calloc(sizeof("Enemy Ship"), 1);
 	//memcpy(enemyShip, "Enemy Ship", sizeof("Enemy Ship") / sizeof(char));
 	static char* enemyShip = ENSHIP;

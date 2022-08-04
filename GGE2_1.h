@@ -146,6 +146,8 @@ typedef struct unfinishedObject UnfinObj;
 void defaultMoustClick(GLFWwindow* window, int button, int action, int mods);
 void defaultButtonPress(GLFWwindow* window, int key, int scancode, int action, int mods);
 
+//simply fills the unfinobj with the pointers and stuff, no need to free this one after
+UnfinObj fillUnfinObj(float* verts, unsigned int* inds, int vLen, int iCount);
 //Used for easily creating objects, especially from hardcoded stuff that'd die when touched by realloc
 UnfinObj createUnfinObjFromStatic(float* verts, unsigned int* inds, int vLen, int iCount);
 UnfinObj freeUnfinObj(UnfinObj obj);

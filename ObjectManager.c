@@ -97,6 +97,7 @@ void drawStandardObjectSET(Object* shape) {
 
 void drawVectorObjectSET(Object* shape) {
 	glBindVertexArray(shape->ID);
+	glUniform1f(ProgramData.scaleLoc, shape->scale);
 	glUniform3f(ProgramData.cordinatesLoc, shape->position[X_pos], shape->position[Y_pos], shape->position[Z_pos]);
 	glUniform4f(ProgramData.orientationLoc, shape->position[W_pos], shape->position[I_pos], shape->position[J_pos], shape->position[K_pos]);
 	glDrawElements(GL_LINES, shape->indexCount, GL_UNSIGNED_INT, 0);

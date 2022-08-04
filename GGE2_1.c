@@ -163,6 +163,16 @@ void window_resize_handler(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
+UnfinObj fillUnfinObj(float* verts, unsigned int* inds, int vLen, int iCount) {
+	UnfinObj returnObj;
+	returnObj.iCount = iCount;
+	returnObj.vLineCount = vLen;
+	returnObj.verts = verts;
+	returnObj.indices = inds;
+
+	return(returnObj);
+}
+
 UnfinObj createUnfinObjFromStatic(float* verts, unsigned int* inds, int vLen, int iCount) {
 	UnfinObj returnObj;
 	returnObj.iCount = iCount;

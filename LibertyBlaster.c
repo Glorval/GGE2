@@ -1,5 +1,6 @@
 #include "LibertyBlaster.h"
 #include "Entities.c"
+#include "booletmanager.c"
 
 struct ourShip OurShip = { 0 };
 idSet enShipStuff = { 0 };
@@ -20,10 +21,10 @@ void runGame(GLFWwindow* window, int flagSetting) {
 
 	if (flagSetting == IN_MAIN_MENU) {
 		runMasterUI();
-		MainMenuUI->elements[1]->position[X_pos] += 0.001;
-		MainMenuUI->elements[1]->position[Y_pos] += 0.001;
 	}
 	else if (flagSetting == STARTING_GAME) {
+		glLineWidth(1);
+		glDisable(GL_LINE_SMOOTH);
 		enemyShipList = calloc(DEFAULT_ENEMY_MAX, sizeof(EnShip));
 		enShipStuff = getRefID(ENSHIP);
 		for (int cShip = 0; cShip < DEFAULT_ENEMY_MAX; cShip++) {
@@ -32,16 +33,24 @@ void runGame(GLFWwindow* window, int flagSetting) {
 			//resetShipVariation(&enemyShipList[cShip]);
 			insertObjectIntoWorld(&gameworld, &enemyShipList[cShip], 1);
 		}
-		
+		setupBoolet();
+		float pos[7] = {
+			0,0,-1, 1,0,0,0
+		};
+		add_boolet(pos, 0.01, 1000);
+		MainMenuUI->active = 0;
 		getsetGamestate(IN_GAME);
 	}else if (flagSetting == IN_GAME) {
 		drawWorld(&gameworld);
 		
 		runMasterUI();
+		renderBoolet();
 
 		gameCursorMovement();		
 		ourShipMotionHandler();
 		enemyShipList = enemyShipHandler(enemyShipList, 0);
+	} else if (flagSetting == IN_SETTINGS) {
+
 	}
 	glfwSwapBuffers(window);
 	glfwPollEvents();
@@ -64,6 +73,8 @@ World* loadGame() {
 }
 
 void setupMainMenu() {	
+	//glLineWidth(1);
+	//glEnable(GL_LINE_SMOOTH);
 	masterUIList = calloc(1, sizeof(UI*));
 	masterUIList[0] = calloc(1, sizeof(UI));
 	masterUIListLength++;
@@ -73,6 +84,10 @@ void setupMainMenu() {
 	MainMenuUI->vecColour[1] = 1;
 	MainMenuUI->vecColour[2] = 0;
 	MainMenuUI->vecColour[3] = 1;
+
+	UIElement* passer = NULL;
+
+
 	float gameStartButton[] = {
 		-0.3, 0.06, -0.5,
 		0.3, 0.06, -0.5,
@@ -82,16 +97,26 @@ void setupMainMenu() {
 	unsigned int gameStartInds[] = {
 		0,1,2,1, 2,3, 3,0
 	};
-	float pos[] = { 0,0.3,0};
+	float pos[] = { 0,-0.3,0};
 	float clickarea[] = { 0.2,0.2,0.06,0.06 };
-	insertElementIntoUI(MainMenuUI, createVectorElement(gameStartButton, gameStartInds, (sizeof(gameStartButton) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(gameStartInds) / sizeof(unsigned int), pos, startGameButton, 1, clickarea));
+	float buttontextpos[] = { 0,0,0 };
 	
+	UnfinObj buttontext = createVecText("START GAME", buttontextpos, 0.05);
+	insertElementIntoUI(MainMenuUI, createVectorElement(gameStartButton, gameStartInds, (sizeof(gameStartButton) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(gameStartInds) / sizeof(unsigned int), pos, startGameButton, 1, clickarea));
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+	passer->position[X_pos] = -0.18;
+	passer->position[Y_pos] = -0.325;
+	passer->scale = 0.051;
+	insertElementIntoUI(MainMenuUI, passer);
+	freeUnfinObj(buttontext);
 
-	float posTwo[] = { -0.6,-0.2,-0.1 };
-	UnfinObj bigA = createVecText("ABCDEFGHI\nJKLMNOPQR\nSTUVWXYZ", posTwo, 0.2);
-	UIElement* temp = createVectorElement(bigA.verts, bigA.indices, bigA.vLineCount, bigA.iCount, posTwo, NULL, 1, NULL);
-	temp->scale = 0.2;
-	insertElementIntoUI(MainMenuUI, temp);
+
+	float titlePos[] = { -0.58,0.3,-0.1 };
+	UnfinObj title = createVecText("BLAZING\nLIBERTY", titlePos, 0.3);
+	passer = createVectorElement(title.verts, title.indices, title.vLineCount, title.iCount, titlePos, NULL, 1, NULL);
+	passer->scale = 0.3;
+	insertElementIntoUI(MainMenuUI, passer);
+	freeUnfinObj(title);
 
 
 
@@ -102,7 +127,7 @@ void setupMainMenu() {
 
 long long int startGameButton(void* ourself, long long int data, short int clickData) {
 	UIElement* us = ourself;
-	us->elementActive = 0;
+	//us->elementActive = 0;
 	char* clickdat = &clickData;
 	char* ourData = &data;
 	//standard left click
@@ -176,47 +201,53 @@ void keypressHandler(GLFWwindow* window, int key, int scancode, int action, int 
 void ourShipMotionHandler() {
 	//up/down
 	if (OurShip.keysHolding[wkey] == 1) {
-		OurShip.heading[X_pos] -= gameworld.up[1] * .0001;
-		OurShip.heading[Y_pos] -= gameworld.up[2] * .0001;
-		OurShip.heading[Z_pos] -= gameworld.up[3] * .0001;
+		OurShip.heading[X_pos] -= gameworld.up[1] * OUR_ACCELERATION;
+		OurShip.heading[Y_pos] -= gameworld.up[2] * OUR_ACCELERATION;
+		OurShip.heading[Z_pos] -= gameworld.up[3] * OUR_ACCELERATION;
 	}
 	if (OurShip.keysHolding[skey] == 1) {
-		OurShip.heading[X_pos] += gameworld.up[1] * .0001;
-		OurShip.heading[Y_pos] += gameworld.up[2] * .0001;
-		OurShip.heading[Z_pos] += gameworld.up[3] * .0001;
+		OurShip.heading[X_pos] += gameworld.up[1] * OUR_ACCELERATION;
+		OurShip.heading[Y_pos] += gameworld.up[2] * OUR_ACCELERATION;
+		OurShip.heading[Z_pos] += gameworld.up[3] * OUR_ACCELERATION;
 	}
 
 	//left/right
 	if (OurShip.keysHolding[akey] == 1) {
-		OurShip.heading[X_pos] += gameworld.left[1] * .0001;
-		OurShip.heading[Y_pos] += gameworld.left[2] * .0001;
-		OurShip.heading[Z_pos] += gameworld.left[3] * .0001;
+		OurShip.heading[X_pos] += gameworld.left[1] * OUR_ACCELERATION;
+		OurShip.heading[Y_pos] += gameworld.left[2] * OUR_ACCELERATION;
+		OurShip.heading[Z_pos] += gameworld.left[3] * OUR_ACCELERATION;
 	}
 	if (OurShip.keysHolding[dkey] == 1) {
-		OurShip.heading[X_pos] -= gameworld.left[1] * .0001;
-		OurShip.heading[Y_pos] -= gameworld.left[2] * .0001;
-		OurShip.heading[Z_pos] -= gameworld.left[3] * .0001;
+		OurShip.heading[X_pos] -= gameworld.left[1] * OUR_ACCELERATION;
+		OurShip.heading[Y_pos] -= gameworld.left[2] * OUR_ACCELERATION;
+		OurShip.heading[Z_pos] -= gameworld.left[3] * OUR_ACCELERATION;
 	}
 
 	//forward/back
 	if (OurShip.keysHolding[vkey] == 1) {
-		OurShip.heading[X_pos] -= gameworld.back[1] * .0003;
-		OurShip.heading[Y_pos] -= gameworld.back[2] * .0003;
-		OurShip.heading[Z_pos] -= gameworld.back[3] * .0003;
+		OurShip.heading[X_pos] -= gameworld.back[1] * OUR_ACCELERATION * FORWARD_BACK_MULT;
+		OurShip.heading[Y_pos] -= gameworld.back[2] * OUR_ACCELERATION * FORWARD_BACK_MULT;
+		OurShip.heading[Z_pos] -= gameworld.back[3] * OUR_ACCELERATION * FORWARD_BACK_MULT;
 	}
 	if (OurShip.keysHolding[ckey] == 1) {
-		OurShip.heading[X_pos] += gameworld.back[1] * .0003;
-		OurShip.heading[Y_pos] += gameworld.back[2] * .0003;
-		OurShip.heading[Z_pos] += gameworld.back[3] * .0003;
+		OurShip.heading[X_pos] += gameworld.back[1] * OUR_ACCELERATION * FORWARD_BACK_MULT;
+		OurShip.heading[Y_pos] += gameworld.back[2] * OUR_ACCELERATION * FORWARD_BACK_MULT;
+		OurShip.heading[Z_pos] += gameworld.back[3] * OUR_ACCELERATION * FORWARD_BACK_MULT;
 	}
 	//printf("%f,%f,%f\n", OurShip.heading[X_pos], OurShip.heading[Y_pos], OurShip.heading[Z_pos]);
-	//add a max heading
-
-
-	//OurShip.heading[Velocity] = ()
+	
 	gameworld.camera[X_pos] += OurShip.heading[X_pos];
 	gameworld.camera[Y_pos] += OurShip.heading[Y_pos];
 	gameworld.camera[Z_pos] += OurShip.heading[Z_pos];
+	if (OurShip.heading[X_pos] > OUR_MAX_SPEED) {
+		OurShip.heading[X_pos] = OUR_MAX_SPEED;
+	}
+	if (OurShip.heading[Y_pos] > OUR_MAX_SPEED) {
+		OurShip.heading[Y_pos] = OUR_MAX_SPEED;
+	}
+	if (OurShip.heading[Z_pos] > OUR_MAX_SPEED) {
+		OurShip.heading[Z_pos] = OUR_MAX_SPEED;
+	}
 }
 
 EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
@@ -258,9 +289,10 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 }
 
 void resetShip(EnShip* enemyShip) {
-	printf("Setting Ship\n");
+	//printf("Setting Ship\n");
 	enShipStuff = getRefID(ENSHIP);
 	enemyShip->ID = enShipStuff.ID;
+	//enemyShip->scale = 2;
 	enemyShip->indexCount = enShipStuff.indC;
 	enemyShip->hp = 0;
 	enemyShip->position[X_pos] = 0;
@@ -277,9 +309,10 @@ void resetShip(EnShip* enemyShip) {
 }
 
 void resetShipVariation(EnShip* enemyShip) {
-	printf("Resetting Ship\n");
+	//printf("Resetting Ship\n");
 	enemyShip->ID = enShipStuff.ID;
 	enemyShip->indexCount = enShipStuff.indC;
+	//enemyShip->scale = 2;
 	enemyShip->hp = ENEMY_HP_DEFAULT;
 	enemyShip->position[X_pos] = ((float)(rand() % ENEMY_POS_RANGE)- (ENEMY_POS_RANGE / 2))/ 50.0 + gameworld.camera[X_pos];
 	enemyShip->position[Y_pos] = ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 50.0 + gameworld.camera[Y_pos];

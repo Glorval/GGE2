@@ -72,8 +72,12 @@ void main() {
 	}
 	//Vector graphics mode
 	else if(flags == 2){
+		if(scale > 0.00001){
+			cordFour = vec4(cordFour.x, cordFour.y * scale, cordFour.z * scale, cordFour.w * scale);
+		}
 		vec4 orientated = quatMult(quatMult(orientation, cordFour), quatConj(orientation));
 		vec3 worldPos = orientated.yzw + cordinates - cameraPosition;
+		
 		vec4 reposToCam = vec4(0, worldPos);
 		reposToCam =  quatMult(quatMult(cameraOrientation, reposToCam), quatConj(cameraOrientation));
 		reposToCam.y = reposToCam.y * windowRatio;
