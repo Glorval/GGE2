@@ -13,6 +13,9 @@
 #define MAX_MOUSE_MOVEMENT (double)30
 #define MOUSE_MOVEMENT_DAMPER (double)1500
 
+#define BOOLETSPEED (float)1.0
+#define BOOLETLIFE 100
+
 #define ENEMY_HP_DEFAULT 5
 #define ENEMY_DISTANCE 200//350
 #define ENEMY_MAX_SPEED 1.0
@@ -24,6 +27,8 @@
 #define OUR_ACCELERATION 0.0008 //How much holding a key adds to heading
 #define OUR_MAX_SPEED 0.8 //max speed
 #define FORWARD_BACK_MULT 2 //How much more powerful forward/back is in relation to the other controls
+#define OUR_FIRE_RATE 6 //is twice as fast due to the alternating guns
+#define OUR_BOOLET_OFFSET .2 //how far to each side boolet spawn
 
 enum heading{Xhead, YHead, ZHead, Velocity};
 //enum holdingKeys{wkey, akey, skey,dkey,qkey,ekey,vkey,ckey};
@@ -35,6 +40,7 @@ static int qkey = 4;
 static int ekey = 5;
 static int vkey = 6;
 static int ckey = 7;
+static int fireKey = 8;
 
 
 struct referObj {
@@ -63,8 +69,10 @@ struct ourShip {
     int numHitboxes;
     float** hitboxes;
     float heading[4]; //x,y,z, velocity vector of where we are going
-    char keysHolding[8]; //'toggled' controls on which keys are being pressed. w,a,s,d,q,e,c,v
+    char keysHolding[9]; //'toggled' controls on which keys are being pressed. w,a,s,d,q,e,c,v, fire guns,
     short int hp;
+    int timeSinceLastFire;
+    int fireRate;
 };
 //typedef struct ourShip OurShip;
 
@@ -94,6 +102,7 @@ long long int startGameButton(void* ourself, long long int data, short int click
 EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips);
 void resetShip(EnShip* enemyShip);
 void resetShipVariation(EnShip* enemyShip);
+void ourShipHandler();
 void ourShipMotionHandler();
 
 void expandedMouseClick(GLFWwindow* window, int button, int action, int mods);

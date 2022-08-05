@@ -2,13 +2,13 @@
 
 static int BooletID = 0;
 static float BooletVerts[] = {
-	0, 0, 0,
-	0, 0, 0.4
+	0, 0, 0.3,
+	0, 0, -0.3,
 };
 
 struct boolet {
 	float pos[7];
-	float speed;
+	float velocity[3];
 	int framesToLive;
 	void* nextBoolet;
 };
@@ -37,6 +37,8 @@ void renderBoolet() {
 		glBindVertexArray(BooletID);
 		glUniform1f(ProgramData.flagsLoc, RENDER_MODE_VECTOR);
 		glUniform1f(ProgramData.scaleLoc, 0);
+		glUniform3f(ProgramData.cameraPosLoc, gameworld.camera[X_pos], gameworld.camera[Y_pos], gameworld.camera[Z_pos]);
+		glUniform4f(ProgramData.camAngleLoc, gameworld.camera[W_pos], gameworld.camera[I_pos], gameworld.camera[J_pos], gameworld.camera[K_pos]);
 		Boolet* curBoolet = booletlist.nextBoolet;
 		Boolet* prev = &booletlist;
 
@@ -46,21 +48,23 @@ void renderBoolet() {
 				free(curBoolet);
 				curBoolet = prev->nextBoolet;
 			} else {
-				curBoolet->pos[X_pos] += curBoolet->pos[X_pos] * curBoolet->speed;
-				curBoolet->pos[Y_pos] += curBoolet->pos[Y_pos] * curBoolet->speed;
-				curBoolet->pos[Z_pos] += curBoolet->pos[Z_pos] * curBoolet->speed;
+				curBoolet->pos[X_pos] +=  curBoolet->velocity[X_pos];
+				curBoolet->pos[Y_pos] +=  curBoolet->velocity[Y_pos];
+				curBoolet->pos[Z_pos] +=  curBoolet->velocity[Z_pos];
 				glUniform3f(ProgramData.cordinatesLoc, curBoolet->pos[X_pos], curBoolet->pos[Y_pos], curBoolet->pos[Z_pos]);
-				glUniform4f(ProgramData.orientationLoc, curBoolet->pos[W_pos], curBoolet->pos[I_pos], curBoolet->pos[J_pos], curBoolet->pos[K_pos]);
+				glUniform4f(ProgramData.orientationLoc, -curBoolet->pos[W_pos], curBoolet->pos[I_pos], curBoolet->pos[J_pos], curBoolet->pos[K_pos]);
 				
 				glDrawArrays(GL_LINES, 0, 2);
+				curBoolet->framesToLive = curBoolet->framesToLive - 1;
 				curBoolet = curBoolet->nextBoolet;
+				
 			}
 		}
 	}
 	
 }
 
-void add_boolet(float* pos/*7 long*/, float speed /*speed is based off pos since it goes straight*/, int framesToLive) {
+void add_boolet(float* pos/*7 longxyzwijk*/, float* velocity/*3 long, xyz*/, int framesToLive) {
 	Boolet* nextBoolet = booletlist.nextBoolet;
 
 	Boolet* curBoolet = NULL;
@@ -74,6 +78,8 @@ void add_boolet(float* pos/*7 long*/, float speed /*speed is based off pos since
 	curBoolet->pos[4] = pos[4];
 	curBoolet->pos[5] = pos[5];
 	curBoolet->pos[6] = pos[6];
-	curBoolet->speed = speed;
+	curBoolet->velocity[0] = velocity[0];
+	curBoolet->velocity[1] = velocity[1];
+	curBoolet->velocity[2] = velocity[2];
 	curBoolet->framesToLive = framesToLive;
 }

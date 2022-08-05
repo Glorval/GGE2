@@ -27,12 +27,17 @@ int main(){
 
 	float counter = 1;
 	int gameFlag = IN_MAIN_MENU;
+	clock_t start, end;
 	srand(time(NULL));
 	while (!glfwWindowShouldClose(gamewindow)) {
 		//drawWorld(lineworld);
 		//runMasterUI();
+
+		start = clock();
 		runGame(gamewindow, gameFlag);
-		
+		end = clock();
+
+		//printf("Time for this frame: %d\n", end - start);
 		gameFlag = getsetGamestate(DONT_STATE_CHANGE);
 		counter += 1;
 	}

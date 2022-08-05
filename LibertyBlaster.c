@@ -34,20 +34,18 @@ void runGame(GLFWwindow* window, int flagSetting) {
 			insertObjectIntoWorld(&gameworld, &enemyShipList[cShip], 1);
 		}
 		setupBoolet();
-		float pos[7] = {
-			0,0,-1, 1,0,0,0
-		};
-		add_boolet(pos, 0.01, 1000);
+		OurShip.fireRate = OUR_FIRE_RATE;
 		MainMenuUI->active = 0;
 		getsetGamestate(IN_GAME);
 	}else if (flagSetting == IN_GAME) {
+		renderBoolet();
 		drawWorld(&gameworld);
 		
 		runMasterUI();
-		renderBoolet();
+		
 
 		gameCursorMovement();		
-		ourShipMotionHandler();
+		ourShipHandler();
 		enemyShipList = enemyShipHandler(enemyShipList, 0);
 	} else if (flagSetting == IN_SETTINGS) {
 
@@ -139,6 +137,14 @@ long long int startGameButton(void* ourself, long long int data, short int click
 
 void expandedMouseClick(GLFWwindow* window, int button, int action, int mods) {
 	defaultMoustClick(window, button, action, mods);
+
+	if (button == GLFW_MOUSE_BUTTON_2) {
+		if (action == GLFW_PRESS) {
+			OurShip.keysHolding[fireKey] = 1;
+		} else if (action == GLFW_RELEASE) {
+			OurShip.keysHolding[fireKey] = 0;
+		}
+	}
 }
 
 
@@ -250,6 +256,39 @@ void ourShipMotionHandler() {
 	}
 }
 
+void ourShipHandler() {
+	ourShipMotionHandler();
+	float tempos[] = {
+		0,0,0,1,0,0,0
+	};
+	if (OurShip.keysHolding[fireKey] == 1) {
+		float velocity[3] = { -gameworld.back[Y_pos], -gameworld.back[Z_pos], -gameworld.back[W_pos] };
+		float pos[7] = { gameworld.camera[X_pos],gameworld.camera[Y_pos],gameworld.camera[Z_pos],  gameworld.camera[W_pos], gameworld.camera[I_pos], gameworld.camera[J_pos], gameworld.camera[K_pos] };
+		float* temp = NULL;
+		//no reorientating here because it's relative to the camera
+		//quatMult(&gameworld.camera[W_pos], velocity);
+		//temp = quatConj(&gameworld.camera[W_pos]);
+		if (OurShip.timeSinceLastFire == 0) {
+			pos[X_pos] -= gameworld.left[Y_pos] * OUR_BOOLET_OFFSET;
+			pos[Y_pos] -= gameworld.left[Z_pos] * OUR_BOOLET_OFFSET;
+			pos[Z_pos] -= gameworld.left[W_pos] * OUR_BOOLET_OFFSET;
+			OurShip.timeSinceLastFire++;
+			add_boolet(pos, velocity, BOOLETLIFE);
+		}else if (OurShip.timeSinceLastFire == OUR_FIRE_RATE / 2) {
+			pos[X_pos] += gameworld.left[Y_pos] * OUR_BOOLET_OFFSET;
+			pos[Y_pos] += gameworld.left[Z_pos] * OUR_BOOLET_OFFSET;
+			pos[Z_pos] += gameworld.left[W_pos] * OUR_BOOLET_OFFSET;
+			add_boolet(pos, velocity, BOOLETLIFE);
+			OurShip.timeSinceLastFire++;
+		} else if (OurShip.timeSinceLastFire >= OUR_FIRE_RATE) {
+			OurShip.timeSinceLastFire = 0;
+		} else {
+			OurShip.timeSinceLastFire++;
+		}
+		
+	}
+}
+
 EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 	static int maxShipCount = DEFAULT_ENEMY_MAX;
 	static int framesSinceLastSpawn = 0;
@@ -302,6 +341,11 @@ void resetShip(EnShip* enemyShip) {
 	enemyShip->position[I_pos] = 0;
 	enemyShip->position[J_pos] = 0;
 	enemyShip->position[K_pos] = 0;
+
+	/*0.977486193
+-0.192724571
+-0.0842716694
+0.0166153014*/
 
 	enemyShip->heading[X_pos] = 0;
 	enemyShip->heading[Y_pos] = 0;
