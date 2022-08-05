@@ -35,7 +35,8 @@ UI (Usually 2d stuff rendered in triangle mode like standard and with colours on
 
 #define APPLICATIONNAME "GGE2.1"//"GGE2"
 
-//#define ERROR -1
+#define ERROR -1
+#define FAIL -1
 #define SUCCESS 0
 
 //#define X_pos 0

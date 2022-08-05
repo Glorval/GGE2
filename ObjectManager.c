@@ -140,16 +140,16 @@ void naturallyCentreVertices(float* input, int lines, int linewidth) {
 
 		//max vertical checking
 		if (input[(cLine * linewidth) + 1] > maxUp) {
-			maxUp = input[cLine * linewidth];
+			maxUp = input[(cLine * linewidth) + 1];
 		} else if (input[(cLine * linewidth) + 1] < maxDown) {
-			maxDown = input[cLine * linewidth];
+			maxDown = input[(cLine * linewidth) + 1];
 		}
 
 		//max depth checking
 		if (input[(cLine * linewidth) + 2] > maxForward) {
-			maxForward = input[cLine * linewidth];
+			maxForward = input[(cLine * linewidth) + 2];
 		} else if (input[(cLine * linewidth) + 2] < maxBack) {
-			maxBack = input[cLine * linewidth];
+			maxBack = input[(cLine * linewidth) + 2];
 		}
 	}
 
@@ -159,8 +159,8 @@ void naturallyCentreVertices(float* input, int lines, int linewidth) {
 	float depthOffset = (maxBack + maxForward) / 2;
 
 	for (int cLine = 0; cLine < lines; cLine++) {
-		input[cLine * linewidth] += sideOffset;
-		input[(cLine * linewidth) + 1] += verticalOffset;
-		input[(cLine * linewidth) + 2] += depthOffset;
+		input[cLine * linewidth] -= sideOffset;
+		input[(cLine * linewidth) + 1] -= verticalOffset;
+		input[(cLine * linewidth) + 2] -= depthOffset;
 	}
 }

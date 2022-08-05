@@ -27,7 +27,6 @@ idSet getRefID(char* refName) {
 	}
 }
 
-
 unsigned int loadEnemyShip() {
 	float shipVerts[] = {
 		//windshield
@@ -59,7 +58,7 @@ unsigned int loadEnemyShip() {
 		-0.08, -0.08, -0.45,			//19//back middle
 		0.08, -0.08, -0.45,			//20
 	};
-	naturallyCentreVertices(shipVerts, 21, 3);
+	//naturallyCentreVertices(shipVerts, 21, 3);
 
 	float shipVertsBig[] = {
 		//windshield

@@ -1,6 +1,8 @@
 #include "LibertyBlaster.h"
+#include "shipAIManager.c"
 #include "Entities.c"
 #include "booletmanager.c"
+
 
 struct ourShip OurShip = { 0 };
 idSet enShipStuff = { 0 };
@@ -28,9 +30,9 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		enemyShipList = calloc(DEFAULT_ENEMY_MAX, sizeof(EnShip));
 		enShipStuff = getRefID(ENSHIP);
 		for (int cShip = 0; cShip < DEFAULT_ENEMY_MAX; cShip++) {
-			enemyShipList[cShip].ID = enShipStuff.ID;
-			enemyShipList[cShip].indexCount = enShipStuff.indC;
-			//resetShipVariation(&enemyShipList[cShip]);
+			//enemyShipList[cShip].ID = enShipStuff.ID;
+			//enemyShipList[cShip].indexCount = enShipStuff.indC;
+			setShip(&enemyShipList[cShip]);
 			insertObjectIntoWorld(&gameworld, &enemyShipList[cShip], 1);
 		}
 		setupBoolet();
@@ -38,14 +40,11 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		MainMenuUI->active = 0;
 		getsetGamestate(IN_GAME);
 	}else if (flagSetting == IN_GAME) {
-		renderBoolet();
-		drawWorld(&gameworld);
-		
-		runMasterUI();
-		
-
-		gameCursorMovement();		
+		gameCursorMovement();
 		ourShipHandler();
+		updateBoolets(enemyShipList, DEFAULT_ENEMY_MAX);
+		runMasterUI();
+		drawWorld(&gameworld);		
 		enemyShipList = enemyShipHandler(enemyShipList, 0);
 	} else if (flagSetting == IN_SETTINGS) {
 
@@ -245,14 +244,12 @@ void ourShipMotionHandler() {
 	gameworld.camera[X_pos] += OurShip.heading[X_pos];
 	gameworld.camera[Y_pos] += OurShip.heading[Y_pos];
 	gameworld.camera[Z_pos] += OurShip.heading[Z_pos];
-	if (OurShip.heading[X_pos] > OUR_MAX_SPEED) {
-		OurShip.heading[X_pos] = OUR_MAX_SPEED;
-	}
-	if (OurShip.heading[Y_pos] > OUR_MAX_SPEED) {
-		OurShip.heading[Y_pos] = OUR_MAX_SPEED;
-	}
-	if (OurShip.heading[Z_pos] > OUR_MAX_SPEED) {
-		OurShip.heading[Z_pos] = OUR_MAX_SPEED;
+	const float velocity = sqrtf((OurShip.heading[X_pos] * OurShip.heading[X_pos]) + (OurShip.heading[Y_pos] * OurShip.heading[Y_pos]) + (OurShip.heading[Z_pos] * OurShip.heading[Z_pos]));
+	if (velocity > OUR_MAX_SPEED) {
+		const float multiplier = (float)1 - (velocity - OUR_MAX_SPEED);
+		OurShip.heading[X_pos] *= multiplier;
+		OurShip.heading[Y_pos] *= multiplier;
+		OurShip.heading[Z_pos] *= multiplier;
 	}
 }
 
@@ -262,8 +259,19 @@ void ourShipHandler() {
 		0,0,0,1,0,0,0
 	};
 	if (OurShip.keysHolding[fireKey] == 1) {
-		float velocity[3] = { -gameworld.back[Y_pos], -gameworld.back[Z_pos], -gameworld.back[W_pos] };
-		float pos[7] = { gameworld.camera[X_pos],gameworld.camera[Y_pos],gameworld.camera[Z_pos],  gameworld.camera[W_pos], gameworld.camera[I_pos], gameworld.camera[J_pos], gameworld.camera[K_pos] };
+		float velocity[3] = { 
+			(-gameworld.back[Y_pos] * BOOLETSPEED) + OurShip.heading[X_pos],
+			(-gameworld.back[Z_pos] * BOOLETSPEED) + OurShip.heading[Y_pos],
+			(-gameworld.back[W_pos] * BOOLETSPEED) + OurShip.heading[Z_pos],
+		};
+		float pos[7] = { 
+			gameworld.camera[X_pos],
+			gameworld.camera[Y_pos],
+			gameworld.camera[Z_pos],
+			gameworld.camera[W_pos],
+			gameworld.camera[I_pos], 
+			gameworld.camera[J_pos], 
+			gameworld.camera[K_pos] };
 		float* temp = NULL;
 		//no reorientating here because it's relative to the camera
 		//quatMult(&gameworld.camera[W_pos], velocity);
@@ -302,12 +310,18 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 		enemyShipList = realloc(enemyShipList, maxShipCount * sizeof(EnShip));
 	}
 
+	//update position
 	for (int cShip = 0; cShip < maxShipCount; cShip++) {
 		enemyShipList[cShip].position[X_pos] += enemyShipList[cShip].heading[X_pos];
 		enemyShipList[cShip].position[Y_pos] += enemyShipList[cShip].heading[Y_pos];
 		enemyShipList[cShip].position[Z_pos] += enemyShipList[cShip].heading[Z_pos];
+
+		if (enemyShipList[cShip].hp == 0) {
+			voidShip(&enemyShipList[cShip]);
+		}
 	}
 
+	//respawn checker, end of update function
 	framesSinceLastSpawn++;
 	if (framesSinceLastSpawn >= shipSpawnSpeed) {
 		for (int cShip = 0; cShip < maxShipCount; cShip++) {		
@@ -317,7 +331,7 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 				resetShipVariation(&enemyShipList[cShip]);
 				return(enemyShipList);
 			}
-			if (enemyShipList[cShip].hp == 0) {
+			if (enemyShipList[cShip].hp < 1) {
 				framesSinceLastSpawn = 0;
 				resetShipVariation(&enemyShipList[cShip]);
 				return(enemyShipList);
@@ -327,35 +341,28 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 	return(enemyShipList);
 }
 
-void resetShip(EnShip* enemyShip) {
+
+void voidShip(EnShip* enemyShip) {
+	//printf("Voiding Ship\n");
+	enemyShip->position[X_pos] = -100000;
+	enemyShip->position[Y_pos] = -100000;
+	enemyShip->position[Z_pos] = 100000;
+}
+
+void setShip(EnShip* enemyShip) {
 	//printf("Setting Ship\n");
 	enShipStuff = getRefID(ENSHIP);
 	enemyShip->ID = enShipStuff.ID;
 	//enemyShip->scale = 2;
 	enemyShip->indexCount = enShipStuff.indC;
 	enemyShip->hp = 0;
-	enemyShip->position[X_pos] = 0;
-	enemyShip->position[Y_pos] = 0;
-	enemyShip->position[Z_pos] = ENEMY_DISTANCE;
-	enemyShip->position[W_pos] = 1;
-	enemyShip->position[I_pos] = 0;
-	enemyShip->position[J_pos] = 0;
-	enemyShip->position[K_pos] = 0;
-
-	/*0.977486193
--0.192724571
--0.0842716694
-0.0166153014*/
-
-	enemyShip->heading[X_pos] = 0;
-	enemyShip->heading[Y_pos] = 0;
-	enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
 }
 
 void resetShipVariation(EnShip* enemyShip) {
 	//printf("Resetting Ship\n");
+	//setEnShipCollisionSet(enemyShip);
 	enemyShip->ID = enShipStuff.ID;
-	enemyShip->indexCount = enShipStuff.indC;
+	//enemyShip->indexCount = enShipStuff.indC;
 	//enemyShip->scale = 2;
 	enemyShip->hp = ENEMY_HP_DEFAULT;
 	enemyShip->position[X_pos] = ((float)(rand() % ENEMY_POS_RANGE)- (ENEMY_POS_RANGE / 2))/ 50.0 + gameworld.camera[X_pos];

@@ -21,25 +21,39 @@ int main(){
 
 	
 
-	_beginthread(moveCam, 0, lineworld);
+	//_beginthread(moveCam, 0, lineworld);
 	
 	setupMainMenu();
 
 	float counter = 1;
 	int gameFlag = IN_MAIN_MENU;
-	clock_t start, end;
+	long int start, end;
+	double rollingThirty = 0;
+	long int lastThirty[30] = { 0 };
+	int curPos = 0;
 	srand(time(NULL));
 	while (!glfwWindowShouldClose(gamewindow)) {
 		//drawWorld(lineworld);
 		//runMasterUI();
-
+		
 		start = clock();
 		runGame(gamewindow, gameFlag);
 		end = clock();
-
-		//printf("Time for this frame: %d\n", end - start);
+		lastThirty[curPos] = end - start;
+		curPos++;
+		rollingThirty = 0;
+		for (int c = 0; c < 30; c++) {
+				rollingThirty += (double)lastThirty[c];			
+		}
+		rollingThirty /= 30;
+		
+		if (curPos > 29) {
+			curPos = 0;
+			printf("Last Thirty Frames: %f\n", rollingThirty);
+		}
 		gameFlag = getsetGamestate(DONT_STATE_CHANGE);
 		counter += 1;
+		
 	}
 
 
