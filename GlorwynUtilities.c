@@ -125,3 +125,33 @@ float* quatConj(float q[4]) {
 	q[W_pos] = -q[W_pos];
 	return(q);
 }
+
+float vecLen3(const float vec[3]) {
+	return(sqrtf((vec[0] * vec[0]) + (vec[1] * vec[1]) + (vec[2] * vec[2])));
+}
+
+float dotP3(const float first[3], const float sec[3]) {
+	return((first[0] * sec[0]) + (first[1] * sec[1]) + (first[2] * sec[2]));
+}
+
+
+float* crossP3(const float first[3], const float sec[3]) {
+	float* returns = calloc(3, sizeof(float));
+
+	returns[0] = (first[1] * sec[2]) - (first[2] * sec[1]);
+	returns[1] = (first[2] * sec[0]) - (first[0] * sec[2]);
+	returns[2] = (first[0] * sec[1]) - (first[1] * sec[0]);
+	return(returns);
+}
+
+void norm3(float* vec) {
+	float temp = 0;
+	temp = vec[0];
+	temp = vec[1];
+	temp = vec[2];
+	float magnitude = sqrt((vec[0] * vec[0]) + (vec[1] * vec[1]) + (vec[2] * vec[2]));
+
+	vec[0] /= magnitude;
+	vec[1] /= magnitude;
+	vec[2] /= magnitude;
+}

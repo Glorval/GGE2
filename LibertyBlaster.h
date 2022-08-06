@@ -17,12 +17,12 @@
 #define BOOLETLIFE 150
 
 #define ENEMY_HP_DEFAULT 2
-#define ENEMY_DISTANCE 500
+#define ENEMY_DISTANCE 50//500
 #define ENEMY_MAX_SPEED 1.0
-#define ENEMY_START_SPEED 2.8//0.8
+#define ENEMY_START_SPEED 0.0//0.8
 #define STARTING_SPAWN_SPEED 5.0
-#define DEFAULT_ENEMY_MAX 100
-#define ENEMY_POS_RANGE 2500
+#define DEFAULT_ENEMY_MAX 5
+#define ENEMY_POS_RANGE 200//2500
 
 #define OUR_ACCELERATION 0.005 //0.0008 //How much holding a key adds to heading
 #define OUR_MAX_SPEED (float)0.4 //max speed
@@ -60,6 +60,8 @@ struct enShip {
     float heading[4]; //x,y,z, velocity vector of where we are going
     short int hp;
     char targeting;
+
+    float forward[4];
 };
 typedef struct enShip EnShip;
 
@@ -108,3 +110,7 @@ void expandedMouseClick(GLFWwindow* window, int button, int action, int mods);
 void keypressHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 void gameCursorMovement();
+
+
+
+void facePoint(EnShip* us, float targetPos[3]);

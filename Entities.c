@@ -1,5 +1,4 @@
 #pragma once
-//#include "Entities.h"
 
 #define ENSHIP "Enemy Ship"
 
@@ -108,3 +107,6 @@ unsigned int loadEnemyShip() {
 	addRefEntry(vectorobj.ID, vectorobj.indexCount, enemyShip);
 
 }
+
+
+#include "shipAIManager.c"

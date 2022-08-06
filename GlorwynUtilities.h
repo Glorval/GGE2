@@ -28,3 +28,8 @@ double* quatMultRSD(double* o, double* c);
 double* quatMultD(double* o, double* c);
 
 float* quatConj(float q[4]);
+
+float vecLen3(const float vec[3]);
+float dotP3(const float first[3], const float sec[3]);
+float* crossP3(const float first[3], const float sec[3]);
+void norm3(float* vec);

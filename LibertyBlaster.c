@@ -1,5 +1,4 @@
 #include "LibertyBlaster.h"
-#include "shipAIManager.c"
 #include "Entities.c"
 #include "booletmanager.c"
 
@@ -37,9 +36,14 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		}
 		setupBoolet();
 		OurShip.fireRate = OUR_FIRE_RATE;
+		gameworld.camera[Z_pos] = 10000;
 		MainMenuUI->active = 0;
 		getsetGamestate(IN_GAME);
 	}else if (flagSetting == IN_GAME) {
+		for (int cShip = 0; cShip < DEFAULT_ENEMY_MAX; cShip++) {
+			facePoint(&enemyShipList[cShip], OurShip.heading);
+		}
+		
 		gameCursorMovement();
 		ourShipHandler();
 		updateBoolets(enemyShipList, DEFAULT_ENEMY_MAX);
@@ -356,6 +360,10 @@ void setShip(EnShip* enemyShip) {
 	//enemyShip->scale = 2;
 	enemyShip->indexCount = enShipStuff.indC;
 	enemyShip->hp = 0;
+	enemyShip->forward[0] = 0;
+	enemyShip->forward[1] = 0;
+	enemyShip->forward[2] = 0;
+	enemyShip->forward[3] = 1;
 }
 
 void resetShipVariation(EnShip* enemyShip) {
@@ -372,6 +380,11 @@ void resetShipVariation(EnShip* enemyShip) {
 	enemyShip->position[I_pos] = 0;
 	enemyShip->position[J_pos] = 0;
 	enemyShip->position[K_pos] = 0;
+
+	enemyShip->forward[0] = 0;
+	enemyShip->forward[1] = 0;
+	enemyShip->forward[2] = 0;
+	enemyShip->forward[3] = 1;
 
 	enemyShip->heading[X_pos] = 0;
 	enemyShip->heading[Y_pos] = 0;
@@ -453,4 +466,52 @@ void gameCursorMovement() {
 	//gameworld.camera[J_pos] = secondCamPos[2];
 	//printf("%f, %f\n", xpos, ypos);
 	glfwSetCursorPos(gamewindow, 0.0, 0.0);
+}
+
+
+
+void facePoint(EnShip* us, float targetPos[3]) {
+	float forwardVector[3] = {
+		(gameworld.camera[X_pos] + (OurShip.heading[X_pos] * 20))- us->position[X_pos],
+		(gameworld.camera[Y_pos] + (OurShip.heading[Y_pos] * 20)) - us->position[Y_pos],
+		(gameworld.camera[Z_pos] + (OurShip.heading[Z_pos] * 20)) - us->position[Z_pos],
+	};
+
+	norm3(forwardVector);
+
+	float dot = dotP3(&us->forward[1], forwardVector);
+	
+	if (fabsf(dot + 1.0) < 0.00001 || fabsf(dot - 1.0) < 0.00001) {
+	} else {
+		if (dot >= 1 || dot <= -1) {
+			//printf("saved");
+			return;
+		}
+		float rotAngle = acosf(dot);
+		float* rotAxis = crossP3(&us->forward[1], forwardVector);
+		norm3(rotAxis);
+		//printf("%f, %f, %f, %f\n", rotAngle, rotAxis[0], rotAxis[1], rotAxis[2]);
+		float ha = rotAngle / (float)20.0;
+		float sina = sinf(ha);
+		float rotQuat[] = {
+			cosf(ha),
+			rotAxis[0] * sina,
+			rotAxis[1] * sina,
+			rotAxis[2] * sina,
+		};
+
+		normalizeQuat(rotQuat);
+
+		float conj[] = {
+			rotQuat[0],
+			-rotQuat[1],
+			-rotQuat[2],
+			-rotQuat[3],
+		};
+		normalizeQuat(conj);
+		quatMult(rotQuat, &us->position[W_pos]);
+
+		quatMult(rotQuat, us->forward);
+		quatMultRS(us->forward, conj);
+	}
 }
