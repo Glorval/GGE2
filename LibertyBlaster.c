@@ -1,6 +1,7 @@
 #include "LibertyBlaster.h"
-#include "Entities.c"
 #include "booletmanager.c"
+#include "Entities.c"
+//#include "shipAIManager.h"
 
 
 struct ourShip OurShip = { 0 };
@@ -40,9 +41,6 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		MainMenuUI->active = 0;
 		getsetGamestate(IN_GAME);
 	}else if (flagSetting == IN_GAME) {
-		for (int cShip = 0; cShip < DEFAULT_ENEMY_MAX; cShip++) {
-			facePoint(&enemyShipList[cShip], OurShip.heading);
-		}
 		
 		gameCursorMovement();
 		ourShipHandler();
@@ -285,12 +283,12 @@ void ourShipHandler() {
 			pos[Y_pos] -= gameworld.left[Z_pos] * OUR_BOOLET_OFFSET;
 			pos[Z_pos] -= gameworld.left[W_pos] * OUR_BOOLET_OFFSET;
 			OurShip.timeSinceLastFire++;
-			add_boolet(pos, velocity, BOOLETLIFE);
+			add_boolet(pos, velocity, BOOLETLIFE, PLAYER_BOOLET);
 		}else if (OurShip.timeSinceLastFire == OUR_FIRE_RATE / 2) {
 			pos[X_pos] += gameworld.left[Y_pos] * OUR_BOOLET_OFFSET;
 			pos[Y_pos] += gameworld.left[Z_pos] * OUR_BOOLET_OFFSET;
 			pos[Z_pos] += gameworld.left[W_pos] * OUR_BOOLET_OFFSET;
-			add_boolet(pos, velocity, BOOLETLIFE);
+			add_boolet(pos, velocity, BOOLETLIFE, PLAYER_BOOLET);
 			OurShip.timeSinceLastFire++;
 		} else if (OurShip.timeSinceLastFire >= OUR_FIRE_RATE) {
 			OurShip.timeSinceLastFire = 0;
@@ -314,11 +312,12 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 		enemyShipList = realloc(enemyShipList, maxShipCount * sizeof(EnShip));
 	}
 
-	//update position
+	//update AI and position
 	for (int cShip = 0; cShip < maxShipCount; cShip++) {
-		enemyShipList[cShip].position[X_pos] += enemyShipList[cShip].heading[X_pos];
-		enemyShipList[cShip].position[Y_pos] += enemyShipList[cShip].heading[Y_pos];
-		enemyShipList[cShip].position[Z_pos] += enemyShipList[cShip].heading[Z_pos];
+		updateOurAI(&enemyShipList[cShip], OurShip, 1);
+		enemyShipList[cShip].position[X_pos] += enemyShipList[cShip].forward[X_pos + 1] * enemyShipList[cShip].speed;
+		enemyShipList[cShip].position[Y_pos] += enemyShipList[cShip].forward[Y_pos + 1] * enemyShipList[cShip].speed;
+		enemyShipList[cShip].position[Z_pos] += enemyShipList[cShip].forward[Z_pos + 1] * enemyShipList[cShip].speed;
 
 		if (enemyShipList[cShip].hp == 0) {
 			voidShip(&enemyShipList[cShip]);
@@ -360,10 +359,23 @@ void setShip(EnShip* enemyShip) {
 	//enemyShip->scale = 2;
 	enemyShip->indexCount = enShipStuff.indC;
 	enemyShip->hp = 0;
+	enemyShip->targeting = 0;
+	enemyShip->fireFrame = 0;
+	enemyShip->speed = ENEMY_START_SPEED;
 	enemyShip->forward[0] = 0;
 	enemyShip->forward[1] = 0;
 	enemyShip->forward[2] = 0;
-	enemyShip->forward[3] = 1;
+	enemyShip->forward[3] = 1;	
+
+	enemyShip->up[0] = 0;
+	enemyShip->up[1] = 0;
+	enemyShip->up[2] = 1;
+	enemyShip->up[3] = 0;
+
+	enemyShip->right[0] = 0;
+	enemyShip->right[1] = -1;
+	enemyShip->right[2] = 0;
+	enemyShip->right[3] = 0;
 }
 
 void resetShipVariation(EnShip* enemyShip) {
@@ -373,6 +385,8 @@ void resetShipVariation(EnShip* enemyShip) {
 	//enemyShip->indexCount = enShipStuff.indC;
 	//enemyShip->scale = 2;
 	enemyShip->hp = ENEMY_HP_DEFAULT;
+	enemyShip->targeting = 0;
+	enemyShip->fireFrame = 0;
 	enemyShip->position[X_pos] = ((float)(rand() % ENEMY_POS_RANGE)- (ENEMY_POS_RANGE / 2))/ 50.0 + gameworld.camera[X_pos];
 	enemyShip->position[Y_pos] = ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 50.0 + gameworld.camera[Y_pos];
 	enemyShip->position[Z_pos] = -ENEMY_DISTANCE + ((float)(rand() % ENEMY_POS_RANGE) - (ENEMY_POS_RANGE / 2)) / 10.0 + gameworld.camera[Z_pos];
@@ -386,9 +400,17 @@ void resetShipVariation(EnShip* enemyShip) {
 	enemyShip->forward[2] = 0;
 	enemyShip->forward[3] = 1;
 
-	enemyShip->heading[X_pos] = 0;
-	enemyShip->heading[Y_pos] = 0;
-	enemyShip->heading[Z_pos] = ENEMY_START_SPEED;
+	enemyShip->up[0] = 0;
+	enemyShip->up[1] = 0;
+	enemyShip->up[2] = 1;
+	enemyShip->up[3] = 0;
+
+	enemyShip->right[0] = 0;
+	enemyShip->right[1] = -1;
+	enemyShip->right[2] = 0;
+	enemyShip->right[3] = 0;
+
+	enemyShip->speed = ENEMY_START_SPEED;
 }
 
 void gameCursorMovement() {
@@ -470,48 +492,3 @@ void gameCursorMovement() {
 
 
 
-void facePoint(EnShip* us, float targetPos[3]) {
-	float forwardVector[3] = {
-		(gameworld.camera[X_pos] + (OurShip.heading[X_pos] * 20))- us->position[X_pos],
-		(gameworld.camera[Y_pos] + (OurShip.heading[Y_pos] * 20)) - us->position[Y_pos],
-		(gameworld.camera[Z_pos] + (OurShip.heading[Z_pos] * 20)) - us->position[Z_pos],
-	};
-
-	norm3(forwardVector);
-
-	float dot = dotP3(&us->forward[1], forwardVector);
-	
-	if (fabsf(dot + 1.0) < 0.00001 || fabsf(dot - 1.0) < 0.00001) {
-	} else {
-		if (dot >= 1 || dot <= -1) {
-			//printf("saved");
-			return;
-		}
-		float rotAngle = acosf(dot);
-		float* rotAxis = crossP3(&us->forward[1], forwardVector);
-		norm3(rotAxis);
-		//printf("%f, %f, %f, %f\n", rotAngle, rotAxis[0], rotAxis[1], rotAxis[2]);
-		float ha = rotAngle / (float)20.0;
-		float sina = sinf(ha);
-		float rotQuat[] = {
-			cosf(ha),
-			rotAxis[0] * sina,
-			rotAxis[1] * sina,
-			rotAxis[2] * sina,
-		};
-
-		normalizeQuat(rotQuat);
-
-		float conj[] = {
-			rotQuat[0],
-			-rotQuat[1],
-			-rotQuat[2],
-			-rotQuat[3],
-		};
-		normalizeQuat(conj);
-		quatMult(rotQuat, &us->position[W_pos]);
-
-		quatMult(rotQuat, us->forward);
-		quatMultRS(us->forward, conj);
-	}
-}

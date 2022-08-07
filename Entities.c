@@ -79,15 +79,15 @@ unsigned int loadEnemyShip() {
 		-0.8, -0.08, -1.10,				//11
 		0.8, -0.08, -1.10,				//12
 
-		//back frame
-		-0.16, 0.0, -0.90,				//13
-		0.16, 0.0, -0.90,				//14
-		-0.12, 0.2, -0.60,				//15//back of the windshield
-		0.12, 0.2, -0.60,				//16
-		-0.16, 0.0, -0.76,				//17
-		0.16, 0.0, -0.76,				//18
-		-0.16, -0.16, -0.90,			//19//back middle
-		0.16, -0.16, -0.90,				//20
+//back frame
+-0.16, 0.0, -0.90,				//13
+0.16, 0.0, -0.90,				//14
+-0.12, 0.2, -0.60,				//15//back of the windshield
+0.12, 0.2, -0.60,				//16
+-0.16, 0.0, -0.76,				//17
+0.16, 0.0, -0.76,				//18
+-0.16, -0.16, -0.90,			//19//back middle
+0.16, -0.16, -0.90,				//20
 	};
 	naturallyCentreVertices(shipVertsBig, 21, 3);
 
@@ -108,5 +108,213 @@ unsigned int loadEnemyShip() {
 
 }
 
+void faceShip(EnShip* us, struct ourShip OurShip) {
+	float forwardVector[3] = {
+		(gameworld.camera[X_pos] + (OurShip.heading[X_pos] * 40)) - us->position[X_pos],
+		(gameworld.camera[Y_pos] + (OurShip.heading[Y_pos] * 40)) - us->position[Y_pos],
+		(gameworld.camera[Z_pos] + (OurShip.heading[Z_pos] * 40)) - us->position[Z_pos],
+	};
 
-#include "shipAIManager.c"
+	forwardVector[0] *= 1 + (((float)(rand() % 20000) / 100) - 100) * ENEMY_SHIP_DEVIATION;
+	forwardVector[1] *= 1 + (((float)(rand() % 20000) / 100) - 100) * ENEMY_SHIP_DEVIATION;
+	forwardVector[2] *= 1 + (((float)(rand() % 20000) / 100) - 100) * ENEMY_SHIP_DEVIATION;
+
+	norm3(forwardVector);
+
+	float dot = dotP3(&us->forward[1], forwardVector);
+
+	if (fabsf(dot + 1.0) < 0.00001 || fabsf(dot - 1.0) < 0.00001) {
+	} else {
+		if (dot >= 1 || dot <= -1) {
+			//printf("saved");
+			return;
+		}
+		float rotAngle = acosf(dot);
+		float* rotAxis = crossP3(&us->forward[1], forwardVector);
+		norm3(rotAxis);
+		//printf("%f, %f, %f, %f\n", rotAngle, rotAxis[0], rotAxis[1], rotAxis[2]);
+		float ha = rotAngle / ENEMY_AGILITY;
+		float sina = sinf(ha);
+		float rotQuat[] = {
+			cosf(ha),
+			rotAxis[0] * sina,
+			rotAxis[1] * sina,
+			rotAxis[2] * sina,
+		};
+
+		normalizeQuat(rotQuat);
+
+		float conj[] = {
+			rotQuat[0],
+			-rotQuat[1],
+			-rotQuat[2],
+			-rotQuat[3],
+		};
+		normalizeQuat(conj);
+		quatMult(rotQuat, &us->position[W_pos]);
+
+		quatMult(rotQuat, us->forward);
+		quatMultRS(us->forward, conj);
+
+		quatMult(rotQuat, us->up);
+		quatMultRS(us->up, conj);
+
+		quatMult(rotQuat, us->right);
+		quatMultRS(us->right, conj);
+	}
+}
+
+void alignTo(EnShip* us, const float axis[3]) {
+	float forwardVector[3] = {
+		axis[X_pos],// - us->position[X_pos],
+		axis[Y_pos],// - us->position[Y_pos],
+		axis[Z_pos],// - us->position[Z_pos],
+	};
+
+	norm3(forwardVector);
+
+	float dot = dotP3(&us->forward[1], forwardVector);
+
+	if (fabsf(dot + 1.0) < 0.00001 || fabsf(dot - 1.0) < 0.00001) {
+	} else {
+		if (dot >= 1 || dot <= -1) {
+			//printf("saved");
+			return;
+		}
+		float rotAngle = acosf(dot);
+		float* rotAxis = crossP3(&us->forward[1], forwardVector);
+		norm3(rotAxis);
+		//printf("%f, %f, %f, %f\n", rotAngle, rotAxis[0], rotAxis[1], rotAxis[2]);
+		float ha = rotAngle / (ENEMY_AGILITY* 4);
+		float sina = sinf(ha);
+		float rotQuat[] = {
+			cosf(ha),
+			rotAxis[0] * sina,
+			rotAxis[1] * sina,
+			rotAxis[2] * sina,
+		};
+
+		normalizeQuat(rotQuat);
+
+		float conj[] = {
+			rotQuat[0],
+			-rotQuat[1],
+			-rotQuat[2],
+			-rotQuat[3],
+		};
+		normalizeQuat(conj);
+		quatMult(rotQuat, &us->position[W_pos]);
+
+		quatMult(rotQuat, us->forward);
+		quatMultRS(us->forward, conj);
+
+		quatMult(rotQuat, us->up);
+		quatMultRS(us->up, conj);
+
+		quatMult(rotQuat, us->right);
+		quatMultRS(us->right, conj);
+	}
+}
+
+
+
+void updateOurAI(EnShip* us, struct ourShip PlayerShip, char targetAllowed) {
+	//if we are allowed to become targeting
+	const static float realignVector[3] = {
+		0,0,1
+	};
+	if (targetAllowed == 1) {
+		//and are not targetting
+		if (us->targeting == 0) {
+			//and we aren't too close/far to start
+			if ((gameworld.camera[Z_pos] - us->position[Z_pos]) > ENEMY_TARGET_DIST &&
+				((gameworld.camera[Z_pos] - us->position[Z_pos]) < ENEMY_TARGET_DIST_MAX)) {
+				//roll a check to see if we should start
+				if ((float)(rand() % 10000) / 100 <= ENEMY_TARGET_CHANCE) {
+					us->targeting = 1;
+				}
+			}
+		}
+	}
+
+	//if we're trying to kill the player
+	if (us->targeting == 1) {
+		us->speed = ENEMY_MAX_SPEED;
+		//quickly make sure we shouldn't stop targetting
+		if (((gameworld.camera[X_pos] - us->position[X_pos]) * (gameworld.camera[X_pos] - us->position[X_pos]) +
+			(gameworld.camera[Y_pos] - us->position[Y_pos]) * (gameworld.camera[Y_pos] - us->position[Y_pos]) +
+			(gameworld.camera[Z_pos] - us->position[Z_pos]) * (gameworld.camera[Z_pos] - us->position[Z_pos]))
+			< ENEMY_TARGET_DIST_MIN
+			){
+			us->targeting = 2;//dip out
+			goto targettingTwoCheck;
+		}
+
+		//face where they're going
+		faceShip(us, PlayerShip);
+		//try to start shooting if applicable
+		if (us->fireFrame == 0) {
+			//check against fire start chance
+			if ((float)(rand() % 10000) / 100 < ENEMY_FIRE_CHANCE) {
+				us->fireFrame = ENEMY_BURST_LEN + 1;//since zero is not doing it
+			}
+		}
+
+		if (us->fireFrame > 0) {
+			us->fireFrame--;
+			const float velocity[3] = {
+				us->forward[X_pos + 1] * BOOLETSPEED,
+				us->forward[Y_pos + 1] * BOOLETSPEED,
+				us->forward[Z_pos + 1] * BOOLETSPEED,
+			};
+
+			float booletPos[7] = {
+				us->position[X_pos],
+				us->position[Y_pos],
+				us->position[Z_pos],
+				us->position[W_pos],
+				us->position[I_pos],
+				us->position[J_pos],
+				us->position[K_pos],
+			};
+
+			//from the enemy ship's perspective
+			//up and to right
+			if (us->fireFrame % ENEMY_FIRE_RATE == 0) {
+				booletPos[X_pos] += ENEMY_BOOLET_OFFSET * (us->right[X_pos + 1] + (us->up[X_pos + 1] * 0.5));
+				booletPos[Y_pos] += ENEMY_BOOLET_OFFSET * (us->right[Y_pos + 1] + (us->up[Y_pos + 1] * 0.5));
+				booletPos[Z_pos] += ENEMY_BOOLET_OFFSET * (us->right[Z_pos + 1] + (us->up[Z_pos + 1] * 0.5));
+				add_boolet(booletPos, velocity, BOOLETLIFE, ENEMY_BOOLET);
+			}
+			//up and to left
+			else if (us->fireFrame % ENEMY_FIRE_RATE == 2) {
+				booletPos[X_pos] += ENEMY_BOOLET_OFFSET * ((us->up[X_pos + 1]*0.5) - us->right[X_pos + 1]);
+				booletPos[Y_pos] += ENEMY_BOOLET_OFFSET * ((us->up[Y_pos + 1] * 0.5) - us->right[Y_pos + 1]);
+				booletPos[Z_pos] += ENEMY_BOOLET_OFFSET * ((us->up[Z_pos + 1] * 0.5) - us->right[Z_pos + 1]);
+				add_boolet(booletPos, velocity, BOOLETLIFE, ENEMY_BOOLET);
+			}
+			//down and to right
+			else if (us->fireFrame % ENEMY_FIRE_RATE == 4) {
+				booletPos[X_pos] -= ENEMY_BOOLET_OFFSET * ((us->up[X_pos + 1] * 0.5) - us->right[X_pos + 1]);
+				booletPos[Y_pos] -= ENEMY_BOOLET_OFFSET * ((us->up[Y_pos + 1] * 0.5) - us->right[Y_pos + 1]);
+				booletPos[Z_pos] -= ENEMY_BOOLET_OFFSET * ((us->up[Z_pos + 1] * 0.5) - us->right[Z_pos + 1]);
+				add_boolet(booletPos, velocity, BOOLETLIFE, ENEMY_BOOLET);
+			}
+			//down and to left
+			else if (us->fireFrame % ENEMY_FIRE_RATE == 6) {
+				booletPos[X_pos] -= ENEMY_BOOLET_OFFSET * (us->right[X_pos + 1] + (us->up[X_pos + 1] * 0.5));
+				booletPos[Y_pos] -= ENEMY_BOOLET_OFFSET * (us->right[Y_pos + 1] + (us->up[Y_pos + 1] * 0.5));
+				booletPos[Z_pos] -= ENEMY_BOOLET_OFFSET * (us->right[Z_pos + 1] + (us->up[Z_pos + 1] * 0.5));
+				add_boolet(booletPos, velocity, BOOLETLIFE, ENEMY_BOOLET);
+			}
+			
+		}
+	}
+
+	targettingTwoCheck:;
+	if (us->targeting == 2) {
+		
+		alignTo(us, realignVector);
+	}
+}
+

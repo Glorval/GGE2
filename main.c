@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 //#include "GGE2_1.h"
+#include <Windows.h>
 
 #include "LibertyBlaster.h" //Includes GGE2.1
 
@@ -7,6 +8,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <process.h>
+
 
 
 void moveCam(World* ourWorld);
@@ -27,33 +29,28 @@ int main(){
 
 	float counter = 1;
 	int gameFlag = IN_MAIN_MENU;
-	long int start, end;
-	double rollingThirty = 0;
-	long int lastThirty[30] = { 0 };
-	int curPos = 0;
 	srand(time(NULL));
+
+	int framesTillCheck = 60;
+	ULONGLONG startOf, endOf;
+	startOf = GetTickCount64();
 	while (!glfwWindowShouldClose(gamewindow)) {
-		//drawWorld(lineworld);
-		//runMasterUI();
-		
-		start = clock();
+
 		runGame(gamewindow, gameFlag);
-		end = clock();
-		lastThirty[curPos] = end - start;
-		curPos++;
-		rollingThirty = 0;
-		for (int c = 0; c < 30; c++) {
-				rollingThirty += (double)lastThirty[c];			
+
+		framesTillCheck--;
+		if (framesTillCheck == 0) {
+			endOf = GetTickCount64();
+			float fps = 60000.0 / (float)(endOf - startOf);
+			startOf = endOf;
+			
+			printf("FPS: %f\n", fps);
+			//printf("FPS: %f", )
+			framesTillCheck = 60;
 		}
-		rollingThirty /= 30;
-		
-		if (curPos > 29) {
-			curPos = 0;
-			printf("Last Thirty Frames: %f\n", rollingThirty);
-		}
+
 		gameFlag = getsetGamestate(DONT_STATE_CHANGE);
-		counter += 1;
-		
+		counter += 1;		
 	}
 
 

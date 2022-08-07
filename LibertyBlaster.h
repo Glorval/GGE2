@@ -2,6 +2,8 @@
 #include "GGE2_1.h"
 
 
+
+
 #define MainMenuUI masterUIList[0]
 #define DONT_STATE_CHANGE -1
 
@@ -13,21 +15,34 @@
 #define MAX_MOUSE_MOVEMENT (double)30
 #define MOUSE_MOVEMENT_DAMPER (double)1500
 
-#define BOOLETSPEED (float)4
-#define BOOLETLIFE 150
+#define BOOLETSPEED (float)2
+#define BOOLETLIFE 125
 
-#define ENEMY_HP_DEFAULT 2
-#define ENEMY_DISTANCE 50//500
+//GENERAL ENEMY ATTRIBUTES
+#define ENEMY_DISTANCE 500//500
+#define STARTING_SPAWN_SPEED 20.0
+#define DEFAULT_ENEMY_MAX 100
+#define ENEMY_POS_RANGE 2500//2500
+
+//SPECIFIC ENEMY ATTRIBUTES
 #define ENEMY_MAX_SPEED 1.0
-#define ENEMY_START_SPEED 0.0//0.8
-#define STARTING_SPAWN_SPEED 5.0
-#define DEFAULT_ENEMY_MAX 5
-#define ENEMY_POS_RANGE 200//2500
+#define ENEMY_START_SPEED 0.7//0.8
+#define ENEMY_HP_DEFAULT 3
+#define ENEMY_AGILITY (float)10.0 //base of 2 for perfect agility, don't go lower
+#define ENEMY_TARGET_DIST_MIN 1600 //(SQUARED!!!!) How close before an enemy is forced to pull out
+#define ENEMY_TARGET_DIST 100 //how close an enemy can be on the z axis before they won't begin targeting
+#define ENEMY_TARGET_DIST_MAX 300 //how far an enemy can be on the z axis before they won't begin targeting
+#define ENEMY_TARGET_CHANCE (float)0.1//percent chance that a non-targeting ship will target
+#define ENEMY_FIRE_RATE 8 //is fource as fast due to the alternating guns
+#define ENEMY_BOOLET_OFFSET .15 //how far to each side boolet spawn
+#define ENEMY_BURST_LEN 16 //how many frames to be firing
+#define ENEMY_FIRE_CHANCE (float)3.0//Percent chance to begin firing in a frame if not already
+#define ENEMY_SHIP_DEVIATION (float)0.001 //modifier to effect the perfect aiming
 
 #define OUR_ACCELERATION 0.005 //0.0008 //How much holding a key adds to heading
 #define OUR_MAX_SPEED (float)0.4 //max speed
 #define FORWARD_BACK_MULT 2 //How much more powerful forward/back is in relation to the other controls
-#define OUR_FIRE_RATE 2 //is twice as fast due to the alternating guns
+#define OUR_FIRE_RATE 8 //is twice as fast due to the alternating guns
 #define OUR_BOOLET_OFFSET .10 //how far to each side boolet spawn
 
 enum heading{Xhead, YHead, ZHead, Velocity};
@@ -57,11 +72,14 @@ struct enShip {
     float position[7]; //x,y,z, quaternion orientation
     float scale;
 
-    float heading[4]; //x,y,z, velocity vector of where we are going
     short int hp;
     char targeting;
+    short int fireFrame;
 
+    float speed;
     float forward[4];
+    float up[4];
+    float right[4];
 };
 typedef struct enShip EnShip;
 
@@ -113,4 +131,4 @@ void gameCursorMovement();
 
 
 
-void facePoint(EnShip* us, float targetPos[3]);
+void faceShip(EnShip* us, float targetPos[3]);
