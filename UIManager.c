@@ -1689,7 +1689,7 @@ void setupSymbols() {
 }
 
 
-//Vector letters go -0.4 -> 0.4 on x, 0 -> 1 on Y. On the X, they need not go the full 0.4
+//Vector letters go -0.3 -> 0.3 on x, 0 -> 1 on Y. On the X, they CAN slip out a lil
 void setupVecA() {
 	static float A[] = {
 			0, 1, 0,					//0
@@ -2211,6 +2211,228 @@ void setupVecA() {
 	vecFont['Z'] = &Zobj;
 }
 
+void setupVecNum() {
+	static float Zero[] = {
+			-0.3, 0.8, 0,			//0
+			-0.1, 1.0, 0,			//1
+			0.1, 1.0, 0,				//2
+			0.3, 0.8, 0,			//3
+			0.3, 0.2, 0,			//4
+			0.1, 0.0, 0,			//5
+			-0.1, 0.0, 0,			//6
+			-0.3, 0.2, 0,			//7
+	};
+	static unsigned int Zeroinds[] = {
+		0,1, 1,2, 2,3, 3,4, 4,5, 5,6, 6,7, 7,0, 
+		3,7,
+	};
+	static UnfinObj Zeroobj = { 0 };
+	Zeroobj.verts = Zero;
+	Zeroobj.indices = Zeroinds;
+	Zeroobj.iCount = countof(Zeroinds);
+	Zeroobj.vLineCount = countof(Zero) / VECTOR_VERTEX_LENGTH;
+	Zeroobj.scale = 1;
+	vecFont['0'] = &Zeroobj;
+
+
+	static float One[] = {
+			-0.10, 0.9, 0,			//0
+			0, 1, 0,					//1
+			0, 0, 0,					//2
+			-0.15, 0, 0,			//3
+			0.15, 0, 0,				//4
+	};
+	static unsigned int Oneinds[] = {
+		0, 1, 1,2, 3,4,
+	};
+	static UnfinObj Oneobj = { 0 };
+	Oneobj.verts = One;
+	Oneobj.indices = Oneinds;
+	Oneobj.iCount = countof(Oneinds);
+	Oneobj.vLineCount = countof(One) / VECTOR_VERTEX_LENGTH;
+	Oneobj.scale = 1;
+	vecFont['1'] = &Oneobj;
+
+	static float Two[] = {
+			-0.3, 0.7, 0,			//0
+			-0.2, 0.9, 0,			//1
+			0, 1, 0,					//2
+			0.2, 0.9, 0,			//3
+			0.3, 0.7, 0,			//4
+			-0.3, 0.1, 0,			//5
+			-0.3, 0, 0,				//6
+			0.3, 0, 0,				//7
+	};
+	static unsigned int Twoinds[] = {
+		0, 1, 1,2, 2,3, 3,4, 4,5, 5,6, 6,7,
+	};
+	static UnfinObj Twoobj = { 0 };
+	Twoobj.verts = Two;
+	Twoobj.indices = Twoinds;
+	Twoobj.iCount = countof(Twoinds);
+	Twoobj.vLineCount = countof(Two) / VECTOR_VERTEX_LENGTH;
+	Twoobj.scale = 1;
+	vecFont['2'] = &Twoobj;
+
+	static float Three[] = {
+			-0.3, 0.9, 0,			//0
+			-0.2, 1, 0,				//1
+			0.2, 1, 0,				//2
+			0.3, 0.9, 0,			//3
+			0.3, 0.6, 0,			//4
+			0.2, 0.5, 0,			//5
+
+			0.0, 0.5, 0,			//6
+
+			0.3, 0.4, 0,			//7
+			0.3, 0.1, 0,			//8
+			0.2, 0.0, 0,			//9
+			-0.2, 0.0, 0,			//10
+			-0.3, 0.1, 0,			//10
+	};
+	static unsigned int Threeinds[] = {
+		0, 1, 1,2, 2,3, 3,4, 4,5, 5,6, 5,7, 7,8, 8,9, 9,10, 10,11,
+	};
+	static UnfinObj Threeobj = { 0 };
+	Threeobj.verts = Three;
+	Threeobj.indices = Threeinds;
+	Threeobj.iCount = countof(Threeinds);
+	Threeobj.vLineCount = countof(Three) / VECTOR_VERTEX_LENGTH;
+	Threeobj.scale = 1;
+	vecFont['3'] = &Threeobj;
+
+	static float Four[] = {
+			-0.3, 1, 0,			//0
+			-0.3, 0.5, 0,		//1
+			0.3, 0.5, 0,		//2
+			0.2, 1.0, 0,		//3
+			0.2, 0.0, 0,		//4
+	};
+	static unsigned int Fourinds[] = {
+		//0, 1, 1,2, 3,4,
+		1,3, 1,2, 3,4,
+	};
+	static UnfinObj Fourobj = { 0 };
+	Fourobj.verts = Four;
+	Fourobj.indices = Fourinds;
+	Fourobj.iCount = countof(Fourinds);
+	Fourobj.vLineCount = countof(Four) / VECTOR_VERTEX_LENGTH;
+	Fourobj.scale = 1;
+	vecFont['4'] = &Fourobj;
+
+	static float Five[] = {
+			0.3, 1, 0,			//0
+			-0.3, 1, 0,			//1
+			-0.3, 0.5, 0,		//2
+			0.0, 0.6, 0,		//3
+			0.2, 0.5, 0,		//4
+			0.3, 0.3, 0,		//5
+			0.2, 0.1, 0,		//6
+			0.0, 0.0, 0,		//7
+			-0.2, 0.1, 0,		//8
+			-0.3, 0.2, 0,		//9
+	};
+	static unsigned int Fiveinds[] = {
+		0,1, 1,2, 2,3, 3,4, 4,5, 5,6, 6,7, 7,8, 8,9, 
+	};
+	static UnfinObj Fiveobj = { 0 };
+	Fiveobj.verts = Five;
+	Fiveobj.indices = Fiveinds;
+	Fiveobj.iCount = countof(Fiveinds);
+	Fiveobj.vLineCount = countof(Five) / VECTOR_VERTEX_LENGTH;
+	Fiveobj.scale = 1;
+	vecFont['5'] = &Fiveobj;
+
+	static float Six[] = {
+			0.0, 0.0, 0,			//0
+			0.2, 0.1, 0,			//1
+			0.3, 0.3, 0,			//2
+			0.2, 0.5, 0,			//3
+			0.0, 0.6, 0,			//4
+			-0.3, 0.5, 0,			//5
+			-0.3, 0.3, 0,			//6
+			-0.2, 0.1, 0,			//7
+
+			-0.1, 0.9, 0,			//8
+			0.2, 1.0, 0,			//9
+	};
+	static unsigned int Sixinds[] = {
+		0,1, 1,2, 2,3, 3,4, 4,5, 5,6, 6,7, 7,0, 5,8,8,9
+	};
+	static UnfinObj Sixobj = { 0 };
+	Sixobj.verts = Six;
+	Sixobj.indices = Sixinds;
+	Sixobj.iCount = countof(Sixinds);
+	Sixobj.vLineCount = countof(Six) / VECTOR_VERTEX_LENGTH;
+	Sixobj.scale = 1;
+	vecFont['6'] = &Sixobj;
+
+	static float Seven[] = {
+			-0.3, 1.0, 0,			//0
+			0.3, 1.0, 0,			//1
+			-0.1, 0.0, 0,			//2
+	};
+	static unsigned int Seveninds[] = {
+		0,1, 1,2,
+	};
+	static UnfinObj Sevenobj = { 0 };
+	Sevenobj.verts = Seven;
+	Sevenobj.indices = Seveninds;
+	Sevenobj.iCount = countof(Seveninds);
+	Sevenobj.vLineCount = countof(Seven) / VECTOR_VERTEX_LENGTH;
+	Sevenobj.scale = 1;
+	vecFont['7'] = &Sevenobj;
+
+	static float Eight[] = {
+			-0.3, 0.9, 0,			//0
+			-0.2, 1, 0,				//1
+			0.2, 1, 0,				//2
+			0.3, 0.9, 0,			//3
+			0.3, 0.6, 0,			//4
+			0.2, 0.5, 0,			//5
+
+			-0.2, 0.5, 0,			//6
+
+			0.3, 0.4, 0,			//7
+			0.3, 0.1, 0,			//8
+			0.2, 0.0, 0,			//9
+			-0.2, 0.0, 0,			//10
+			-0.3, 0.1, 0,			//11
+
+			-0.3, 0.6, 0,			//12
+			-0.3, 0.4, 0,			//13
+	};
+	static unsigned int Eightinds[] = {
+		0, 1, 1,2, 2,3, 3,4, 4,5, 5,6, 5,7, 7,8, 8,9, 9,10, 10,11, 11,13, 0,12, 12,6, 6,13,
+	};
+	static UnfinObj Eightobj = { 0 };
+	Eightobj.verts = Eight;
+	Eightobj.indices = Eightinds;
+	Eightobj.iCount = countof(Eightinds);
+	Eightobj.vLineCount = countof(Eight) / VECTOR_VERTEX_LENGTH;
+	Eightobj.scale = 1;
+	vecFont['8'] = &Eightobj;
+
+	static float Nine[] = {
+			-0.25, 1.0, 0,			//0
+			0.25, 1.0, 0,			//1
+			0.25, 0.5, 0,			//2
+			-0.25, 0.5, 0,		//3
+			0.25, 0.0, 0,			//4
+	};
+	static unsigned int Nineinds[] = {
+		0, 1, 1,2, 2,3, 0,3, 2,4, 
+	};
+	static UnfinObj Nineobj = { 0 };
+	Nineobj.verts = Nine;
+	Nineobj.indices = Nineinds;
+	Nineobj.iCount = countof(Nineinds);
+	Nineobj.vLineCount = countof(Nine) / VECTOR_VERTEX_LENGTH;
+	Nineobj.scale = 1;
+	vecFont['9'] = &Nineobj;
+}
+
+
 void setupUI(int flag) {
 	
 	if (flag) {//Using the default 'built in' characterset
@@ -2270,6 +2492,7 @@ void setupUI(int flag) {
 	if (!flag) {
 		vecFont = calloc(128, sizeof(UnfinObj*));
 		setupVecA();
+		setupVecNum();
 	}
 
 }
@@ -2479,7 +2702,7 @@ UnfinObj createVecText(char* text, float* pos/*3*/, float size) {
 	float xoffset = 0;
 	float yoffset = 0;
 	float width = 1.05;//size/1.75;
-	float height = 1.15;// size * 1.25;
+	float height = 1.25;// size * 1.25;
 	UnfinObj returns = { 0 };
 	
 	

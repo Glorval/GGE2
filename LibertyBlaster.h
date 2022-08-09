@@ -1,17 +1,24 @@
 #pragma once
 #include "GGE2_1.h"
+#include <stdlib.h>
+
+//Defines, enums/struct setup, master variables, function decs
 
 
-
-
+#define UICount 2 //update whenever adding another base UI layer
 #define MainMenuUI masterUIList[0]
+#define BaseGameUI masterUIList[1]
+
 #define DONT_STATE_CHANGE -1
 
+//Game state flags
 #define IN_MAIN_MENU 0
 #define STARTING_GAME 1
 #define IN_GAME 2
 #define IN_SETTINGS 3
 
+
+//Game defines
 #define MAX_MOUSE_MOVEMENT (double)30
 #define MOUSE_MOVEMENT_DAMPER (double)1500
 
@@ -44,6 +51,13 @@
 #define FORWARD_BACK_MULT 2 //How much more powerful forward/back is in relation to the other controls
 #define OUR_FIRE_RATE 8 //is twice as fast due to the alternating guns
 #define OUR_BOOLET_OFFSET .10 //how far to each side boolet spawn
+
+//Bullet specific stuff
+#define EXTRA_BOOLET_TOLERANCE 1.5 //How much extra distance + the speed should be added to the hit sphere
+#define BOOLET_LENIANCY 3 //inverse, higher numbers = lower leniancy. Shouldn't really be one, since then it'd just be checking the frame before & after against collision
+#define PLAYER_BOOLET_TOLERANCE 3
+#define PLAYER_BOOLET 0
+#define ENEMY_BOOLET -1
 
 enum heading{Xhead, YHead, ZHead, Velocity};
 //enum holdingKeys{wkey, akey, skey,dkey,qkey,ekey,vkey,ckey};
@@ -88,13 +102,18 @@ struct ourShip {
     float** hitboxes;
     float heading[4]; //x,y,z, velocity vector of where we are going
     char keysHolding[9]; //'toggled' controls on which keys are being pressed. w,a,s,d,q,e,c,v, fire guns,
+    short int shields;
+    short int armour;
     short int hp;
     int timeSinceLastFire;
     int fireRate;
 };
 //typedef struct ourShip OurShip;
 
-
+struct dynamicUI {
+    unsigned int* VAOs, VBOs, EBOs;
+    int entryCount;
+};
 
 
 volatile static RefObj* masterObjList;
@@ -103,16 +122,20 @@ volatile World gameworld;
 volatile GLFWwindow* gamewindow;
 
 
-
+struct dynamicUI DynamicUI;
 
 
 
 
 World* loadGame();
+void setupMasterUIList();
 void setupMainMenu();
+void setupGameUI();
 
 int getsetGamestate(int flag);
 void runGame(GLFWwindow* window, int flagSetting);
+void setupDynamicUI();
+void updateDynamicUI();
 
 long long int startGameButton(void* ourself, long long int data, short int clickData);
 
@@ -128,7 +151,3 @@ void expandedMouseClick(GLFWwindow* window, int button, int action, int mods);
 void keypressHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 void gameCursorMovement();
-
-
-
-void faceShip(EnShip* us, float targetPos[3]);

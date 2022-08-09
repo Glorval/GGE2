@@ -25,8 +25,10 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		runMasterUI();
 	}
 	else if (flagSetting == STARTING_GAME) {
-		glLineWidth(1);
+		glLineWidth(1);//just in case, make sure we're in the right mode
 		glDisable(GL_LINE_SMOOTH);
+
+		//set up enemy ship list
 		enemyShipList = calloc(DEFAULT_ENEMY_MAX, sizeof(EnShip));
 		enShipStuff = getRefID(ENSHIP);
 		for (int cShip = 0; cShip < DEFAULT_ENEMY_MAX; cShip++) {
@@ -35,10 +37,21 @@ void runGame(GLFWwindow* window, int flagSetting) {
 			setShip(&enemyShipList[cShip]);
 			insertObjectIntoWorld(&gameworld, &enemyShipList[cShip], 1);
 		}
+
+		//initialize boolet system
 		setupBoolet();
+
+		//set up a couple of our own ship's things
 		OurShip.fireRate = OUR_FIRE_RATE;
 		gameworld.camera[Z_pos] = 10000;
+
+		//disable the main menu UI
 		MainMenuUI->active = 0;
+
+		//enable the in game main UI
+		BaseGameUI->active = 1;
+
+		//select the next game state
 		getsetGamestate(IN_GAME);
 	}else if (flagSetting == IN_GAME) {
 		
@@ -46,6 +59,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		ourShipHandler();
 		updateBoolets(enemyShipList, DEFAULT_ENEMY_MAX);
 		runMasterUI();
+		updateDynamicUI();
 		drawWorld(&gameworld);		
 		enemyShipList = enemyShipHandler(enemyShipList, 0);
 	} else if (flagSetting == IN_SETTINGS) {
@@ -68,13 +82,20 @@ World* loadGame() {
 	gameworld.vecColour[3] = 1;
 	
 	loadEnemyShip();
+	setupMasterUIList();
+	setupMainMenu();
+	setupGameUI();
 	return(&gameworld);
+}
+
+void setupMasterUIList() {
+	masterUIList = calloc(UICount, sizeof(UI*));
 }
 
 void setupMainMenu() {	
 	//glLineWidth(1);
 	//glEnable(GL_LINE_SMOOTH);
-	masterUIList = calloc(1, sizeof(UI*));
+	
 	masterUIList[0] = calloc(1, sizeof(UI));
 	masterUIListLength++;
 	MainMenuUI->active = 1;
@@ -98,31 +119,207 @@ void setupMainMenu() {
 	};
 	float pos[] = { 0,-0.3,0};
 	float clickarea[] = { 0.2,0.2,0.06,0.06 };
-	float buttontextpos[] = { 0,0,0 };
+	float buttontextpos[] = { -4.725,0,0 };
 	
 	UnfinObj buttontext = createVecText("START GAME", buttontextpos, 0.05);
 	insertElementIntoUI(MainMenuUI, createVectorElement(gameStartButton, gameStartInds, (sizeof(gameStartButton) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(gameStartInds) / sizeof(unsigned int), pos, startGameButton, 1, clickarea));
 	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
-	passer->position[X_pos] = -0.18;
+	//passer->position[X_pos] = -0.18;
 	passer->position[Y_pos] = -0.325;
 	passer->scale = 0.051;
 	insertElementIntoUI(MainMenuUI, passer);
 	freeUnfinObj(buttontext);
 
 
-	float titlePos[] = { -0.58,0.3,-0.1 };
+	float titlePos[] = { -3.15, 0.0,0 };
+	float titleScreenpos[] = { 0, 0.3, 0 };
 	UnfinObj title = createVecText("BLAZING\nLIBERTY", titlePos, 0.3);
-	passer = createVectorElement(title.verts, title.indices, title.vLineCount, title.iCount, titlePos, NULL, 1, NULL);
-	passer->scale = 0.3;
+	//UnfinObj title = createVecText("ABCDEFG\n01234\n56789", titlePos, 0.15);
+	passer = createVectorElement(title.verts, title.indices, title.vLineCount, title.iCount, titleScreenpos, NULL, 1, NULL);
+	passer->scale = 0.15;
 	insertElementIntoUI(MainMenuUI, passer);
 	freeUnfinObj(title);
-
-
-
-
-
-
 }
+
+void setupGameUI() {
+	BaseGameUI = calloc(1, sizeof(UI));
+	masterUIListLength++;
+	BaseGameUI->active = 0;
+	BaseGameUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
+	BaseGameUI->vecColour[0] = 0;
+	BaseGameUI->vecColour[1] = 1;
+	BaseGameUI->vecColour[2] = 0;
+	BaseGameUI->vecColour[3] = 1;
+
+
+	const float bottomAnchor[] = {
+		0, -1, 0
+	};
+	
+	UIElement* passer = NULL;
+	const float upleftBox[] = {
+		-0.01,-0.20,0,			 //0
+		0.34,-0.15,0,            //1
+		0.38,0.01,0,            //2
+	};
+	const float uprightBox[] = {
+		0.01,-0.20,0,				//0
+		-0.34,-0.15,0,		  //1
+		-0.38,0.01,0,        //2
+	};
+	const unsigned int cornBoxInd[] = {
+		0,1,1,2,
+	};
+	const float ulbPos[] = {
+		-1, 1, 0
+	};
+	const float urbPos[] = {
+		1, 1, 0
+	};
+	const float shieldTextPos[] = {
+		1.25, -1.5, 0
+	};
+	const float shieldPos[] = {
+		-1, 1, 0
+	};
+	const float armourTextPos[] = {
+		-7.75, -1.5, 0
+	};
+	const float armourPos[] = {
+		1, 1, 0
+	};
+
+	UnfinObj shields = createVecText("SHIELDS:", shieldTextPos, 0.04);
+	passer = createVectorElement(shields.verts, shields.indices, shields.vLineCount, shields.iCount, shieldPos, NULL, 1, NULL);
+	passer->scale = 0.04;
+	insertElementIntoUI(BaseGameUI, passer);
+	passer = createVectorElement(upleftBox, cornBoxInd, countof(upleftBox) / VECTOR_VERTEX_LENGTH, countof(cornBoxInd), ulbPos, NULL, 1, NULL);
+	insertElementIntoUI(BaseGameUI, passer);
+	freeUnfinObj(shields);
+
+	UnfinObj armour = createVecText("ARMOUR:", armourTextPos, 0.04);
+	passer = createVectorElement(armour.verts, armour.indices, armour.vLineCount, armour.iCount, armourPos, NULL, 1, NULL);
+	passer->scale = 0.04;
+	insertElementIntoUI(BaseGameUI, passer);
+	passer = createVectorElement(uprightBox, cornBoxInd, countof(uprightBox) / VECTOR_VERTEX_LENGTH, countof(cornBoxInd), urbPos, NULL, 1, NULL);
+	insertElementIntoUI(BaseGameUI, passer);
+	freeUnfinObj(armour);
+	//free(passer);
+
+	float dash[] = {
+		-0.90,-0.05,0,			//0
+		-0.40,0.20,0,			//1
+		0.40,0.20,0,				//2
+		0.90,-0.05,0,			//3
+	};
+	unsigned int dashind[] = {
+		0,1, 1,2, 2,3,
+	};
+
+	passer = createVectorElement(dash, dashind, countof(dash) / VECTOR_VERTEX_LENGTH, countof(dashind), bottomAnchor, NULL, 1, NULL);
+	insertElementIntoUI(BaseGameUI, passer);
+
+	const float ammoTextPos[] = {
+		-16, 6, 0
+	};
+	
+	UnfinObj ammo = createVecText("AMMUNITION:", ammoTextPos, 0.0255);
+	passer = createVectorElement(ammo.verts, ammo.indices, ammo.vLineCount, ammo.iCount, bottomAnchor, NULL, 1, NULL);
+	passer->scale = 0.0255;
+	insertElementIntoUI(BaseGameUI, passer);
+	freeUnfinObj(ammo);
+
+	const float speedTextPos[] = {
+		4.5, 6, 0
+	};
+	UnfinObj speed = createVecText("SPEED:", speedTextPos, 0.0255);
+	passer = createVectorElement(speed.verts, speed.indices, speed.vLineCount, speed.iCount, bottomAnchor, NULL, 1, NULL);
+	passer->scale = 0.0255;
+	insertElementIntoUI(BaseGameUI, passer);
+	freeUnfinObj(speed);
+
+	const float shipIntTextPos[] = {
+		4.5, 2, 0
+	};
+	UnfinObj shipInt = createVecText("HULL STATUS:", shipIntTextPos, 0.0255);//Note, there's going to be a lil light to the right of this that makes the unevenness okay
+	passer = createVectorElement(shipInt.verts, shipInt.indices, shipInt.vLineCount, shipInt.iCount, bottomAnchor, NULL, 1, NULL);
+	passer->scale = 0.0255;
+	insertElementIntoUI(BaseGameUI, passer);
+	freeUnfinObj(shipInt);
+
+	const float commsTextPos[] = {
+		-23, 2, 0
+	};
+	UnfinObj comms = createVecText("COMMS:", commsTextPos, 0.0255);//Note, there's going to be a lil light to the right of this that makes the unevenness okay
+	passer = createVectorElement(comms.verts, comms.indices, comms.vLineCount, comms.iCount, bottomAnchor, NULL, 1, NULL);
+	passer->scale = 0.0255;
+	insertElementIntoUI(BaseGameUI, passer);
+	freeUnfinObj(comms);
+
+	const float commsBox[] = {
+		-0.4, 0.03, 0,			//0
+		-0.4, 0.10, 0,				//1
+		0.05, 0.10, 0,			//2
+		0.05, 0.03, 0,			//3
+	};
+	const unsigned int commsBoxInd[] = {
+		0,1, 1,2, 2,3, 3,0,
+	};
+
+	passer = createVectorElement(commsBox, commsBoxInd, countof(commsBox)/VECTOR_VERTEX_LENGTH, countof(commsBoxInd), bottomAnchor, NULL, 1, NULL);
+	insertElementIntoUI(BaseGameUI, passer);
+}
+
+void setupDynamicUI() {
+	char* ourString = calloc(20, sizeof(char));
+	float shieldTextPos[] = {
+		0,0,0,
+	};
+	float shieldPos[] = {
+		0,0,0,
+	};
+
+	UnfinObj string = createVecText(ourString, shieldTextPos, 0.3);
+	/*passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, shieldPos, NULL, 1, NULL);
+	passer->scale = 0.3;
+	insertElementIntoUI(MainMenuUI, passer);
+	freeUnfinObj(string);*/
+
+	free(ourString);
+}
+
+void updateDynamicUI() {
+	char* ourString = calloc(20, sizeof(char));
+
+
+
+	_itoa(OurShip.shields, ourString, 10);
+
+	UIElement* passer = NULL;
+
+	float shieldTextPos[] = {
+		0,0,0,
+	};
+	float shieldPos[] = {
+		0,0,0,
+	};
+
+	UnfinObj string = createVecText(ourString, shieldTextPos, 0.3);
+	/*passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, shieldPos, NULL, 1, NULL);
+	passer->scale = 0.3;
+	insertElementIntoUI(MainMenuUI, passer);
+	freeUnfinObj(string);*/
+
+
+dynamicUpdateClosure:;
+	free(ourString);
+}
+
+
+
+
+
+
 
 long long int startGameButton(void* ourself, long long int data, short int clickData) {
 	UIElement* us = ourself;

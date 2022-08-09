@@ -19,7 +19,7 @@ UI (Usually 2d stuff rendered in triangle mode like standard and with colours on
 
 #define countof(thing) sizeof(thing)/sizeof(thing[0])
 
-#define windX 1200
+#define windX 1400
 #define windY 900
 
 #define FOV (float)45
@@ -152,7 +152,7 @@ UnfinObj fillUnfinObj(float* verts, unsigned int* inds, int vLen, int iCount);
 UnfinObj createUnfinObjFromStatic(float* verts, unsigned int* inds, int vLen, int iCount);
 UnfinObj freeUnfinObj(UnfinObj obj);
 
-//Appends objTwo into objOne. Needs both to have their arrays dynamically allocated
+//Appends objTwo into objOne. Needs both to have their arrays dynamically allocated?
 UnfinObj appendUnfinisheds(UnfinObj* objOne, UnfinObj* objTwo);
 
 UnfinObj appendVec(UnfinObj* objOne, UnfinObj* objTwo);

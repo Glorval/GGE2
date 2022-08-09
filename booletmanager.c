@@ -1,11 +1,5 @@
 #pragma once
 
-
-#define EXTRA_BOOLET_TOLERANCE 1.5 //How much extra distance + the speed should be added to the hit sphere
-#define BOOLET_LENIANCY 3 //inverse, higher numbers = lower leniancy. Shouldn't really be one, since then it'd just be checking the frame before & after against collision
-#define PLAYER_BOOLET 0
-#define ENEMY_BOOLET -1
-
 static int BooletID = 0;
 static float BooletVerts[] = {
 	0, 0.05, 0.3,
@@ -120,6 +114,29 @@ void updateBoolets(EnShip* enemyShipList, int shipCount) {
 
 				}
 			} else {
+				//checking against the ship's position
+				float dist = //sqrtf(
+					((gameworld.camera[X_pos] - curBoolet->pos[X_pos]) * (gameworld.camera[X_pos] - curBoolet->pos[X_pos])) +
+					((gameworld.camera[Y_pos] - curBoolet->pos[Y_pos]) * (gameworld.camera[Y_pos] - curBoolet->pos[Y_pos])) +
+					((gameworld.camera[Z_pos] - curBoolet->pos[Z_pos]) * (gameworld.camera[Z_pos] - curBoolet->pos[Z_pos]));
+				//);
+
+				/*unsigned int i = *(unsigned int*)&dist;
+				i += 127 << 23;
+				i >>= 1;
+				dist = *(float*)&i;*/
+
+				//printf("%f,\t%f\n", dist, tolerance);
+				if (dist < PLAYER_BOOLET_TOLERANCE) {
+					printf("We're hit!\n");
+					prev->nextBoolet = curBoolet->nextBoolet;
+					free(curBoolet);
+					if (prev->nextBoolet == NULL) {
+						goto EndOfBooletUpdate;
+					} else {
+						curBoolet = prev->nextBoolet;
+					}					
+				}
 
 				if (curBoolet->framesToLive < 1) {
 					prev->nextBoolet = curBoolet->nextBoolet;
@@ -140,6 +157,8 @@ void updateBoolets(EnShip* enemyShipList, int shipCount) {
 			}
 		}
 	}
+
+EndOfBooletUpdate:;
 	glLineWidth(1);
 }
 

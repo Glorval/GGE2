@@ -25,7 +25,7 @@ int main(){
 
 	//_beginthread(moveCam, 0, lineworld);
 	
-	setupMainMenu();
+	
 
 	float counter = 1;
 	int gameFlag = IN_MAIN_MENU;
