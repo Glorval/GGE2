@@ -1,13 +1,18 @@
 #pragma once
-#include "GGE2_1.h"
+#define _CRT_SECURE_NO_WARNINGS
+#include <Windows.h>
 #include <stdlib.h>
+#include <time.h>
+#include "GGE2_1.h"
+#include "GSound.h"
 
 //Defines, enums/struct setup, master variables, function decs
 
 
-#define UICount 2 //update whenever adding another base UI layer
+#define UICount 3 //update whenever adding another base UI layer
 #define MainMenuUI masterUIList[0]
 #define BaseGameUI masterUIList[1]
+#define DynamicGameUI masterUIList[2]
 
 #define DONT_STATE_CHANGE -1
 
@@ -25,6 +30,12 @@
 #define BOOLETSPEED (float)2
 #define BOOLETLIFE 125
 
+//Audio Settings
+#define FULL_RETRO 0
+#define FULL_RETRO_COMPAT 1
+#define MODERN 2
+#define DEFAULT_AUDIO_SETTING MODERN
+
 //GENERAL ENEMY ATTRIBUTES
 #define ENEMY_DISTANCE 500//500
 #define STARTING_SPAWN_SPEED 20.0
@@ -39,18 +50,29 @@
 #define ENEMY_TARGET_DIST_MIN 1600 //(SQUARED!!!!) How close before an enemy is forced to pull out
 #define ENEMY_TARGET_DIST 100 //how close an enemy can be on the z axis before they won't begin targeting
 #define ENEMY_TARGET_DIST_MAX 300 //how far an enemy can be on the z axis before they won't begin targeting
-#define ENEMY_TARGET_CHANCE (float)0.1//percent chance that a non-targeting ship will target
+#define ENEMY_TARGET_CHANCE (float)0.5//percent chance that a non-targeting ship will target
 #define ENEMY_FIRE_RATE 8 //is fource as fast due to the alternating guns
 #define ENEMY_BOOLET_OFFSET .15 //how far to each side boolet spawn
 #define ENEMY_BURST_LEN 16 //how many frames to be firing
 #define ENEMY_FIRE_CHANCE (float)3.0//Percent chance to begin firing in a frame if not already
 #define ENEMY_SHIP_DEVIATION (float)0.001 //modifier to effect the perfect aiming
 
+//PLAYER SHIP ATTRIBUTES
 #define OUR_ACCELERATION 0.005 //0.0008 //How much holding a key adds to heading
 #define OUR_MAX_SPEED (float)0.4 //max speed
+#define MS_DISP_MULT 500 //Max speed * this = what gets displayed as the highest speed attainable.
 #define FORWARD_BACK_MULT 2 //How much more powerful forward/back is in relation to the other controls
 #define OUR_FIRE_RATE 8 //is twice as fast due to the alternating guns
 #define OUR_BOOLET_OFFSET .10 //how far to each side boolet spawn
+#define MAX_SHIELDS 400
+#define MAX_ARMOUR 400
+#define MAX_HULL 200
+#define SHIELD_DIVIDER 4//for display
+#define ARMOUR_DIVIDER 4//for display
+#define HULL_DIVIDER 2//for display
+#define FRAMES_TO_COUNT_HITS_FOR_AUDIO 6//How many frames to track for seeing if we need to play an audio queue for being blasted a bunch
+#define FTHS FRAMES_TO_COUNT_HITS_FOR_AUDIO
+#define HITS_TO_PLAY_HITS 5
 
 //Bullet specific stuff
 #define EXTRA_BOOLET_TOLERANCE 1.5 //How much extra distance + the speed should be added to the hit sphere
@@ -84,16 +106,16 @@ struct enShip {
     int indexCount;
 
     float position[7]; //x,y,z, quaternion orientation
-    float scale;
-
-    short int hp;
-    char targeting;
-    short int fireFrame;
+    float scale;    
 
     float speed;
     float forward[4];
     float up[4];
     float right[4];
+
+    short int hp;
+    short int fireFrame;
+    char targeting;    
 };
 typedef struct enShip EnShip;
 
@@ -105,15 +127,12 @@ struct ourShip {
     short int shields;
     short int armour;
     short int hp;
+    short int timeSinceShieldCharge;
     int timeSinceLastFire;
     int fireRate;
+    short int lastHits[FTHS];
 };
 //typedef struct ourShip OurShip;
-
-struct dynamicUI {
-    unsigned int* VAOs, VBOs, EBOs;
-    int entryCount;
-};
 
 
 volatile static RefObj* masterObjList;
@@ -121,10 +140,7 @@ volatile static unsigned int masterObjLenght;
 volatile World gameworld;
 volatile GLFWwindow* gamewindow;
 
-
-struct dynamicUI DynamicUI;
-
-
+static int AudioSetting;
 
 
 World* loadGame();
@@ -151,3 +167,16 @@ void expandedMouseClick(GLFWwindow* window, int button, int action, int mods);
 void keypressHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 void gameCursorMovement();
+
+
+
+void debugCommands();
+
+
+
+//Audio handler dec's
+
+//0 for feeding a hit, 1 for progressing it a frame
+//struct audiohandlers {
+//    void (*bulletAudioHandler)(int);
+//};

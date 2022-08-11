@@ -1,11 +1,23 @@
 #include "LibertyBlaster.h"
+#define _CRT_SECURE_NO_WARNINGS
+void setBulletAudioQueue();
+void bulletAudioHandler(int newFrameUpdate);
+void (*realBulletAudioHandler)(int);
+void retroBulletAudioHandler(int newFrameUpdate);
+
+
+
+
 #include "booletmanager.c"
 #include "Entities.c"
+
 //#include "shipAIManager.h"
 
+#define DFS 0.0255//idk, ease of use? Don't change, not meant to
 
 struct ourShip OurShip = { 0 };
 idSet enShipStuff = { 0 };
+
 
 int getsetGamestate(int flag) {
 	static int ourState = IN_MAIN_MENU;
@@ -21,10 +33,10 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	volatile static EnShip* enemyShipList = NULL;
 
 
-	if (flagSetting == IN_MAIN_MENU) {
+	if (flagSetting == IN_MAIN_MENU) { //MAIN MENU LOOP
 		runMasterUI();
 	}
-	else if (flagSetting == STARTING_GAME) {
+	else if (flagSetting == STARTING_GAME) { //GAME LOAD
 		glLineWidth(1);//just in case, make sure we're in the right mode
 		glDisable(GL_LINE_SMOOTH);
 
@@ -44,20 +56,26 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		//set up a couple of our own ship's things
 		OurShip.fireRate = OUR_FIRE_RATE;
 		gameworld.camera[Z_pos] = 10000;
+		//The following hp's comments are 'should be's really, but can be change via defines
+		OurShip.shields = MAX_SHIELDS; //Interget offset by 1, so 100% shields will be displayed for 1,000
+		OurShip.armour = MAX_ARMOUR; //Interget offset by 1, so 100% shields will be displayed for 1,000
+		OurShip.hp = MAX_HULL;
+		//update this in case it needs to update off base numbers and such
+		updateDynamicUI();
 
 		//disable the main menu UI
 		MainMenuUI->active = 0;
 
 		//enable the in game main UI
 		BaseGameUI->active = 1;
+		DynamicGameUI->active = 1;
 
 		//select the next game state
 		getsetGamestate(IN_GAME);
-	}else if (flagSetting == IN_GAME) {
-		
+	}else if (flagSetting == IN_GAME) { //GAME LOOP
 		gameCursorMovement();
 		ourShipHandler();
-		updateBoolets(enemyShipList, DEFAULT_ENEMY_MAX);
+		updateBoolets(enemyShipList, DEFAULT_ENEMY_MAX, &OurShip);
 		runMasterUI();
 		updateDynamicUI();
 		drawWorld(&gameworld);		
@@ -73,6 +91,8 @@ void runGame(GLFWwindow* window, int flagSetting) {
 World* loadGame() {
 	gamewindow = startup(expandedMouseClick, keypressHandler);
 
+	AudioSetting = DEFAULT_AUDIO_SETTING;
+
 	masterObjLenght = 0;
 	masterObjList = NULL;
 	gameworld = createWorld(VECTOR_WORLD);
@@ -81,23 +101,27 @@ World* loadGame() {
 	gameworld.vecColour[2] = 0;
 	gameworld.vecColour[3] = 1;
 	
+	setBulletAudioQueue();
+
 	loadEnemyShip();
 	setupMasterUIList();
 	setupMainMenu();
 	setupGameUI();
+	setupDynamicUI();
 	return(&gameworld);
 }
 
 void setupMasterUIList() {
 	masterUIList = calloc(UICount, sizeof(UI*));
+	masterUIListLength = UICount;
+	for (int cLayer = 0; cLayer < UICount; cLayer++) {
+		masterUIList[cLayer] = calloc(1, sizeof(UI));
+	}
 }
 
 void setupMainMenu() {	
 	//glLineWidth(1);
 	//glEnable(GL_LINE_SMOOTH);
-	
-	masterUIList[0] = calloc(1, sizeof(UI));
-	masterUIListLength++;
 	MainMenuUI->active = 1;
 	MainMenuUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
 	MainMenuUI->vecColour[0] = 0;
@@ -142,9 +166,6 @@ void setupMainMenu() {
 }
 
 void setupGameUI() {
-	BaseGameUI = calloc(1, sizeof(UI));
-	masterUIListLength++;
-	BaseGameUI->active = 0;
 	BaseGameUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
 	BaseGameUI->vecColour[0] = 0;
 	BaseGameUI->vecColour[1] = 1;
@@ -250,7 +271,7 @@ void setupGameUI() {
 	const float commsTextPos[] = {
 		-23, 2, 0
 	};
-	UnfinObj comms = createVecText("COMMS:", commsTextPos, 0.0255);//Note, there's going to be a lil light to the right of this that makes the unevenness okay
+	UnfinObj comms = createVecText("COMMS:", commsTextPos, 0.0255);
 	passer = createVectorElement(comms.verts, comms.indices, comms.vLineCount, comms.iCount, bottomAnchor, NULL, 1, NULL);
 	passer->scale = 0.0255;
 	insertElementIntoUI(BaseGameUI, passer);
@@ -271,48 +292,133 @@ void setupGameUI() {
 }
 
 void setupDynamicUI() {
-	char* ourString = calloc(20, sizeof(char));
-	float shieldTextPos[] = {
+	UIElement* passer = NULL;
+	DynamicGameUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
+	DynamicGameUI->vecColour[0] = 0;
+	DynamicGameUI->vecColour[1] = 1;
+	DynamicGameUI->vecColour[2] = 0;
+	DynamicGameUI->vecColour[3] = 1;
+
+	char placeholder[] = "0";
+	float textpos[] = {
 		0,0,0,
 	};
+
+
 	float shieldPos[] = {
-		0,0,0,
+		-1,1,0,
 	};
+	UnfinObj string = createVecText(placeholder, textpos, 0.3);	
+	passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, shieldPos, NULL, 1, NULL);
+	passer->scale = 0.06;
+	insertElementIntoUI(DynamicGameUI, passer);
+	freeUnfinObj(string);
 
-	UnfinObj string = createVecText(ourString, shieldTextPos, 0.3);
-	/*passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, shieldPos, NULL, 1, NULL);
-	passer->scale = 0.3;
-	insertElementIntoUI(MainMenuUI, passer);
-	freeUnfinObj(string);*/
 
-	free(ourString);
+	float armourPos[] = {
+		1,1,0,
+	};
+	string = createVecText(placeholder, textpos, 0.3);
+	passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, armourPos, NULL, 1, NULL);
+	passer->scale = 0.06;
+	insertElementIntoUI(DynamicGameUI, passer);
+	freeUnfinObj(string);
+
+
+	float speedPos[] = {
+		0,-1,0,
+	};
+	string = createVecText(placeholder, textpos, DFS);
+	passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, speedPos, NULL, 1, NULL);
+	passer->scale = DFS;
+	insertElementIntoUI(DynamicGameUI, passer);
+	freeUnfinObj(string);
+
+	string = createVecText(placeholder, textpos, DFS);
+	passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, speedPos, NULL, 1, NULL);
+	passer->scale = DFS;
+	insertElementIntoUI(DynamicGameUI, passer);
+	freeUnfinObj(string);
+}
+
+void updateDynamicUISegment(UnfinObj newData, unsigned int currentEntry) {
+	glBindVertexArray(DynamicGameUI->elements[currentEntry]->ID);
+	glBindBuffer(GL_ARRAY_BUFFER, DynamicGameUI->elements[currentEntry]->VBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, DynamicGameUI->elements[currentEntry]->EBO);
+	glBufferData(GL_ARRAY_BUFFER, newData.vLineCount * VERTEX_SIZE * VECTOR_VERTEX_LENGTH, newData.verts, GL_STREAM_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, newData.iCount * IND_SIZE, newData.indices, GL_STREAM_DRAW);
+	DynamicGameUI->elements[currentEntry]->indexCount = newData.iCount;
+	glBindVertexArray(0);
 }
 
 void updateDynamicUI() {
-	char* ourString = calloc(20, sizeof(char));
-
-
-
-	_itoa(OurShip.shields, ourString, 10);
-
+	//set up our vars
+	char* mainString = calloc(20, sizeof(char));
 	UIElement* passer = NULL;
 
+
+
+	//Shield update
 	float shieldTextPos[] = {
-		0,0,0,
+		1.20,-2.35,0,
 	};
-	float shieldPos[] = {
-		0,0,0,
+	_itoa(OurShip.shields/ SHIELD_DIVIDER, mainString, 10);
+	strcat(mainString, "%");
+	UnfinObj string = createVecText(mainString, shieldTextPos, 0.06);
+	updateDynamicUISegment(string, 0);
+	freeUnfinObj(string);
+
+	//Armour update
+	float armourTextPos[] = {
+		-0.15,-2.35,0,
 	};
+	_itoa(OurShip.armour / ARMOUR_DIVIDER, mainString, 10);
+	strcat(mainString, "%");
+	armourTextPos[0] -= (strlen(mainString) * 1.05);
+	string = createVecText(mainString, armourTextPos, 0.06);
+	updateDynamicUISegment(string, 1);
+	freeUnfinObj(string);
 
-	UnfinObj string = createVecText(ourString, shieldTextPos, 0.3);
-	/*passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, shieldPos, NULL, 1, NULL);
-	passer->scale = 0.3;
-	insertElementIntoUI(MainMenuUI, passer);
-	freeUnfinObj(string);*/
+	//Speed update
+	float speedTextPos[] = {
+		11, 6, 0
+	};
+	int speed =
+		(int)((sqrtf((OurShip.heading[X_pos] * OurShip.heading[X_pos])+
+		(OurShip.heading[Y_pos] * OurShip.heading[Y_pos])+
+		(OurShip.heading[Z_pos] * OurShip.heading[Z_pos])))*MS_DISP_MULT * 10);
+	_itoa(speed, mainString, 10);
+	//add the period to it
+	if (speed > 999) {
+		mainString[4] = mainString[3];
+		mainString[3] = '.';
+		mainString[5] = '\0';
+	} else if (speed > 99) {
+		mainString[3] = mainString[2];
+		mainString[2] = '.';
+		mainString[4] = '\0';
+	} else {
+		mainString[2] = mainString[1];
+		mainString[1] = '.';
+		mainString[3] = '\0';
+	}
+	//armourTextPos[0] -= (strlen(mainString) * 1.05);
+	string = createVecText(mainString, speedTextPos, DFS);
+	updateDynamicUISegment(string, 2);
+	freeUnfinObj(string);
 
+	//Hull update
+	float hullTextPos[] = {
+		17, 2, 0
+	};
+	_itoa(OurShip.hp / HULL_DIVIDER, mainString, 10);
+	//armourTextPos[0] -= (strlen(mainString) * 1.05);
+	string = createVecText(mainString, hullTextPos, DFS);
+	updateDynamicUISegment(string, 3);
+	freeUnfinObj(string);
 
 dynamicUpdateClosure:;
-	free(ourString);
+	free(mainString);
 }
 
 
@@ -322,7 +428,7 @@ dynamicUpdateClosure:;
 
 
 long long int startGameButton(void* ourself, long long int data, short int clickData) {
-	UIElement* us = ourself;
+	//UIElement* us = ourself;
 	//us->elementActive = 0;
 	char* clickdat = &clickData;
 	char* ourData = &data;
@@ -454,9 +560,7 @@ void ourShipMotionHandler() {
 
 void ourShipHandler() {
 	ourShipMotionHandler();
-	float tempos[] = {
-		0,0,0,1,0,0,0
-	};
+
 	if (OurShip.keysHolding[fireKey] == 1) {
 		float velocity[3] = { 
 			(-gameworld.back[Y_pos] * BOOLETSPEED) + OurShip.heading[X_pos],
@@ -493,7 +597,13 @@ void ourShipHandler() {
 			OurShip.timeSinceLastFire++;
 		}
 		
+	}//END OF FIRING
+
+	//SHIELD MANAGEMENT
+	if (OurShip.shields < MAX_SHIELDS) {
+
 	}
+	OurShip.timeSinceShieldCharge++;
 }
 
 EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
@@ -608,6 +718,7 @@ void resetShipVariation(EnShip* enemyShip) {
 	enemyShip->right[3] = 0;
 
 	enemyShip->speed = ENEMY_START_SPEED;
+
 }
 
 void gameCursorMovement() {
@@ -688,4 +799,82 @@ void gameCursorMovement() {
 }
 
 
+
+
+
+
+//AUDIO HANDLING
+
+void (*realBulletAudioHandler)(int);
+unsigned long long playingBulletSound = 0;
+
+void bulletAudioHandler(int newFrameUpdate) {
+	realBulletAudioHandler(newFrameUpdate);
+}
+void noBulletAudioHandler(int newFrameUpdate) {
+	return;
+}
+void retroBulletAudioHandler(int newFrameUpdate) {
+	if (newFrameUpdate == 0) {
+		OurShip.lastHits[FTHS - 1]++;
+		int totalHits = 0;
+		for (int cHits = 0; cHits < FTHS; cHits++) {
+			totalHits += OurShip.lastHits[cHits];
+		}
+		if (totalHits < HITS_TO_PLAY_HITS) {
+			return;
+		}
+		//if it has been long enough between sound queues
+		if (GetTickCount64() > playingBulletSound + (unsigned long long)2100) {
+			static unsigned long long timeSinceHitTracking = 0;
+			volatile static AudioTrack blastLine = { 0 };
+			volatile static unsigned int tones[7] = { 0 };
+			volatile static unsigned int toneLengths[7] = { 0 };
+			blastLine.tones = &tones;
+			blastLine.tones[0] = Ab3;
+			blastLine.tones[1] = Ab2;
+			blastLine.tones[2] = Ab3;
+			blastLine.tones[3] = Ab2;
+			blastLine.tones[4] = Ab2;
+			blastLine.tones[5] = Ab2;
+			blastLine.tones[6] = 80;
+			blastLine.toneLengths = &toneLengths;
+			blastLine.toneLengths[0] = 80;
+			blastLine.toneLengths[1] = 80;
+			blastLine.toneLengths[2] = 80;
+			blastLine.toneLengths[3] = 150;
+			blastLine.toneLengths[4] = 100;
+			blastLine.toneLengths[5] = 100;
+			blastLine.toneLengths[6] = 100;
+			blastLine.cPos = 0;
+			blastLine.tracklen = 5;
+			playingBulletSound = GetTickCount64();
+			priorityTrackNewThread(&blastLine);
+		}
+	} else {
+		for (int cHits = 0; cHits < FTHS - 1; cHits++) {
+			OurShip.lastHits[cHits] = OurShip.lastHits[cHits + 1];
+		}
+		OurShip.lastHits[FTHS - 1] = 0;
+	}
+}
+
+
+void setBulletAudioQueue() {
+	realBulletAudioHandler = retroBulletAudioHandler;//noBulletAudioHandler;
+}
+
+
+
+
+
+void debugCommands() {
+	char input = 0;
+	begin:;
+	input = getche();
+	if (input == 'a') {
+		OurShip.armour -= 10;
+	}
+	goto begin;
+}
 

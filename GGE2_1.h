@@ -71,7 +71,7 @@ struct programData {
 };
 struct programData ProgramData;
 
-GLFWwindow* startup();
+GLFWwindow* startup(void* clickfunc, void* keypressfunc);
 int setupShaders();
 void window_resize_handler(GLFWwindow* window, int width, int height);
 
@@ -86,8 +86,7 @@ struct object {
 typedef struct object Object;
 
 struct world {
-    Object** objects;//List of all items, ptp because it allows easy deletion of items
-    char worldType;//0 = full, 1 = vector
+    Object** objects;//List of all items, ptp because it allows easy deletion of items    
     int objectCount;
     int objectListSize;//size of the pointer
     int* renderObject;
@@ -96,6 +95,7 @@ struct world {
     float back[4];
     float left[4];
     float vecColour[4];
+    char worldType;//0 = full, 1 = vector
 };
 typedef struct world World;
 
@@ -108,15 +108,15 @@ typedef struct datablock Block;
 struct uielement {
     unsigned int ID, VBO, EBO;
     int indexCount;
-    float scale;
-    short int elementActive;
+    float scale;    
     int actionNeeded;
     float clickArea[4];//left x, right x, top y, bottom y.
-    float position[3];//xyz position on the screen
-    char defaultAction;
+    float position[3];//xyz position on the screen    
     long long int data; //Can be used as a pointer, too
-    short int clickData;
     long long int(*action)(void*, long long int, short int);//short int for the 'click data', like left click, right click, etc.
+    short int clickData;
+    short int elementActive;
+    char defaultAction;
 };
 typedef struct uielement UIElement;
 
@@ -124,9 +124,9 @@ struct ui {
     UIElement** elements;//List of all items, ptp because it allows easier deletion of items
     int elementCount;
     int elementListSize;//size of the pointer
-    int active;
-    char renderMode;
+    int active;    
     float vecColour[4];
+    char renderMode;
 };
 typedef struct ui UI;
 

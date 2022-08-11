@@ -44,9 +44,6 @@ GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 
 	float aspect = windX / windY;
 	//float fov = 45;
-	float far = 1000;
-	float near = 0.1;
-
 	float perspective[4][4];
 	float f = 1000;
 	float n = 0.1;
@@ -97,7 +94,7 @@ int setupShaders() {
 	fileData = readFile("VShader.glsl");
 	if (fileData == NULL) {
 		gError("Vertex Shader failed to read.");
-		return;
+		return(-1);
 	}
 	glShaderSource(vertexShader, 1, &fileData, NULL);
 	glCompileShader(vertexShader);
@@ -108,7 +105,7 @@ int setupShaders() {
 	fileData = readFile("FShader.glsl");
 	if (fileData == NULL) {
 		gError("Vertex Shader failed to read.");
-		return;
+		return(-1);
 	}
 	glShaderSource(fragmentShader, 1, &fileData, NULL);
 	glCompileShader(fragmentShader);
@@ -136,7 +133,7 @@ void window_resize_handler(GLFWwindow* window, int width, int height) {
 	if (width == 0 || height == 0) {//safety
 		return;
 	}
-	float aspect = width / height;
+	float aspect = (float)((double)width / (double)height);
 	//float fov = 45;
 	float far = 1000;
 	float near = 0.1;

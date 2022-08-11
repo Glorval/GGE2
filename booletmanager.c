@@ -58,14 +58,14 @@ int checkBooletAgainstAllShips(Boolet* boolet, EnShip* enemyShipList, int shipCo
 			((enemyShipList[c].position[Z_pos] - boolet->pos[Z_pos]) * (enemyShipList[c].position[Z_pos] - boolet->pos[Z_pos]) / off[2]);
 		//);
 
-		unsigned int i = *(unsigned int*)&dist;
+		/*unsigned int i = *(unsigned int*)&dist;
 		i += 127 << 23;
 		i >>= 1;
-		dist = *(float*)&i;
+		dist = *(float*)&i;*/
 
 		float tolerance = ((fabsf(boolet->velocity[0]) + fabsf(boolet->velocity[1]) + fabsf(boolet->velocity[2]))/ BOOLET_LENIANCY) + EXTRA_BOOLET_TOLERANCE;
 		//printf("%f,\t%f\n", dist, tolerance);
-		if (dist < tolerance) {
+		if (dist < tolerance * tolerance) {
 			return(c);
 		}
 	}
@@ -75,7 +75,9 @@ int checkBooletAgainstAllShips(Boolet* boolet, EnShip* enemyShipList, int shipCo
 	return(FAIL);
 }
 
-void updateBoolets(EnShip* enemyShipList, int shipCount) {
+//returns 0 normally, 1 on error, -1 on player dying
+int updateBoolets(EnShip* enemyShipList, int shipCount, struct ourShip* playerShip) {
+	int returnFlag = 0;
 	if (booletlist.nextBoolet != NULL) {
 		glLineWidth(2);
 		glBindVertexArray(BooletID);
@@ -87,6 +89,7 @@ void updateBoolets(EnShip* enemyShipList, int shipCount) {
 		Boolet* prev = &booletlist;
 
 		while (curBoolet != NULL) {
+			//PLAYER BULLET MANAGEMENT- TARGETTING ENEMIES
 			if (curBoolet->booletType == PLAYER_BOOLET) {
 				int shipHit = checkBooletAgainstAllShips(curBoolet, enemyShipList, shipCount);
 				if (shipHit != FAIL) {
@@ -113,7 +116,9 @@ void updateBoolets(EnShip* enemyShipList, int shipCount) {
 					curBoolet = curBoolet->nextBoolet;
 
 				}
-			} else {
+			} 
+			//AI BULLET HANDLING, AGAINST US
+			else {
 				//checking against the ship's position
 				float dist = //sqrtf(
 					((gameworld.camera[X_pos] - curBoolet->pos[X_pos]) * (gameworld.camera[X_pos] - curBoolet->pos[X_pos])) +
@@ -128,7 +133,30 @@ void updateBoolets(EnShip* enemyShipList, int shipCount) {
 
 				//printf("%f,\t%f\n", dist, tolerance);
 				if (dist < PLAYER_BOOLET_TOLERANCE) {
-					printf("We're hit!\n");
+					//printf("We're hit!\n");
+					//priorityTrack(&blastLine);
+					bulletAudioHandler(0);
+					if (playerShip->shields > 0) {
+						playerShip->shields--;
+					}
+					else if (playerShip->shields == 0) {
+						if (playerShip->armour > 0) {
+							playerShip->armour--;
+						} else {
+							playerShip->hp--;
+							if (playerShip->hp <= 0) {
+								returnFlag = -1;
+							}
+						}
+					}
+
+					if (playerShip->shields < 0 || playerShip->armour < 0) {
+						gError("Player shields/armour violation");
+						printf("Values: %d, %d, %d\n", playerShip->shields, playerShip->armour, playerShip->hp);
+						returnFlag = 1; 
+						goto EndOfBooletUpdate;
+					}
+
 					prev->nextBoolet = curBoolet->nextBoolet;
 					free(curBoolet);
 					if (prev->nextBoolet == NULL) {
@@ -160,6 +188,8 @@ void updateBoolets(EnShip* enemyShipList, int shipCount) {
 
 EndOfBooletUpdate:;
 	glLineWidth(1);
+	bulletAudioHandler(1);
+	return(returnFlag);
 }
 
 void add_boolet(float* pos/*7 longxyzwijk*/, float* velocity/*3 long, xyz*/, int framesToLive, int playerOrEnemy) {

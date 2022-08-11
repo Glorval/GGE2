@@ -17,7 +17,7 @@ void addRefEntry(unsigned int ID, int indlen, char* name) {
 
 idSet getRefID(char* refName) {
 	idSet returns = { 0 };
-	for (int cItem = 0; cItem < masterObjLenght; cItem++) {
+	for (unsigned int cItem = 0; cItem < masterObjLenght; cItem++) {
 		if (strcmp(refName, masterObjList[cItem].objName) == 0) {
 			returns.ID = masterObjList[cItem].ID;
 			returns.indC = masterObjList[cItem].indlen;

@@ -2432,6 +2432,74 @@ void setupVecNum() {
 	vecFont['9'] = &Nineobj;
 }
 
+void setupVecSym() {
+	static float Percent[] = {
+			0.25, 1, 0,				//0
+			-0.25, 0, 0,			//1
+
+			-0.3, 0.85, 0,		//2
+			-0.15, 1, 0,			//3
+			-0.0, 0.85, 0,		//4
+			-0.15, 0.70, 0,		//5
+
+			0.3, 0.15, 0,			//6
+			0.15, 0.3, 0,			//7
+			0.0, 0.15, 0,			//8
+			0.15, 0.0, 0,			//9
+	};
+	static unsigned int Percentinds[] = {
+		0,1, 
+		2,3, 3,4, 4,5, 5,2, 
+		6,7, 7,8, 8,9, 9,6,
+	};
+	static UnfinObj Percentobj = { 0 };
+	Percentobj.verts = Percent;
+	Percentobj.indices = Percentinds;
+	Percentobj.iCount = countof(Percentinds);
+	Percentobj.vLineCount = countof(Percent) / VECTOR_VERTEX_LENGTH;
+	Percentobj.scale = 1;
+	vecFont['%'] = &Percentobj;
+
+	static float Colon[] = {
+			-0.2, 0.8, 0,			//0
+			0.0, 1, 0,				//1
+			0.2, 0.80, 0,			//2
+			0.0, 0.60, 0,			//3
+
+			0.20, 0.20, 0,		//4
+			0, 0.4, 0,				//5
+			-0.20, 0.20, 0,		//6
+			0, 0.0, 0,				//7
+	};
+	static unsigned int Coloninds[] = {
+		0,1, 1,2, 2,3, 3,0,
+		4,5, 5,6, 6,7, 7,4,
+	};
+	static UnfinObj Colonobj = { 0 };
+	Colonobj.verts = Colon;
+	Colonobj.indices = Coloninds;
+	Colonobj.iCount = countof(Coloninds);
+	Colonobj.vLineCount = countof(Colon) / VECTOR_VERTEX_LENGTH;
+	Colonobj.scale = 1;
+	vecFont[':'] = &Colonobj;
+
+	static float Period[] = {
+			0.20, 0.20, 0,		//0
+			0, 0.4, 0,				//1
+			-0.20, 0.20, 0,		//2
+			0, 0.0, 0,				//3
+	};
+	static unsigned int Periodinds[] = {
+		0,1, 1,2, 2,3, 3,0,
+	};
+	static UnfinObj Periodobj = { 0 };
+	Periodobj.verts = Period;
+	Periodobj.indices = Periodinds;
+	Periodobj.iCount = countof(Periodinds);
+	Periodobj.vLineCount = countof(Period) / VECTOR_VERTEX_LENGTH;
+	Periodobj.scale = 1;
+	vecFont['.'] = &Periodobj;
+}
 
 void setupUI(int flag) {
 	
@@ -2493,6 +2561,7 @@ void setupUI(int flag) {
 		vecFont = calloc(128, sizeof(UnfinObj*));
 		setupVecA();
 		setupVecNum();
+		setupVecSym();
 	}
 
 }
@@ -2740,6 +2809,59 @@ UnfinObj createVecText(char* text, float* pos/*3*/, float size) {
 	}
 
 	for (int cLine = 0; cLine < returns.vLineCount; cLine ++) {
+		returns.verts[cLine * VECTOR_VERTEX_LENGTH] += pos[0];
+		returns.verts[(cLine * VECTOR_VERTEX_LENGTH) + 1] += pos[1];
+		returns.verts[(cLine * VECTOR_VERTEX_LENGTH) + 2] += pos[2];
+	}
+
+	returns.scale = size;
+	return(returns);
+}
+
+//Symbols like ;:,. are 'short', half spaced. Not set up
+UnfinObj createVecTextShortSymbol(char* text, float* pos/*3*/, float size) {
+	int textLength = strlen(text);
+	float xoffset = 0;
+	float yoffset = 0;
+	float width = 1.05;//size/1.75;
+	float height = 1.25;// size * 1.25;
+	UnfinObj returns = { 0 };
+
+
+	for (int cChar = 0; cChar < textLength; cChar++) {
+		if (vecFont[text[cChar]] != NULL) {
+			UnfinObj thisChar = { 0 };//so as to not mess up font
+			thisChar.verts = calloc(vecFont[text[cChar]]->vLineCount * VECTOR_VERTEX_LENGTH, sizeof(float));
+			thisChar.indices = calloc(vecFont[text[cChar]]->iCount, sizeof(unsigned int));
+			thisChar.iCount = vecFont[text[cChar]]->iCount;
+			thisChar.vLineCount = vecFont[text[cChar]]->vLineCount;
+			for (int cline = 0; cline < thisChar.vLineCount; cline++) {
+				thisChar.verts[cline * 3] = (float)(vecFont[text[cChar]]->verts[cline * 3] + xoffset);
+				thisChar.verts[(cline * 3) + 1] = (float)(vecFont[text[cChar]]->verts[(cline * 3) + 1] - yoffset);
+				thisChar.verts[(cline * 3) + 2] = vecFont[text[cChar]]->verts[(cline * 3) + 2];
+			}
+			for (int iline = 0; iline < thisChar.iCount; iline++) {
+				thisChar.indices[iline] = vecFont[text[cChar]]->indices[iline];
+			}
+			UnfinObj temp = appendVec(&returns, &thisChar);
+			if (returns.iCount != 0) {
+				freeUnfinObj(returns);
+			}
+			//freeUnfinObj(returns);
+			freeUnfinObj(thisChar);
+			returns = temp;
+		}
+
+		if (text[cChar] == '\n') {
+			yoffset += height;
+			xoffset = 0;
+		} else {
+			xoffset += width;
+		}
+
+	}
+
+	for (int cLine = 0; cLine < returns.vLineCount; cLine++) {
 		returns.verts[cLine * VECTOR_VERTEX_LENGTH] += pos[0];
 		returns.verts[(cLine * VECTOR_VERTEX_LENGTH) + 1] += pos[1];
 		returns.verts[(cLine * VECTOR_VERTEX_LENGTH) + 2] += pos[2];
