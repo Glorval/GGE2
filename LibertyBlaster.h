@@ -172,9 +172,14 @@ long long int startGameButton(void* ourself, long long int data, short int click
 
 
 EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips);
+void respawnShipChecker(EnShip* enemyShip, int framesSinceLastSpawn);
+void updateShipLifeStatus(EnShip* enemyShip);
+void killShip(EnShip* enemyShip);
+void liveShip(EnShip* enemyShip);
 void voidShip(EnShip* enemyShip);
+void passedShip(EnShip* enemyShip);
 void setShip(EnShip* enemyShip);
-void resetShipVariation(EnShip* enemyShip);
+void respawnShip(EnShip* enemyShip);
 void ourShipHandler();
 void ourShipMotionHandler();
 

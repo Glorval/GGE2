@@ -37,7 +37,7 @@ World createWorld(int worldType) {
 
 //returns the ID of the object so it can be accessed later
 int insertObjectIntoWorld(World* world, Object* object, int renderIt) {
-	if (world->objectCount == world->objectListSize) {
+	//if (world->objectCount == world->objectListSize) {
 		//POTENTIAL PERFORMANCE TODO- Could check the actual size of the list versus what we needand spare some realloc calls that might be redundant
 		world->objectCount++;
 		world->objectListSize = world->objectCount;
@@ -47,7 +47,7 @@ int insertObjectIntoWorld(World* world, Object* object, int renderIt) {
 		world->renderObject = realloc(world->renderObject, world->objectCount * sizeof(int*));
 		world->renderObject[world->objectCount - 1] = renderIt;
 		return(world->objectCount - 1);
-	}
+	//}
 }
 
 //might not work rn

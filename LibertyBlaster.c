@@ -152,7 +152,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 			//enemyShipList[cShip].ID = enShipStuff.ID;
 			//enemyShipList[cShip].indexCount = enShipStuff.indC;
 			setShip(&enemyShipList[cShip]);
-			insertObjectIntoWorld(&gameworld, &enemyShipList[cShip], 1);
+			enemyShipList[cShip].worldID = insertObjectIntoWorld(&gameworld, &enemyShipList[cShip], 1);
 		}
 
 		//initialize boolet system
@@ -781,7 +781,7 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 		enemyShipList = calloc(maxShipCount, sizeof(EnShip));
 	}*/
 	if (upEnemyShips != maxShipCount && upEnemyShips != 0) {
-		enemyShipList = realloc(enemyShipList, maxShipCount * sizeof(EnShip));
+		enemyShipList = realloc(enemyShipList, upEnemyShips * sizeof(EnShip));
 		for (int cNewShip = 0; cNewShip < maxShipCount; cNewShip++) {
 			setShip(&enemyShipList[cNewShip]);
 		}
@@ -789,22 +789,30 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 	}
 
 	//update AI, position, and ded status
+	int allGone = 1; //A flag that gets set to zero if there are still ships left. If all ships ARE indeed gone, set the enemies left to -1 to indicate we are all done
 	for (int cShip = 0; cShip < maxShipCount; cShip++) {
-		if (enemyShipList[cShip].hp > 0) {
+		updateShipLifeStatus(&enemyShipList[cShip]);
+		if (enemyShipList[cShip].currentlyDed == 0) {
 			updateOurAI(&enemyShipList[cShip], OurShip, 1);
 			enemyShipList[cShip].position[X_pos] += enemyShipList[cShip].forward[X_pos + 1] * enemyShipList[cShip].speed;
 			enemyShipList[cShip].position[Y_pos] += enemyShipList[cShip].forward[Y_pos + 1] * enemyShipList[cShip].speed;
 			enemyShipList[cShip].position[Z_pos] += enemyShipList[cShip].forward[Z_pos + 1] * enemyShipList[cShip].speed;
+			allGone = 0;//we still have ships flyin about
 		}
-		if (enemyShipList[cShip].hp <= 0 && enemyShipList[cShip].currentlyDed != 1) {
-			score += SCORE_FOR_KILL;
-			voidShip(&enemyShipList[cShip]);
+		if (enemyShipList[cShip].currentlyDed == 1 && framesSinceLastSpawn >= SPAWN_RATE && ENEMIES_PER_WAVE > 0) {
+			framesSinceLastSpawn = 0;
+			respawnShip(&enemyShipList[cShip]);
 		}
+		//respawnShipChecker(&enemyShipList[cShip]));
+	}
+
+	if (allGone == 1 && ENEMIES_PER_WAVE == 0) {
+		ENEMIES_PER_WAVE = -1;
 	}
 
 	//respawn checker, end of update function
 	framesSinceLastSpawn++;
-	if (framesSinceLastSpawn >= SPAWN_RATE && ENEMIES_PER_WAVE > 0) {
+	/*if (framesSinceLastSpawn >= SPAWN_RATE && ENEMIES_PER_WAVE > 0) {
 		for (int cShip = 0; cShip < maxShipCount; cShip++) {		
 			//It's greater than because people come out of the void of the negative Z's
 			if (enemyShipList[cShip].position[Z_pos] > gameworld.camera[Z_pos] + (ENEMY_DISTANCE/2)) {
@@ -814,7 +822,7 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 				framesSinceLastSpawn = 0;
 				ENEMIES_PER_WAVE--;//reduce since we're respawning a ship due to it going beyond the allotted region
 				if (ENEMIES_PER_WAVE >= 0) {
-					resetShipVariation(&enemyShipList[cShip]);
+					respawnShip(&enemyShipList[cShip]);
 				} else {
 					voidShip(&enemyShipList[cShip]);
 				}			
@@ -824,7 +832,7 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 				framesSinceLastSpawn = 0;			
 				ENEMIES_PER_WAVE--;//reduce since we were ded
 				if (ENEMIES_PER_WAVE >= 0) {
-					resetShipVariation(&enemyShipList[cShip]);
+					respawnShip(&enemyShipList[cShip]);
 				} else {
 					voidShip(&enemyShipList[cShip]);
 				}
@@ -837,9 +845,9 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 			if (enemyShipList[cShip].position[Z_pos] > gameworld.camera[Z_pos] + (ENEMY_DISTANCE / 4)) {
 				passedEnemies++;
 				score -= SCORE_LOSS_FOR_PASS;
-				voidShip(&enemyShipList[cShip]);
+				killShip(&enemyShipList[cShip]);
 			} else if (enemyShipList[cShip].hp < 1) {
-				voidShip(&enemyShipList[cShip]);
+				killShip(&enemyShipList[cShip]);
 			} else {
 				allGone = 0;
 			}
@@ -847,27 +855,76 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 		if (allGone == 1) {
 			ENEMIES_PER_WAVE = -1;
 		}
-	}
+	}*/
 	return(enemyShipList);
 }
 
 
-void voidShip(EnShip* enemyShip) {
-	//printf("Voiding Ship\n");
+
+//if (framesSinceLastSpawn >= SPAWN_RATE && ENEMIES_PER_WAVE > 0) {
+//checks if the ship needs to respawn or just get voided
+void respawnShipChecker(EnShip* enemyShip, int framesSinceLastSpawn) {
+	
+}
+
+//Checks if the ship needs to die, passed, etc.
+void updateShipLifeStatus(EnShip* enemyShip) {
+	//checking if the big ded
+	if (enemyShip->hp <= 0 && enemyShip->currentlyDed != 1) {
+		killShip(enemyShip);
+		return;
+	}
+
+	//If we are alive, we need to check if we have passed the player by a lot so as to despawn and count that as a pass
+	if (enemyShip->currentlyDed == 0) {
+		//If there are still enemies to be spawned, despawning can wait a bit more
+		if (ENEMIES_PER_WAVE > 0 && enemyShip->position[Z_pos] > gameworld.camera[Z_pos] + (ENEMY_DISTANCE / 2)) {
+			passedShip(enemyShip);
+		} else if (enemyShip->position[Z_pos] > gameworld.camera[Z_pos] + (ENEMY_DISTANCE / 4)) {
+			passedShip(enemyShip);
+		}
+	}
+	
+}
+
+//Counts as a kill and disables the ship
+void killShip(EnShip* enemyShip) {
+	score += SCORE_FOR_KILL;
+	gameworld.renderObject[enemyShip->worldID] = 0;
 	enemyShip->currentlyDed = 1;
-	enemyShip->position[X_pos] = -100000;
-	enemyShip->position[Y_pos] = -100000;
-	enemyShip->position[Z_pos] = -100000;
+	enemyShip->hp = 0;
+}
+
+//Counts as a spawn and enables the ship
+void liveShip(EnShip* enemyShip) {
+	ENEMIES_PER_WAVE--;
+	gameworld.renderObject[enemyShip->worldID] = 1;
+	enemyShip->currentlyDed = 0;
+}
+
+//disables the ship but does not count as a kill
+void voidShip(EnShip* enemyShip) {
+	gameworld.renderObject[enemyShip->worldID] = 0;
+	enemyShip->currentlyDed = 1;
+	enemyShip->hp = 0;
+}
+
+//disables the ship and counts as a passed ship
+void passedShip(EnShip* enemyShip) {
+	score -= SCORE_LOSS_FOR_PASS;
+	gameworld.renderObject[enemyShip->worldID] = 0;
+	enemyShip->currentlyDed = 1;
+	enemyShip->hp = 0;
+	passedEnemies++;
 }
 
 void setShip(EnShip* enemyShip) {
 	//printf("Setting Ship\n");
 	enShipStuff = getRefID(ENSHIP);
-	enemyShip->currentlyDed = 1;
 	enemyShip->ID = enShipStuff.ID;
-	//enemyShip->scale = 2;
 	enemyShip->indexCount = enShipStuff.indC;
 	enemyShip->hp = 0;
+	enemyShip->currentlyDed = 1;
 	enemyShip->targeting = 0;
 	enemyShip->fireFrame = 0;
 	enemyShip->speed = ENEMY_START_SPEED;
@@ -887,9 +944,10 @@ void setShip(EnShip* enemyShip) {
 	enemyShip->right[3] = 0;
 }
 
-void resetShipVariation(EnShip* enemyShip) {
+void respawnShip(EnShip* enemyShip) {
 	//printf("Resetting Ship\n");
 	//setEnShipCollisionSet(enemyShip);
+	liveShip(enemyShip);
 	enemyShip->ID = enShipStuff.ID;
 	//enemyShip->indexCount = enShipStuff.indC;
 	//enemyShip->scale = 2;
