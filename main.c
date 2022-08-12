@@ -25,7 +25,7 @@ int main(){
 
 	_beginthread(debugCommands, 0, NULL);
 	
-	int audioID = createTrackHandler();
+	/*int audioID = createTrackHandler();
 	AudioTrack testTrack = { 0 };
 	testTrack.tones = calloc(9, sizeof(UINT));
 	testTrack.tones[0] = Ab3;
@@ -38,21 +38,21 @@ int main(){
 	testTrack.tones[7] = Ab3;
 	testTrack.tones[8] = E4;
 	testTrack.toneLengths = calloc(9, sizeof(UINT));
-	testTrack.toneLengths[0] = 240;
-	testTrack.toneLengths[1] = 240;
-	testTrack.toneLengths[2] = 240;
-	testTrack.toneLengths[3] = 240;
-	testTrack.toneLengths[4] = 240;
-	testTrack.toneLengths[5] = 240;
-	testTrack.toneLengths[6] = 240;
-	testTrack.toneLengths[7] = 240;
-	testTrack.toneLengths[8] = 480;
+	testTrack.toneLengths[0] = 200;
+	testTrack.toneLengths[1] = 200;
+	testTrack.toneLengths[2] = 200;
+	testTrack.toneLengths[3] = 200;
+	testTrack.toneLengths[4] = 200;
+	testTrack.toneLengths[5] = 200;
+	testTrack.toneLengths[6] = 200;
+	testTrack.toneLengths[7] = 200;
+	testTrack.toneLengths[8] = 400;
 	testTrack.cPos = 0;
 	testTrack.enabled = 1;
 	testTrack.loop = 1;
 	testTrack.tracklen = 9;
 	setPlayFreq(audioID, 0);
-	addTrack(audioID, testTrack);
+	addTrack(audioID, testTrack);*/
 
 
 	float counter = 1;

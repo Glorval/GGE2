@@ -19,8 +19,8 @@ UI (Usually 2d stuff rendered in triangle mode like standard and with colours on
 
 #define countof(thing) sizeof(thing)/sizeof(thing[0])
 
-#define windX 1400
-#define windY 900
+#define windX 1900
+#define windY 1200
 
 #define FOV (float)45
 
@@ -33,7 +33,7 @@ UI (Usually 2d stuff rendered in triangle mode like standard and with colours on
 #define CUSTOM_ACTION 1
 #define NO_ACTION -1
 
-#define APPLICATIONNAME "GGE2.1"//"GGE2"
+#define APPLICATIONNAME "Blazing Liberty"//"GGE2"
 
 #define FAIL -1
 #define SUCCESS 0

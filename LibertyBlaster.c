@@ -27,10 +27,115 @@ int getsetGamestate(int flag) {
 	return ourState;
 }
 
+void updatePlayerOnWave(unsigned int waveNum) {
+
+
+
+	passedEnemies = 0;
+}
+
+
+void updateEnemiesOnWave(unsigned int waveNum, unsigned int* maxOnScreenEnemies) {
+	//ENEMY_DISTANCE = 500  -This one doesn't need to be changed terribly much
+	//ENEMY_POS_RANGE = 2500
+	//ENEMY_HP = 2
+	//ENEMY_TARGET_CHANCE = 0.25
+	//ENEMY_TARGET_DIST_MIN = 1600; //(SQUARED!!!!) How close before an enemy is forced to pull out
+	//ENEMY_TARGET_DIST = 100; //how close an enemy can be on the z axis before they won't begin targeting
+	//ENEMY_TARGET_DIST_MAX = 300; //how far an enemy can be on the z axis before they won't begin targeting
+	//ENEMY_FIRE_CHANCE = 3.0
+	//SPAWN_RATE = 20;//how many frames between spawns
+
+	//'start' game, wave 0 - 1
+	//'early-mid game' wave 2-4
+	//'mid game' wave 5-8
+	//'late game' wave 9-19
+	//'death mode' wave 20+
+
+	//'start' game, settings wave 0 - 1
+	if (waveNum == 0 || waveNum == 1) {
+		ENEMY_DISTANCE = 400;
+		ENEMY_HP = 1;
+		ENEMY_POS_RANGE = 1800;
+		ENEMY_TARGET_CHANCE = 0.10;
+		ENEMY_TARGET_DIST_MIN = 1600;
+		ENEMY_TARGET_DIST = 150;
+		ENEMY_TARGET_DIST_MAX = 300;
+		ENEMY_FIRE_CHANCE = 1.5;
+		SPAWN_RATE = 30;
+		ENEMIES_PER_WAVE = 40;
+		maxOnScreenEnemies = 20;
+	}
+
+	//'early-mid game' settings wave 2-4 
+	else if (waveNum >= 2 && waveNum <= 4) {
+		ENEMY_DISTANCE = 500;
+		ENEMY_HP = 2;
+		ENEMY_POS_RANGE = 2200;
+		ENEMY_TARGET_CHANCE = 0.2;
+		ENEMY_TARGET_DIST_MIN = 1600;
+		ENEMY_TARGET_DIST = 100;
+		ENEMY_TARGET_DIST_MAX = 325;
+		ENEMY_FIRE_CHANCE = 2.5;
+		SPAWN_RATE = 20;
+		ENEMIES_PER_WAVE = 45;
+		maxOnScreenEnemies = 30;
+	}
+
+	//'mid game' settings wave 5-8
+	else if (waveNum >= 5 && waveNum <= 8) {
+		ENEMY_DISTANCE = 500;
+		ENEMY_HP = 2;
+		ENEMY_POS_RANGE = 2500;
+		ENEMY_TARGET_CHANCE = 0.25;
+		ENEMY_TARGET_DIST_MIN = 1500;
+		ENEMY_TARGET_DIST = 100;
+		ENEMY_TARGET_DIST_MAX = 325;
+		ENEMY_FIRE_CHANCE = 3.0;
+		SPAWN_RATE = 18;
+		ENEMIES_PER_WAVE = 70;
+		maxOnScreenEnemies = 40;
+	}
+
+	//'late game' settings wave 9-19
+	else if (waveNum >= 9 && waveNum <= 19) {
+		ENEMY_DISTANCE = 500;
+		ENEMY_HP = 3;
+		ENEMY_POS_RANGE = 2800;
+		ENEMY_TARGET_CHANCE = 0.3;
+		ENEMY_TARGET_DIST_MIN = 1400;
+		ENEMY_TARGET_DIST = 90;
+		ENEMY_TARGET_DIST_MAX = 350;
+		ENEMY_FIRE_CHANCE = 3.0;
+		SPAWN_RATE = 12;
+		ENEMIES_PER_WAVE = 125;
+		maxOnScreenEnemies = 65;
+	}
+
+	//'death mode' settings wave 20+
+	else if (waveNum >= 20) {
+		ENEMY_DISTANCE = 550;
+		ENEMY_HP = 3;
+		ENEMY_POS_RANGE = 2800;
+		ENEMY_TARGET_CHANCE = 0.35;
+		ENEMY_TARGET_DIST_MIN = 1400;
+		ENEMY_TARGET_DIST = 90;
+		ENEMY_TARGET_DIST_MAX = 400;
+		ENEMY_FIRE_CHANCE = 3.0;
+		SPAWN_RATE = 8;
+		ENEMIES_PER_WAVE = 300;
+		maxOnScreenEnemies = 80;
+	}
+
+}
+
 void runGame(GLFWwindow* window, int flagSetting) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	volatile static EnShip* enemyShipList = NULL;
+	static unsigned int waveNum = 0;
+	static int maxOnScreenEnemies = DEFAULT_ENEMY_MAX;
+	static long int enteredBetweenWave = 0;
 
 
 	if (flagSetting == IN_MAIN_MENU) { //MAIN MENU LOOP
@@ -71,15 +176,45 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		DynamicGameUI->active = 1;
 
 		//select the next game state
+		updateEnemiesOnWave(waveNum, maxOnScreenEnemies);//in case it differs from base defines
 		getsetGamestate(IN_GAME);
-	}else if (flagSetting == IN_GAME) { //GAME LOOP
+	}
+	else if (flagSetting == IN_GAME) { //GAME LOOP
 		gameCursorMovement();
 		ourShipHandler();
-		updateBoolets(enemyShipList, DEFAULT_ENEMY_MAX, &OurShip);
-		runMasterUI();
+		if (updateBoolets(enemyShipList, maxOnScreenEnemies, &OurShip) == 1) {
+			getsetGamestate(END_SCREEN);
+		}
 		updateDynamicUI();
-		drawWorld(&gameworld);		
-		enemyShipList = enemyShipHandler(enemyShipList, 0);
+		runMasterUI();
+		enemyShipList = enemyShipHandler(enemyShipList, maxOnScreenEnemies);
+		if (ENEMIES_PER_WAVE == -1) {//if wave is out of enemies
+			waveNum++;
+			printf("Switching to between waves, Wave %d", waveNum);
+			getsetGamestate(BETWEEN_WAVES);
+		}
+		drawWorld(&gameworld);
+	} 
+	else if (flagSetting == BETWEEN_WAVES) {
+		gameCursorMovement();
+		ourShipHandler();
+		if (updateBoolets(enemyShipList, maxOnScreenEnemies, &OurShip) == 1) {
+			getsetGamestate(END_SCREEN);
+		}
+		updateDynamicUI();
+		runMasterUI();		
+		drawWorld(&gameworld);
+		updateEnemiesOnWave(waveNum, &maxOnScreenEnemies);
+		updatePlayerOnWave(waveNum);
+		enteredBetweenWave++;
+
+
+
+		printf("Immediately hopping back for now");
+		getsetGamestate(IN_GAME);
+	} 
+	else if (flagSetting == END_SCREEN) {
+
 	} else if (flagSetting == IN_SETTINGS) {
 
 	}
@@ -240,15 +375,15 @@ void setupGameUI() {
 	passer = createVectorElement(dash, dashind, countof(dash) / VECTOR_VERTEX_LENGTH, countof(dashind), bottomAnchor, NULL, 1, NULL);
 	insertElementIntoUI(BaseGameUI, passer);
 
-	const float ammoTextPos[] = {
-		-16, 6, 0
-	};
+	//const float ammoTextPos[] = {
+	//	-16, 6, 0
+	//};
 	
-	UnfinObj ammo = createVecText("AMMUNITION:", ammoTextPos, 0.0255);
-	passer = createVectorElement(ammo.verts, ammo.indices, ammo.vLineCount, ammo.iCount, bottomAnchor, NULL, 1, NULL);
-	passer->scale = 0.0255;
-	insertElementIntoUI(BaseGameUI, passer);
-	freeUnfinObj(ammo);
+	//UnfinObj ammo = createVecText("AMMUNITION:", ammoTextPos, 0.0255);
+	//passer = createVectorElement(ammo.verts, ammo.indices, ammo.vLineCount, ammo.iCount, bottomAnchor, NULL, 1, NULL);
+	//passer->scale = 0.0255;
+	//insertElementIntoUI(BaseGameUI, passer);
+	//freeUnfinObj(ammo);
 
 	const float speedTextPos[] = {
 		4.5, 6, 0
@@ -304,7 +439,7 @@ void setupDynamicUI() {
 		0,0,0,
 	};
 
-
+	//shield, 0
 	float shieldPos[] = {
 		-1,1,0,
 	};
@@ -314,7 +449,7 @@ void setupDynamicUI() {
 	insertElementIntoUI(DynamicGameUI, passer);
 	freeUnfinObj(string);
 
-
+	//armour, 1
 	float armourPos[] = {
 		1,1,0,
 	};
@@ -324,7 +459,7 @@ void setupDynamicUI() {
 	insertElementIntoUI(DynamicGameUI, passer);
 	freeUnfinObj(string);
 
-
+	//speed, 2
 	float speedPos[] = {
 		0,-1,0,
 	};
@@ -334,9 +469,20 @@ void setupDynamicUI() {
 	insertElementIntoUI(DynamicGameUI, passer);
 	freeUnfinObj(string);
 
+	//hull, 3
 	string = createVecText(placeholder, textpos, DFS);
 	passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, speedPos, NULL, 1, NULL);
 	passer->scale = DFS;
+	insertElementIntoUI(DynamicGameUI, passer);
+	freeUnfinObj(string);
+
+	//score, 4
+	float scorePos[] = {
+		0,1,0,
+	};
+	string = createVecText(placeholder, textpos, 0.06);
+	passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, scorePos, NULL, 1, NULL);
+	passer->scale = 0.06;
 	insertElementIntoUI(DynamicGameUI, passer);
 	freeUnfinObj(string);
 }
@@ -417,15 +563,24 @@ void updateDynamicUI() {
 	updateDynamicUISegment(string, 3);
 	freeUnfinObj(string);
 
+
+	//Score update
+	float scoreTextPos[] = {
+		0, -1.25, 0
+	};
+	_itoa(score, mainString, 10);
+	//armourTextPos[0] -= (strlen(mainString) * 1.05);
+	string = createVecText(mainString, scoreTextPos, 0.06);
+	updateDynamicUISegment(string, 4);
+	freeUnfinObj(string);
+
 dynamicUpdateClosure:;
 	free(mainString);
 }
 
+void updateDynamicBetweenWaves() {
 
-
-
-
-
+}
 
 long long int startGameButton(void* ourself, long long int data, short int clickData) {
 	//UIElement* us = ourself;
@@ -450,7 +605,6 @@ void expandedMouseClick(GLFWwindow* window, int button, int action, int mods) {
 		}
 	}
 }
-
 
 void keypressHandler(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (key == GLFW_KEY_W) {
@@ -601,51 +755,97 @@ void ourShipHandler() {
 
 	//SHIELD MANAGEMENT
 	if (OurShip.shields < MAX_SHIELDS) {
-
+		if (OurShip.lastHits[FTHS - 2] != 0) {
+			OurShip.shieldChargeTimeTracker = 0;
+		}
+		else if (OurShip.shieldChargeTimeTracker > SHIELD_RECHARGE_START) {
+#ifdef SHIELD_RECHARGE_RATE_ABOVE_ONE
+			OurShip.shields += SHIELD_RECHARGE_RATE;
+#else
+			OurShip.subShieldHP += SHIELD_RECHARGE_RATE;
+			if (OurShip.subShieldHP > 1) {
+				OurShip.shields++;
+				OurShip.subShieldHP -= 1;
+			}
+#endif
+		}
 	}
-	OurShip.timeSinceShieldCharge++;
+	OurShip.shieldChargeTimeTracker++;
 }
 
 EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 	static int maxShipCount = DEFAULT_ENEMY_MAX;
 	static int framesSinceLastSpawn = 0;
-	static int shipSpawnSpeed = STARTING_SPAWN_SPEED;
 	
 	/*if (enemyShipList == NULL) {
 		enemyShipList = calloc(maxShipCount, sizeof(EnShip));
 	}*/
-	if (upEnemyShips != 0) {
-		maxShipCount = upEnemyShips;
+	if (upEnemyShips != maxShipCount && upEnemyShips != 0) {
 		enemyShipList = realloc(enemyShipList, maxShipCount * sizeof(EnShip));
+		for (int cNewShip = 0; cNewShip < maxShipCount; cNewShip++) {
+			setShip(&enemyShipList[cNewShip]);
+		}
+		maxShipCount = upEnemyShips;
 	}
 
-	//update AI and position
+	//update AI, position, and ded status
 	for (int cShip = 0; cShip < maxShipCount; cShip++) {
-		updateOurAI(&enemyShipList[cShip], OurShip, 1);
-		enemyShipList[cShip].position[X_pos] += enemyShipList[cShip].forward[X_pos + 1] * enemyShipList[cShip].speed;
-		enemyShipList[cShip].position[Y_pos] += enemyShipList[cShip].forward[Y_pos + 1] * enemyShipList[cShip].speed;
-		enemyShipList[cShip].position[Z_pos] += enemyShipList[cShip].forward[Z_pos + 1] * enemyShipList[cShip].speed;
-
-		if (enemyShipList[cShip].hp == 0) {
+		if (enemyShipList[cShip].hp > 0) {
+			updateOurAI(&enemyShipList[cShip], OurShip, 1);
+			enemyShipList[cShip].position[X_pos] += enemyShipList[cShip].forward[X_pos + 1] * enemyShipList[cShip].speed;
+			enemyShipList[cShip].position[Y_pos] += enemyShipList[cShip].forward[Y_pos + 1] * enemyShipList[cShip].speed;
+			enemyShipList[cShip].position[Z_pos] += enemyShipList[cShip].forward[Z_pos + 1] * enemyShipList[cShip].speed;
+		}
+		if (enemyShipList[cShip].hp <= 0 && enemyShipList[cShip].currentlyDed != 1) {
+			score += SCORE_FOR_KILL;
 			voidShip(&enemyShipList[cShip]);
 		}
 	}
 
 	//respawn checker, end of update function
 	framesSinceLastSpawn++;
-	if (framesSinceLastSpawn >= shipSpawnSpeed) {
+	if (framesSinceLastSpawn >= SPAWN_RATE && ENEMIES_PER_WAVE > 0) {
 		for (int cShip = 0; cShip < maxShipCount; cShip++) {		
 			//It's greater than because people come out of the void of the negative Z's
-			if (enemyShipList[cShip].position[Z_pos] > gameworld.camera[Z_pos] + ENEMY_DISTANCE) {
+			if (enemyShipList[cShip].position[Z_pos] > gameworld.camera[Z_pos] + (ENEMY_DISTANCE/2)) {
+				
+				passedEnemies++;
+				score -= SCORE_LOSS_FOR_PASS;
 				framesSinceLastSpawn = 0;
-				resetShipVariation(&enemyShipList[cShip]);
+				ENEMIES_PER_WAVE--;//reduce since we're respawning a ship due to it going beyond the allotted region
+				if (ENEMIES_PER_WAVE >= 0) {
+					resetShipVariation(&enemyShipList[cShip]);
+				} else {
+					voidShip(&enemyShipList[cShip]);
+				}			
 				return(enemyShipList);
 			}
 			if (enemyShipList[cShip].hp < 1) {
-				framesSinceLastSpawn = 0;
-				resetShipVariation(&enemyShipList[cShip]);
+				framesSinceLastSpawn = 0;			
+				ENEMIES_PER_WAVE--;//reduce since we were ded
+				if (ENEMIES_PER_WAVE >= 0) {
+					resetShipVariation(&enemyShipList[cShip]);
+				} else {
+					voidShip(&enemyShipList[cShip]);
+				}
 				return(enemyShipList);
 			}
+		}
+	} else if (ENEMIES_PER_WAVE == 0){
+		int allGone = 1;
+		for (int cShip = 0; cShip < maxShipCount; cShip++) {
+			if (enemyShipList[cShip].position[Z_pos] > gameworld.camera[Z_pos] + (ENEMY_DISTANCE / 4)) {
+				passedEnemies++;
+				score -= SCORE_LOSS_FOR_PASS;
+				voidShip(&enemyShipList[cShip]);
+			} else if (enemyShipList[cShip].hp < 1) {
+				voidShip(&enemyShipList[cShip]);
+			} else {
+				allGone = 0;
+			}
+		}
+		if (allGone == 1) {
+			ENEMIES_PER_WAVE = -1;
 		}
 	}
 	return(enemyShipList);
@@ -654,14 +854,16 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 
 void voidShip(EnShip* enemyShip) {
 	//printf("Voiding Ship\n");
+	enemyShip->currentlyDed = 1;
 	enemyShip->position[X_pos] = -100000;
 	enemyShip->position[Y_pos] = -100000;
-	enemyShip->position[Z_pos] = 100000;
+	enemyShip->position[Z_pos] = -100000;
 }
 
 void setShip(EnShip* enemyShip) {
 	//printf("Setting Ship\n");
 	enShipStuff = getRefID(ENSHIP);
+	enemyShip->currentlyDed = 1;
 	enemyShip->ID = enShipStuff.ID;
 	//enemyShip->scale = 2;
 	enemyShip->indexCount = enShipStuff.indC;
@@ -691,7 +893,8 @@ void resetShipVariation(EnShip* enemyShip) {
 	enemyShip->ID = enShipStuff.ID;
 	//enemyShip->indexCount = enShipStuff.indC;
 	//enemyShip->scale = 2;
-	enemyShip->hp = ENEMY_HP_DEFAULT;
+	enemyShip->hp = ENEMY_HP;
+	enemyShip->currentlyDed = 0;
 	enemyShip->targeting = 0;
 	enemyShip->fireFrame = 0;
 	enemyShip->position[X_pos] = ((float)(rand() % ENEMY_POS_RANGE)- (ENEMY_POS_RANGE / 2))/ 50.0 + gameworld.camera[X_pos];
@@ -812,8 +1015,20 @@ void bulletAudioHandler(int newFrameUpdate) {
 	realBulletAudioHandler(newFrameUpdate);
 }
 void noBulletAudioHandler(int newFrameUpdate) {
-	return;
+	if (newFrameUpdate == 0) {
+		OurShip.lastHits[FTHS - 1]++;
+		int totalHits = 0;
+		for (int cHits = 0; cHits < FTHS; cHits++) {
+			totalHits += OurShip.lastHits[cHits];
+		}
+	} else {
+		for (int cHits = 0; cHits < FTHS - 1; cHits++) {
+			OurShip.lastHits[cHits] = OurShip.lastHits[cHits + 1];
+		}
+		OurShip.lastHits[FTHS - 1] = 0;
+	}
 }
+
 void retroBulletAudioHandler(int newFrameUpdate) {
 	if (newFrameUpdate == 0) {
 		OurShip.lastHits[FTHS - 1]++;
@@ -861,7 +1076,7 @@ void retroBulletAudioHandler(int newFrameUpdate) {
 
 
 void setBulletAudioQueue() {
-	realBulletAudioHandler = retroBulletAudioHandler;//noBulletAudioHandler;
+	realBulletAudioHandler = noBulletAudioHandler;//retroBulletAudioHandler;//noBulletAudioHandler;
 }
 
 

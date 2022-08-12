@@ -6,6 +6,7 @@
 Object createStaticStandardObject(float* vertices, unsigned int* index, int vertSize, int indSize);
 Object createStaticVectorObject(float* vertices, unsigned int* index, int vertSize, int indSize);
 void drawStandardObject(Object* shape);
+void drawVectorObjectSET(Object* shape);
 void drawVectorObject(Object* shape);
 
 void drawWorldObject(Object* shape, World* world);

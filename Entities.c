@@ -262,10 +262,10 @@ void updateOurAI(EnShip* us, struct ourShip PlayerShip, char targetAllowed) {
 
 		if (us->fireFrame > 0) {
 			us->fireFrame--;
-			const float velocity[3] = {
-				us->forward[X_pos + 1] * BOOLETSPEED,
-				us->forward[Y_pos + 1] * BOOLETSPEED,
-				us->forward[Z_pos + 1] * BOOLETSPEED,
+			float velocity[3] = {
+				us->forward[X_pos + 1] * BOOLETSPEED * us->speed,
+				us->forward[Y_pos + 1] * BOOLETSPEED * us->speed,
+				us->forward[Z_pos + 1] * BOOLETSPEED * us->speed,
 			};
 
 			float booletPos[7] = {

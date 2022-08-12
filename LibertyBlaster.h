@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
 #include <stdlib.h>
@@ -7,8 +7,6 @@
 #include "GSound.h"
 
 //Defines, enums/struct setup, master variables, function decs
-
-
 #define UICount 3 //update whenever adding another base UI layer
 #define MainMenuUI masterUIList[0]
 #define BaseGameUI masterUIList[1]
@@ -20,7 +18,9 @@
 #define IN_MAIN_MENU 0
 #define STARTING_GAME 1
 #define IN_GAME 2
-#define IN_SETTINGS 3
+#define BETWEEN_WAVES 3
+#define END_SCREEN 4
+#define IN_SETTINGS 5
 
 
 //Game defines
@@ -29,6 +29,10 @@
 
 #define BOOLETSPEED (float)2
 #define BOOLETLIFE 125
+static int passedEnemies = 0;
+static unsigned int score = 0;
+#define SCORE_FOR_KILL 10
+#define SCORE_LOSS_FOR_PASS 2
 
 //Audio Settings
 #define FULL_RETRO 0
@@ -37,25 +41,27 @@
 #define DEFAULT_AUDIO_SETTING MODERN
 
 //GENERAL ENEMY ATTRIBUTES
-#define ENEMY_DISTANCE 500//500
-#define STARTING_SPAWN_SPEED 20.0
-#define DEFAULT_ENEMY_MAX 100
-#define ENEMY_POS_RANGE 2500//2500
+static int ENEMY_DISTANCE = 500;//500
+static int SPAWN_RATE = 20;//how many frames between spawns
+#define DEFAULT_ENEMY_MAX 50
+static int ENEMY_POS_RANGE = 2500;//2500
+static int ENEMIES_PER_WAVE = 5;
+//#define SPAWNING_TOLERANCE 10//how many enemies 
 
 //SPECIFIC ENEMY ATTRIBUTES
-#define ENEMY_MAX_SPEED 1.0
-#define ENEMY_START_SPEED 0.7//0.8
-#define ENEMY_HP_DEFAULT 3
-#define ENEMY_AGILITY (float)10.0 //base of 2 for perfect agility, don't go lower
-#define ENEMY_TARGET_DIST_MIN 1600 //(SQUARED!!!!) How close before an enemy is forced to pull out
-#define ENEMY_TARGET_DIST 100 //how close an enemy can be on the z axis before they won't begin targeting
-#define ENEMY_TARGET_DIST_MAX 300 //how far an enemy can be on the z axis before they won't begin targeting
-#define ENEMY_TARGET_CHANCE (float)0.5//percent chance that a non-targeting ship will target
-#define ENEMY_FIRE_RATE 8 //is fource as fast due to the alternating guns
-#define ENEMY_BOOLET_OFFSET .15 //how far to each side boolet spawn
-#define ENEMY_BURST_LEN 16 //how many frames to be firing
-#define ENEMY_FIRE_CHANCE (float)3.0//Percent chance to begin firing in a frame if not already
-#define ENEMY_SHIP_DEVIATION (float)0.001 //modifier to effect the perfect aiming
+static float ENEMY_MAX_SPEED = 1.0; //Goes to this speed on strafing runs
+static float ENEMY_START_SPEED = 0.7;//0.8
+static int ENEMY_HP = 2;
+static float ENEMY_AGILITY = (float)10.0; //base of 2 for perfect agility, don't go lower
+static int ENEMY_TARGET_DIST_MIN = 1600; //(SQUARED!!!!) How close before an enemy is forced to pull out
+static int ENEMY_TARGET_DIST = 100; //how close an enemy can be on the z axis before they won't begin targeting
+static int ENEMY_TARGET_DIST_MAX = 300; //how away far an enemy can be on the z axis when they won't begin targeting
+static float ENEMY_TARGET_CHANCE = (float)0.25;//percent chance that a non-targeting ship will target
+static int ENEMY_FIRE_RATE = 8; //is fource as fast due to the alternating guns
+static float ENEMY_BOOLET_OFFSET = .15; //how far to each side boolet spawn
+static int ENEMY_BURST_LEN = 16; //how many frames to be firing//was 
+static float ENEMY_FIRE_CHANCE = (float)3.0;//Percent chance to begin firing in a frame if not already
+static float ENEMY_SHIP_DEVIATION = (float)0.0015; //modifier to effect the perfect aiming
 
 //PLAYER SHIP ATTRIBUTES
 #define OUR_ACCELERATION 0.005 //0.0008 //How much holding a key adds to heading
@@ -64,10 +70,13 @@
 #define FORWARD_BACK_MULT 2 //How much more powerful forward/back is in relation to the other controls
 #define OUR_FIRE_RATE 8 //is twice as fast due to the alternating guns
 #define OUR_BOOLET_OFFSET .10 //how far to each side boolet spawn
-#define MAX_SHIELDS 400
+#define MAX_SHIELDS 100
+#define SHIELD_RECHARGE_START 120//frames between being hit and shields being able to be recharged
+#define SHIELD_RECHARGE_RATE (float)0.25 //shield hp per frame to heal
+//#define SHIELD_RECHARGE_RATE_ABOVE_ONE //flag for another place
 #define MAX_ARMOUR 400
 #define MAX_HULL 200
-#define SHIELD_DIVIDER 4//for display
+#define SHIELD_DIVIDER 1//for display
 #define ARMOUR_DIVIDER 4//for display
 #define HULL_DIVIDER 2//for display
 #define FRAMES_TO_COUNT_HITS_FOR_AUDIO 6//How many frames to track for seeing if we need to play an audio queue for being blasted a bunch
@@ -80,6 +89,7 @@
 #define PLAYER_BOOLET_TOLERANCE 3
 #define PLAYER_BOOLET 0
 #define ENEMY_BOOLET -1
+
 
 enum heading{Xhead, YHead, ZHead, Velocity};
 //enum holdingKeys{wkey, akey, skey,dkey,qkey,ekey,vkey,ckey};
@@ -114,8 +124,11 @@ struct enShip {
     float right[4];
 
     short int hp;
+    short int currentlyDed;
     short int fireFrame;
     char targeting;    
+
+    int worldID;
 };
 typedef struct enShip EnShip;
 
@@ -127,9 +140,10 @@ struct ourShip {
     short int shields;
     short int armour;
     short int hp;
-    short int timeSinceShieldCharge;
     int timeSinceLastFire;
     int fireRate;
+    long long int shieldChargeTimeTracker;
+    float subShieldHP;//for use if the shield recharge is below one
     short int lastHits[FTHS];
 };
 //typedef struct ourShip OurShip;
@@ -152,6 +166,7 @@ int getsetGamestate(int flag);
 void runGame(GLFWwindow* window, int flagSetting);
 void setupDynamicUI();
 void updateDynamicUI();
+void updateDynamicBetweenWaves();//for updating stuff like the comms and such
 
 long long int startGameButton(void* ourself, long long int data, short int clickData);
 
