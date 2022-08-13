@@ -29,6 +29,10 @@
 
 #define BOOLETSPEED (float)2
 #define BOOLETLIFE 125
+static float  BASE_ARMOUR_REPAIR = 400; //How much armour will be repaired if no enemies pass
+static float BASE_HULL_REPAIR = 100; //how much hull will repair if no enemies pass
+static float PASSED_ENEMY_WORTH_ARMOUR = 2;//how much each passing enemy effect hull repair
+static float PASSED_ENEMY_WORTH_HULL = 1;//how much each passing enemy effects hull repair
 static int passedEnemies = 0;
 static unsigned int score = 0;
 #define SCORE_FOR_KILL 10
@@ -172,7 +176,6 @@ long long int startGameButton(void* ourself, long long int data, short int click
 
 
 EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips);
-void respawnShipChecker(EnShip* enemyShip, int framesSinceLastSpawn);
 void updateShipLifeStatus(EnShip* enemyShip);
 void killShip(EnShip* enemyShip);
 void liveShip(EnShip* enemyShip);

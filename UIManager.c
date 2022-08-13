@@ -2608,7 +2608,6 @@ void runUI(UI* ui) {
 	if (ui->renderMode == RENDER_MODE_VECT_POS_ONLY) {
 		while (current < ui->elementCount) {
 			if (ui->elements[current]->elementActive == 1) {//Check to see if the element is active
-				Object* temp = ui->elements[current];
 				drawVecElement(ui->elements[current]);
 			}
 			//UI actions
@@ -2622,7 +2621,6 @@ void runUI(UI* ui) {
 	} else {
 		while (current < ui->elementCount) {
 			if (ui->elements[current]->elementActive == 1) {//Check to see if the element is active
-				Object* temp = ui->elements[current];
 				drawElement(ui->elements[current]);
 			}
 			//UI actions
@@ -2767,7 +2765,7 @@ UIElement* createVectorElement(float* vertices, unsigned int* index, int vertSiz
 
 //Font size is now relative.
 UnfinObj createVecText(char* text, float* pos/*3*/, float size) {
-	int textLength = strlen(text);
+	int textLength = (int)strlen(text);
 	float xoffset = 0;
 	float yoffset = 0;
 	float width = 1.05;//size/1.75;
@@ -2820,7 +2818,7 @@ UnfinObj createVecText(char* text, float* pos/*3*/, float size) {
 
 //Symbols like ;:,. are 'short', half spaced. Not set up
 UnfinObj createVecTextShortSymbol(char* text, float* pos/*3*/, float size) {
-	int textLength = strlen(text);
+	int textLength = (int)strlen(text);
 	float xoffset = 0;
 	float yoffset = 0;
 	float width = 1.05;//size/1.75;
@@ -2873,7 +2871,7 @@ UnfinObj createVecTextShortSymbol(char* text, float* pos/*3*/, float size) {
 
 //Font size is in pixels and for the height. X/Y pos are in opengl coords
 UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, float* rgb) {
-	int textLength = strlen(text);
+	int textLength = (int)strlen(text);
 	float xOffset = 0;
 	float yOffset = 0;
 
@@ -2929,7 +2927,7 @@ UnfinObj createUnFinText(char* text, float xpos, float ypos, float fontSize, flo
 
 //Font size is in pixels and for the height. X/Y pos are in opengl coords
 UnfinObj createUnFinTextWithZ(char* text, float xpos, float ypos, float zpos, float fontSize, float* rgb) {
-	int textLength = strlen(text);
+	int textLength = (int)strlen(text);
 	float xOffset = 0;
 	float yOffset = 0;
 

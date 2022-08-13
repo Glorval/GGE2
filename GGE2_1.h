@@ -19,8 +19,13 @@ UI (Usually 2d stuff rendered in triangle mode like standard and with colours on
 
 #define countof(thing) sizeof(thing)/sizeof(thing[0])
 
-#define windX 1900
-#define windY 1200
+
+static window_X = 0;
+static window_Y = 0;
+//bootleg hax xd
+#define windX 1900/*1900*/
+#define windY 1200/*1200*/
+
 
 #define FOV (float)45
 

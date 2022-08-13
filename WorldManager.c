@@ -51,7 +51,7 @@ int insertObjectIntoWorld(World* world, Object* object, int renderIt) {
 }
 
 //might not work rn
-void removeObjectFromWorld(World* world, int ID, int FreeIt) {
+void removeObjectFromWorld(World* world, unsigned int ID, int FreeIt) {
 	int current = 0;
 	while (current < world->objectCount) {
 		if (world->objects[current]->ID == ID) {

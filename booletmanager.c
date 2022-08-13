@@ -19,7 +19,6 @@ Boolet booletlist;
 void setupBoolet() {
 	booletlist.nextBoolet = NULL;
 	unsigned int VBO = 0;
-	unsigned int EBO = 0;
 	glGenVertexArrays(1, &BooletID);
 	glGenBuffers(1, &VBO);
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
@@ -159,6 +158,7 @@ int updateBoolets(EnShip* enemyShipList, int shipCount, struct ourShip* playerSh
 
 					prev->nextBoolet = curBoolet->nextBoolet;
 					free(curBoolet);
+					//It's saying that we're using curBoolet and that it's uninitalized (Because free), but prev->nextBoolet has been moved to the one after
 					if (prev->nextBoolet == NULL) {
 						goto EndOfBooletUpdate;
 					} else {

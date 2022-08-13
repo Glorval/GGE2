@@ -28,14 +28,39 @@ int getsetGamestate(int flag) {
 }
 
 void updatePlayerOnWave(unsigned int waveNum) {
+	
+	int hullRepairAvailable = (int)(BASE_HULL_REPAIR / ((float)passedEnemies * PASSED_ENEMY_WORTH_HULL));
+	//no sense doing all the maf if we don't need repairs
+	if (OurShip.armour < MAX_ARMOUR) {
+		//find how much armour repair we can have at max
+		int armourRepairAvailable = (int)(BASE_ARMOUR_REPAIR - ((float)passedEnemies * PASSED_ENEMY_WORTH_ARMOUR));
+		//if we don't have enough, it's simple math of adding the max repair to our current armour and being short
+		if (OurShip.armour + armourRepairAvailable < MAX_ARMOUR) {
+			OurShip.armour += armourRepairAvailable;
+		} else {
+			//otherwise, if we have more than enough repair, we need not do any math! Just set armour to max
+			OurShip.armour = MAX_ARMOUR;
+		}
+	}
 
-
-
+	//Second verse, same as the first
+	//no sense doing all the maf if we don't need repairs
+	if (OurShip.hp < MAX_HULL) {
+		//find how much armour repair we can have at max
+		int hullRepairAvailable = (int)(BASE_HULL_REPAIR - ((float)passedEnemies * PASSED_ENEMY_WORTH_HULL));
+		//if we don't have enough, it's simple math of adding the max repair to our current armour and being short
+		if (OurShip.hp + hullRepairAvailable < MAX_ARMOUR) {
+			OurShip.hp += hullRepairAvailable;
+		} else {
+			//otherwise, if we have more than enough repair, we need not do any math! Just set armour to max
+			OurShip.hp = MAX_HULL;
+		}
+	}
 	passedEnemies = 0;
 }
 
 
-void updateEnemiesOnWave(unsigned int waveNum, unsigned int* maxOnScreenEnemies) {
+void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 	//ENEMY_DISTANCE = 500  -This one doesn't need to be changed terribly much
 	//ENEMY_POS_RANGE = 2500
 	//ENEMY_HP = 2
@@ -500,7 +525,6 @@ void updateDynamicUISegment(UnfinObj newData, unsigned int currentEntry) {
 void updateDynamicUI() {
 	//set up our vars
 	char* mainString = calloc(20, sizeof(char));
-	UIElement* passer = NULL;
 
 
 
@@ -569,6 +593,10 @@ void updateDynamicUI() {
 		0, -1.25, 0
 	};
 	_itoa(score, mainString, 10);
+	size_t scoreLen = strlen(mainString);
+	for (size_t c = 1; c < scoreLen; c++) {
+		scoreTextPos[0] -= 0.525;
+	}
 	//armourTextPos[0] -= (strlen(mainString) * 1.05);
 	string = createVecText(mainString, scoreTextPos, 0.06);
 	updateDynamicUISegment(string, 4);
@@ -729,7 +757,6 @@ void ourShipHandler() {
 			gameworld.camera[I_pos], 
 			gameworld.camera[J_pos], 
 			gameworld.camera[K_pos] };
-		float* temp = NULL;
 		//no reorientating here because it's relative to the camera
 		//quatMult(&gameworld.camera[W_pos], velocity);
 		//temp = quatConj(&gameworld.camera[W_pos]);
@@ -857,14 +884,6 @@ EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
 		}
 	}*/
 	return(enemyShipList);
-}
-
-
-
-//if (framesSinceLastSpawn >= SPAWN_RATE && ENEMIES_PER_WAVE > 0) {
-//checks if the ship needs to respawn or just get voided
-void respawnShipChecker(EnShip* enemyShip, int framesSinceLastSpawn) {
-	
 }
 
 //Checks if the ship needs to die, passed, etc.
@@ -1024,9 +1043,6 @@ void gameCursorMovement() {
 	//printf("\n%f, %f, %f, %f\n", gameworld.left[0], gameworld.left[1], gameworld.left[2], gameworld.left[3]);
 	//printf("\n%f, %f, %f, %f\n", gameworld.camera[W_pos], gameworld.camera[I_pos], gameworld.camera[J_pos], gameworld.camera[K_pos]);
 
-	float secondCamPos[4] = {
-		gameworld.camera[W_pos],gameworld.camera[I_pos],gameworld.camera[J_pos],gameworld.camera[K_pos],
-	};
 	
 	float rotateQuatTwo[4] = { cos(ypos / MOUSE_MOVEMENT_DAMPER), 
 		gameworld.left[1] * sin(ypos / MOUSE_MOVEMENT_DAMPER), 

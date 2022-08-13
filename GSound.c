@@ -69,10 +69,10 @@ void priorityTrackRunner(volatile AudioTrack* prioTrack) {
 	int* trackStatuses = calloc(1, sizeof(int));
 	int totalStatuses = 0;
 	int curStatus = 0;
-	for (int cList = 0; cList < listCount; cList++) {
+	for (unsigned int cList = 0; cList < listCount; cList++) {
 		totalStatuses += trackCount[cList];
 		trackStatuses = realloc(trackStatuses, totalStatuses * sizeof(int));
-		for (int cTrack = 0; cTrack < trackCount[cList]; cTrack++) {
+		for (unsigned int cTrack = 0; cTrack < trackCount[cList]; cTrack++) {
 			if (masterList[cList][cTrack].enabled != TRACK_DISABLED) {
 				trackStatuses[curStatus] = masterList[cList][cTrack].enabled;
 				curStatus++;
@@ -94,8 +94,8 @@ void priorityTrackRunner(volatile AudioTrack* prioTrack) {
 	}
 
 	curStatus = 0;
-	for (int cList = 0; cList < listCount; cList++) {
-		for (int cTrack = 0; cTrack < trackCount[cList]; cTrack++) {
+	for (unsigned int cList = 0; cList < listCount; cList++) {
+		for (unsigned int cTrack = 0; cTrack < trackCount[cList]; cTrack++) {
 			masterList[cList][cTrack].enabled = trackStatuses[curStatus];
 		}
 	}
@@ -122,7 +122,7 @@ start:;
 	}
 
 	printf("\nWe startin, ID %d. TrackCount of %d\n", audioID, TrackCount);
-	for (int cTrack = 0; cTrack < TrackCount; cTrack++) {
+	for (unsigned int cTrack = 0; cTrack < TrackCount; cTrack++) {
 		printf("%d   ", trackCount[audioID]);
 		if(TrackList[cTrack].enabled == TRACK_ENABLED) {
 			printf("IN enabled\n");

@@ -9,7 +9,7 @@ void* galloc(int Size) {
 }
 
 void* gcalloc(int count, int Size) {
-	int* newMemory = (int*)calloc(count + 4,  Size);
+	int* newMemory = (int*)calloc((long)count + (long)4,  Size);
 	int* size = newMemory;
 	*size = Size * count;
 	void* returns = &newMemory[1];
@@ -33,7 +33,7 @@ void* grealloc(void* memory, int Size) {
 		return(newMemory);
 	}
 	int* newMemory = (int*)memory - 1;
-	newMemory = (int*)realloc(newMemory, Size + 4);
+	newMemory = (int*)realloc(newMemory, (long)Size + (long)4);
 	//gfree(memory);
 	int* size = newMemory;
 	*size = Size;

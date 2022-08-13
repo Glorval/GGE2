@@ -63,7 +63,6 @@ int main(){
 	ULONGLONG startOf, endOf;
 	startOf = GetTickCount64();
 	while (!glfwWindowShouldClose(gamewindow)) {
-
 		runGame(gamewindow, gameFlag);
 
 		framesTillCheck--;

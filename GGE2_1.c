@@ -8,14 +8,20 @@
 
 GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 	glfwInit();
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	GLFWvidmode* mode = glfwGetVideoMode(primary);
+	window_X = mode->width;
+	window_Y = mode->height;
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_REFRESH_RATE, 120);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 
 	GLFWwindow* window = glfwCreateWindow(windX, windY, APPLICATIONNAME, NULL, NULL);
+
 	if (window == NULL) {
 		printf("Failed to create GLFW window");
 		glfwTerminate();
