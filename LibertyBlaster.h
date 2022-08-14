@@ -29,6 +29,7 @@
 
 #define BOOLETSPEED (float)2
 #define BOOLETLIFE 125
+#define COMMS_UPDATE_DELAY (long int)8
 static float  BASE_ARMOUR_REPAIR = 400; //How much armour will be repaired if no enemies pass
 static float BASE_HULL_REPAIR = 100; //how much hull will repair if no enemies pass
 static float PASSED_ENEMY_WORTH_ARMOUR = 2;//how much each passing enemy effect hull repair

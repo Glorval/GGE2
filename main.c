@@ -21,8 +21,6 @@ int main(){
 
 	volatile World* lineworld = loadGame();
 
-	
-
 	_beginthread(debugCommands, 0, NULL);
 	
 	/*int audioID = createTrackHandler();

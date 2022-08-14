@@ -2211,6 +2211,527 @@ void setupVecA() {
 	vecFont['Z'] = &Zobj;
 }
 
+void setupVecB() {
+	static float a[] = {
+			0, 1, 0,					//0
+			-0.3, 0, 0,				//1
+			0.3, 0, 0,				//2
+			-0.15, 0.5, 0,		//3
+			0.15, 0.5, 0,			//4
+	};
+	static unsigned int ainds[] = {
+		0, 1, 0,2, 3,4,
+	};
+	static UnfinObj aobj = { 0 };
+	aobj.verts = a;
+	aobj.indices = ainds;
+	aobj.iCount = countof(ainds);
+	aobj.vLineCount = countof(a) / VECTOR_VERTEX_LENGTH;
+	aobj.scale = 1;
+	vecFont['a'] = &aobj;
+
+	static float B[] = {
+			-0.3, 1.0, 0,				//0
+			-0.3, 0.0, 0,				//1
+
+			0.1, 1.0, 0,					//2
+			0.3, 0.75, 0,				//3
+			0.1, 0.5, 0,				//4
+			0.3, 0.25, 0,				//5
+			0.1, 0.0, 0,				//6
+
+			-0.3, 0.5, 0,				//7
+	};
+	static unsigned int Binds[] = {
+		0, 1, 0,2, 2,3, 3,4, 4,5, 5,6, 6,1, 4,7,
+	};
+	static UnfinObj Bobj = { 0 };
+	Bobj.verts = B;
+	Bobj.indices = Binds;
+	Bobj.iCount = countof(Binds);
+	Bobj.vLineCount = countof(B) / VECTOR_VERTEX_LENGTH;
+	Bobj.scale = 1;
+	vecFont['b'] = &Bobj;
+
+	static float C[] = {
+			0.3, 1.0, 0,				//0
+			-0.05, 1.0, 0,				//1
+			-0.3, 0.75, 0,			//2
+			-0.3, 0.25, 0,			//3
+			-0.05, 0.0, 0,			//4
+			0.3, 0.0, 0,				//5
+
+	};
+	static unsigned int Cinds[] = {
+		0, 1, 1,2, 2,3, 3,4, 4,5,
+	};
+	static UnfinObj Cobj = { 0 };
+	Cobj.verts = C;
+	Cobj.indices = Cinds;
+	Cobj.iCount = countof(Cinds);
+	Cobj.vLineCount = countof(C) / VECTOR_VERTEX_LENGTH;
+	Cobj.scale = 1;
+	vecFont['c'] = &Cobj;
+
+
+	static float D[] = {
+			-0.3, 1.0, 0,				//0
+			0.05, 1.0, 0,				//1
+			0.3, 0.75, 0,				//2
+			0.3, 0.25, 0,				//3
+			0.05, 0.0, 0,				//4
+			-0.3, 0.0, 0,				//5
+	};
+	static unsigned int Dinds[] = {
+		0,1, 1,2, 2,3, 3,4, 4,5, 5,0,
+	};
+	static UnfinObj Dobj = { 0 };
+	Dobj.verts = D;
+	Dobj.indices = Dinds;
+	Dobj.iCount = countof(Dinds);
+	Dobj.vLineCount = countof(D) / VECTOR_VERTEX_LENGTH;
+	Dobj.scale = 1;
+	vecFont['d'] = &Dobj;
+
+	static float E[] = {
+			-0.3, 1.0, 0,				//0
+			0.3, 1.0, 0,				//1
+
+			-0.3, 0.5, 0,				//2
+			0.3, 0.5, 0,				//3
+
+			-0.3, 0.0, 0,				//4
+			0.3, 0.0, 0,				//5
+	};
+	static unsigned int Einds[] = {
+		0,1, 2,3, 4,5, 0,4,
+	};
+	static UnfinObj Eobj = { 0 };
+	Eobj.verts = E;
+	Eobj.indices = Einds;
+	Eobj.iCount = countof(Einds);
+	Eobj.vLineCount = countof(E) / VECTOR_VERTEX_LENGTH;
+	Eobj.scale = 1;
+	vecFont['e'] = &Eobj;
+
+
+	static float f[] = {
+			-0.3, 1.0, 0,				//0
+			0.3, 1.0, 0,				//1
+
+			-0.3, 0.5, 0,				//2
+			0.25, 0.5, 0,				//3
+
+			-0.3, 0.0, 0,				//4
+	};
+	static unsigned int finds[] = {
+		0,1, 2,3, 0,4,
+	};
+	static UnfinObj fobj = { 0 };
+	fobj.verts = f;
+	fobj.indices = finds;
+	fobj.iCount = countof(finds);
+	fobj.vLineCount = countof(f) / VECTOR_VERTEX_LENGTH;
+	fobj.scale = 1;
+	vecFont['f'] = &fobj;
+
+
+	static float g[] = {
+			0.25, 1.0, 0,				//0
+			-0.1, 1.0, 0,				//1
+			-0.35, 0.75, 0,			//2
+			-0.35, 0.25, 0,			//3
+			-0.1, 0.0, 0,				//4
+			0.1, 0.0, 0,				//5
+
+			0.35, 0.25, 0,			//6
+			0.35, 0.5, 0,				//7
+			0.0, 0.5, 0,				//8
+	};
+	static unsigned int ginds[] = {
+		0, 1, 1,2, 2,3, 3,4, 4,5, 5,6, 6,7, 7,8,
+	};
+	static UnfinObj gobj = { 0 };
+	gobj.verts = g;
+	gobj.indices = ginds;
+	gobj.iCount = countof(ginds);
+	gobj.vLineCount = countof(g) / VECTOR_VERTEX_LENGTH;
+	gobj.scale = 1;
+	vecFont['g'] = &gobj;
+
+
+	static float h[] = {
+			-0.3, 1.0, 0,				//0
+			-0.3, 0.0, 0,				//1
+			0.3, 1.0, 0,				//2
+			0.3, 0.0, 0,				//3
+
+			-0.3, 0.5, 0,				//4
+			0.3, 0.5, 0,				//5
+	};
+	static unsigned int hinds[] = {
+		0,1, 2,3, 4,5,
+	};
+	static UnfinObj hobj = { 0 };
+	hobj.verts = h;
+	hobj.indices = hinds;
+	hobj.iCount = countof(hinds);
+	hobj.vLineCount = countof(h) / VECTOR_VERTEX_LENGTH;
+	hobj.scale = 1;
+	vecFont['h'] = &hobj;
+
+	static float i[] = {
+			-0.3, 1.0, 0,				//0
+			0.3, 1.0, 0,				//1
+			-0.3, 0.0, 0,				//2
+			0.3, 0.0, 0,				//3
+
+			0.0, 1.0, 0,				//4
+			0.0, 0.0, 0,				//5
+	};
+	static unsigned int iinds[] = {
+		0,1, 2,3, 4,5,
+	};
+	static UnfinObj iobj = { 0 };
+	iobj.verts = i;
+	iobj.indices = iinds;
+	iobj.iCount = countof(iinds);
+	iobj.vLineCount = countof(i) / VECTOR_VERTEX_LENGTH;
+	iobj.scale = 1;
+	vecFont['i'] = &iobj;
+
+	static float j[] = {
+			-0.3, 1.0, 0,				//0
+			0.35, 1.0, 0,				//1
+
+			0.25, 1.0, 0,				//2
+			0.25, 0.25, 0,			//3
+			0.0, 0.0, 0,				//4
+			-0.25, 0.25, 0,			//5
+	};
+	static unsigned int jinds[] = {
+		0,1, 2,3, 3,4, 4,5,
+	};
+	static UnfinObj jobj = { 0 };
+	jobj.verts = j;
+	jobj.indices = jinds;
+	jobj.iCount = countof(jinds);
+	jobj.vLineCount = countof(j) / VECTOR_VERTEX_LENGTH;
+	jobj.scale = 1;
+	vecFont['j'] = &jobj;
+
+	static float k[] = {
+			-0.25, 1.0, 0,				//0
+			-0.25, 0.0, 0,			//1
+			0.25, 1.0, 0,				//2
+			-0.25, 0.5, 0,			//3
+			0.25, 0.0, 0,				//4
+	};
+	static unsigned int kinds[] = {
+		0,1, 2,3, 3,4,
+	};
+	static UnfinObj kobj = { 0 };
+	kobj.verts = k;
+	kobj.indices = kinds;
+	kobj.iCount = countof(kinds);
+	kobj.vLineCount = countof(k) / VECTOR_VERTEX_LENGTH;
+	kobj.scale = 1;
+	vecFont['k'] = &kobj;
+
+	static float l[] = {
+			-0.3, 1.0, 0,				//0
+			-0.3, 0.0, 0,				//1
+			0.3, 0.0, 0,				//2
+	};
+	static unsigned int linds[] = {
+		0,1, 1,2,
+	};
+	static UnfinObj lobj = { 0 };
+	lobj.verts = l;
+	lobj.indices = linds;
+	lobj.iCount = countof(linds);
+	lobj.vLineCount = countof(l) / VECTOR_VERTEX_LENGTH;
+	lobj.scale = 1;
+	vecFont['l'] = &lobj;
+
+	static float m[] = {
+			-0.3, 0.0, 0,				//0
+			-0.3, 1.0, 0,				//1
+			0.0, 0.4, 0,				//2
+			0.3, 1.0, 0,				//3
+			0.3, 0.0, 0,				//4
+	};
+	static unsigned int minds[] = {
+		0,1, 1,2, 2,3, 3,4,
+	};
+	static UnfinObj mobj = { 0 };
+	mobj.verts = m;
+	mobj.indices = minds;
+	mobj.iCount = countof(minds);
+	mobj.vLineCount = countof(m) / VECTOR_VERTEX_LENGTH;
+	mobj.scale = 1;
+	vecFont['m'] = &mobj;
+
+	static float n[] = {
+			-0.3, 0.0, 0,				//0
+			-0.3, 1.0, 0,				//1
+			0.3, 0.0, 0,				//2
+			0.3, 1.0, 0,				//3
+
+			-0.3, 0.95, 0,			//4
+			0.3, 0.05, 0,				//5
+	};
+	static unsigned int ninds[] = {
+		0,1, 2,3, 4,5,
+	};
+	static UnfinObj nobj = { 0 };
+	nobj.verts = n;
+	nobj.indices = ninds;
+	nobj.iCount = countof(ninds);
+	nobj.vLineCount = countof(n) / VECTOR_VERTEX_LENGTH;
+	nobj.scale = 1;
+	vecFont['n'] = &nobj;
+
+	static float o[] = {
+			-0.3, 0.7, 0,				//0
+			0.0, 1.0, 0,				//1
+			0.3, 0.7, 0,				//2
+
+			0.3, 0.3, 0,				//3
+			0.0, 0.0, 0,				//4
+			-0.3, 0.3, 0,				//5
+	};
+	static unsigned int oinds[] = {
+		0,1, 1,2, 2,3, 3,4, 4,5, 5,0,
+	};
+	static UnfinObj oobj = { 0 };
+	oobj.verts = o;
+	oobj.indices = oinds;
+	oobj.iCount = countof(oinds);
+	oobj.vLineCount = countof(o) / VECTOR_VERTEX_LENGTH;
+	oobj.scale = 1;
+	vecFont['o'] = &oobj;
+
+
+	static float p[] = {
+			-0.3, 1.0, 0,				//0
+			0.15, 1.0, 0,				//1
+
+			-0.3, 0.5, 0,				//2
+			0.15, 0.5, 0,				//3
+
+			-0.3, 0.0, 0,				//4
+
+			0.3, 0.85, 0,				//5
+			0.3, 0.65, 0,				//6
+	};
+	static unsigned int pinds[] = {
+		0,1, 2,3, 0,4, 5,6, 3,6, 1,5,
+	};
+	static UnfinObj pobj = { 0 };
+	pobj.verts = p;
+	pobj.indices = pinds;
+	pobj.iCount = countof(pinds);
+	pobj.vLineCount = countof(p) / VECTOR_VERTEX_LENGTH;
+	pobj.scale = 1;
+	vecFont['p'] = &pobj;
+
+	static float q[] = {
+			-0.3, 0.7, 0,				//0
+			0.0, 1.0, 0,				//1
+			0.3, 0.7, 0,				//2
+
+			0.3, 0.3, 0,				//3
+			0.0, 0.0, 0,				//4
+			-0.3, 0.3, 0,				//5
+
+			0.3, 0.0, 0,				//6
+			0.0, 0.3, 0,				//7
+	};
+	static unsigned int qinds[] = {
+		0,1, 1,2, 2,3, 3,4, 4,5, 5,0, 6,7,
+	};
+	static UnfinObj qobj = { 0 };
+	qobj.verts = q;
+	qobj.indices = qinds;
+	qobj.iCount = countof(qinds);
+	qobj.vLineCount = countof(q) / VECTOR_VERTEX_LENGTH;
+	qobj.scale = 1;
+	vecFont['q'] = &qobj;
+
+	static float r[] = {
+			-0.3, 1.0, 0,				//0
+			0.15, 1.0, 0,				//1
+
+			-0.3, 0.5, 0,				//2
+			0.15, 0.5, 0,				//3
+
+			-0.3, 0.0, 0,				//4
+
+			0.3, 0.85, 0,				//5
+			0.3, 0.65, 0,				//6
+
+			-0.2, 0.5, 0,				//7
+			0.3, 0.0, 0,				//8
+	};
+	static unsigned int rinds[] = {
+		0,1, 2,3, 0,4, 5,6, 3,6, 1,5, 7,8,
+	};
+	static UnfinObj robj = { 0 };
+	robj.verts = r;
+	robj.indices = rinds;
+	robj.iCount = countof(rinds);
+	robj.vLineCount = countof(r) / VECTOR_VERTEX_LENGTH;
+	robj.scale = 1;
+	vecFont['r'] = &robj;
+
+	static float s[] = {
+			0.3, 1.0, 0,				//0
+			-0.15, 1.0, 0,				//1
+			-0.3, 0.85, 0,			//2
+
+			-0.3, 0.65, 0,			//3
+			-0.15, 0.5, 0,				//4
+			0.15, 0.5, 0,				//5
+			0.3, 0.35, 0,				//6
+			0.3, 0.15, 0,				//7
+			0.15, 0.0, 0,				//8
+			-0.3, 0.0, 0,				//9
+	};
+	static unsigned int sinds[] = {
+		0,1, 1,2, 2,3, 3,4, 4,5, 5,6, 6,7, 7,8, 8,9,
+	};
+	static UnfinObj sobj = { 0 };
+	sobj.verts = s;
+	sobj.indices = sinds;
+	sobj.iCount = countof(sinds);
+	sobj.vLineCount = countof(s) / VECTOR_VERTEX_LENGTH;
+	sobj.scale = 1;
+	vecFont['s'] = &sobj;
+
+	static float t[] = {
+			-0.3, 1.0, 0,				//0
+			0.3, 1.0, 0,				//1
+			0.0, 1.0, 0,				//2
+			0.0, 0.0, 0,				//3
+	};
+	static unsigned int tinds[] = {
+		0,1, 2,3,
+	};
+	static UnfinObj tobj = { 0 };
+	tobj.verts = t;
+	tobj.indices = tinds;
+	tobj.iCount = countof(tinds);
+	tobj.vLineCount = countof(t) / VECTOR_VERTEX_LENGTH;
+	tobj.scale = 1;
+	vecFont['t'] = &tobj;
+
+	static float u[] = {
+			-0.3, 1.0, 0,				//0
+			-0.3, 0.15, 0,				//1
+			0.3, 1.0, 0,				//2
+			0.3, 0.15, 0,				//3
+
+			0.15, 0.0, 0,				//4
+			-0.15, 0.0, 0,				//5
+	};
+	static unsigned int uinds[] = {
+		0,1, 2,3, 3,4, 1,5, 4,5,
+	};
+	static UnfinObj uobj = { 0 };
+	uobj.verts = u;
+	uobj.indices = uinds;
+	uobj.iCount = countof(uinds);
+	uobj.vLineCount = countof(u) / VECTOR_VERTEX_LENGTH;
+	uobj.scale = 1;
+	vecFont['u'] = &uobj;
+
+	static float v[] = {
+			-0.333333, 1.0, 0,		//0
+			0.0, 0.0, 0,				//1
+			0.3333333, 1.0, 0,	//2
+	};
+	static unsigned int vinds[] = {
+		0,1, 1,2,
+	};
+	static UnfinObj vobj = { 0 };
+	vobj.verts = v;
+	vobj.indices = vinds;
+	vobj.iCount = countof(vinds);
+	vobj.vLineCount = countof(v) / VECTOR_VERTEX_LENGTH;
+	vobj.scale = 1;
+	vecFont['v'] = &vobj;
+
+	static float w[] = {
+			-0.3, 1.0, 0,				//0
+			-0.3, 0.0, 0,				//1
+			0.0, 0.6, 0,				//2
+			0.3, 0.0, 0,				//3
+			0.3, 1.0, 0,				//4
+	};
+	static unsigned int winds[] = {
+		0,1, 1,2, 2,3, 3,4,
+	};
+	static UnfinObj wobj = { 0 };
+	wobj.verts = w;
+	wobj.indices = winds;
+	wobj.iCount = countof(winds);
+	wobj.vLineCount = countof(w) / VECTOR_VERTEX_LENGTH;
+	wobj.scale = 1;
+	vecFont['w'] = &wobj;
+
+	static float x[] = {//I cheated xd
+			-0.33333, 1.0, 0,				//0
+			0.33333, 0.0, 0,				//1
+			0.33333, 1.0, 0,				//2
+			-0.33333, 0.0, 0,				//3
+	};
+	static unsigned int xinds[] = {
+		0,1, 2,3,
+	};
+	static UnfinObj xobj = { 0 };
+	xobj.verts = x;
+	xobj.indices = xinds;
+	xobj.iCount = countof(xinds);
+	xobj.vLineCount = countof(x) / VECTOR_VERTEX_LENGTH;
+	xobj.scale = 1;
+	vecFont['x'] = &xobj;
+
+	static float y[] = {
+			-0.3, 1.0, 0,				//0
+			0.3, 1.0, 0,				//1
+			0.0, 0.55, 0,				//2
+			0.0, 0.0, 0,				//3
+	};
+	static unsigned int yinds[] = {
+		0,2, 1,2, 2,3,
+	};
+	static UnfinObj yobj = { 0 };
+	yobj.verts = y;
+	yobj.indices = yinds;
+	yobj.iCount = countof(yinds);
+	yobj.vLineCount = countof(y) / VECTOR_VERTEX_LENGTH;
+	yobj.scale = 1;
+	vecFont['y'] = &yobj;
+
+	static float z[] = {
+			-0.3, 1.0, 0,				//0
+			0.33333, 1.0, 0,		//1
+			-0.33333, 0.0, 0,		//2
+			0.3, 0.0, 0,				//3
+	};
+	static unsigned int zinds[] = {
+		0,1, 1,2, 2,3,
+	};
+	static UnfinObj zobj = { 0 };
+	zobj.verts = z;
+	zobj.indices = zinds;
+	zobj.iCount = countof(zinds);
+	zobj.vLineCount = countof(z) / VECTOR_VERTEX_LENGTH;
+	zobj.scale = 1;
+	vecFont['z'] = &zobj;
+}
+
 void setupVecNum() {
 	static float Zero[] = {
 			-0.3, 0.8, 0,			//0
@@ -2560,6 +3081,7 @@ void setupUI(int flag) {
 	if (!flag) {
 		vecFont = calloc(128, sizeof(UnfinObj*));
 		setupVecA();
+		setupVecB();
 		setupVecNum();
 		setupVecSym();
 	}

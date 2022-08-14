@@ -14,7 +14,11 @@
 
 char* readFile(char* FileName);
 
+//prints, in red, the error surrounded by newlines
 void gError(char* errorMessage);
+
+//inclusive
+int randNum(int lower, int upper);
 
 void normalizeQuat(float* quat);
 

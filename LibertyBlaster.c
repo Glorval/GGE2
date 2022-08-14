@@ -13,7 +13,22 @@ void retroBulletAudioHandler(int newFrameUpdate);
 
 //#include "shipAIManager.h"
 
-#define DFS 0.0255//idk, ease of use? Don't change, not meant to
+#define DFS 0.0255//idk, ease of use? Don't change, not meant 
+
+#define END_OF_GOOD 3
+#define END_OF_OKAY 5
+#define END_OF_BAD 8
+static const char commsLines[9][100] = {
+	"Good job out there!",//0
+	"It's clear for a bit, let's get you fixed up.",//1
+	"We'll have you fixed up in a jiffy!",//2
+	"They'll be back soon, get ready.",//3
+	"Bit rough here, but we'll fix you up.",//4
+	"FDS BROADCAST: ALL FEDERAL DEFENCE FORCES FALL BACK",//5
+	"AUTOMATED BROADCAST: FEDERAL DEFENCE FORCE %d RESPOND", //6
+	"AUTOMATED BRO...",//7
+	"Sorry, don't think we're getting through to you out there...",//8
+};
 
 struct ourShip OurShip = { 0 };
 idSet enShipStuff = { 0 };
@@ -27,7 +42,19 @@ int getsetGamestate(int flag) {
 	return ourState;
 }
 
-void updatePlayerOnWave(unsigned int waveNum) {
+//returns which comms thing to select and display
+int updatePlayerOnWave(unsigned int waveNum) {
+	//int broadcastState = 0;
+	int selectedBroadcast = 0;
+	if (passedEnemies >= 150) {
+		//broadcastState = 2;//bad
+		selectedBroadcast = randNum(END_OF_OKAY + 1, END_OF_BAD);
+	} else if (passedEnemies >= 75) {
+		//broadcastState = 1;//meh
+		selectedBroadcast = randNum(END_OF_GOOD + 1, END_OF_OKAY);
+	} else {
+		selectedBroadcast = randNum(0, END_OF_GOOD);
+	}
 	
 	int hullRepairAvailable = (int)(BASE_HULL_REPAIR / ((float)passedEnemies * PASSED_ENEMY_WORTH_HULL));
 	//no sense doing all the maf if we don't need repairs
@@ -57,6 +84,8 @@ void updatePlayerOnWave(unsigned int waveNum) {
 		}
 	}
 	passedEnemies = 0;
+
+	return(selectedBroadcast);
 }
 
 
@@ -103,7 +132,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_TARGET_DIST_MAX = 325;
 		ENEMY_FIRE_CHANCE = 2.5;
 		SPAWN_RATE = 20;
-		ENEMIES_PER_WAVE = 45;
+		ENEMIES_PER_WAVE = 70;
 		maxOnScreenEnemies = 30;
 	}
 
@@ -117,8 +146,8 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_TARGET_DIST = 100;
 		ENEMY_TARGET_DIST_MAX = 325;
 		ENEMY_FIRE_CHANCE = 3.0;
-		SPAWN_RATE = 18;
-		ENEMIES_PER_WAVE = 70;
+		SPAWN_RATE = 15;
+		ENEMIES_PER_WAVE = 120;
 		maxOnScreenEnemies = 40;
 	}
 
@@ -133,7 +162,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_TARGET_DIST_MAX = 350;
 		ENEMY_FIRE_CHANCE = 3.0;
 		SPAWN_RATE = 12;
-		ENEMIES_PER_WAVE = 125;
+		ENEMIES_PER_WAVE = 220;
 		maxOnScreenEnemies = 65;
 	}
 
@@ -161,6 +190,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	static unsigned int waveNum = 0;
 	static int maxOnScreenEnemies = DEFAULT_ENEMY_MAX;
 	static long int enteredBetweenWave = 0;
+	static int currentCommsBroadcast = -1;
 
 
 	if (flagSetting == IN_MAIN_MENU) { //MAIN MENU LOOP
@@ -216,10 +246,13 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		if (ENEMIES_PER_WAVE == -1) {//if wave is out of enemies
 			waveNum++;
 			printf("Switching to between waves, Wave %d", waveNum);
+			enteredBetweenWave = 0;
+			currentCommsBroadcast = -1;
 			getsetGamestate(BETWEEN_WAVES);
 		}
 		drawWorld(&gameworld);
 	} 
+	//Render it all, update our ship constantly, on first run select a comms broadcast and re-set our variables for how many enemies and such
 	else if (flagSetting == BETWEEN_WAVES) {
 		gameCursorMovement();
 		ourShipHandler();
@@ -229,14 +262,20 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		updateDynamicUI();
 		runMasterUI();		
 		drawWorld(&gameworld);
-		updateEnemiesOnWave(waveNum, &maxOnScreenEnemies);
-		updatePlayerOnWave(waveNum);
+		//if we JUST entered between the waves, do updates to all the variables and select our current comms broadcast
+		if (enteredBetweenWave == 0) {
+			updateEnemiesOnWave(waveNum, &maxOnScreenEnemies);
+			currentCommsBroadcast = updatePlayerOnWave(waveNum);
+		}
+		long int broadcastFlag = updateBroadcast(currentCommsBroadcast, enteredBetweenWave/COMMS_UPDATE_DELAY);
 		enteredBetweenWave++;
+		
 
-
-
-		printf("Immediately hopping back for now");
-		getsetGamestate(IN_GAME);
+		if (broadcastFlag < 0) {
+			printf("Wave starting");
+			getsetGamestate(IN_GAME);
+		}
+		
 	} 
 	else if (flagSetting == END_SCREEN) {
 
@@ -369,6 +408,9 @@ void setupGameUI() {
 	const float armourPos[] = {
 		1, 1, 0
 	};
+	const float zeroPos[] = {
+		0,0,0
+	};
 
 	UnfinObj shields = createVecText("SHIELDS:", shieldTextPos, 0.04);
 	passer = createVectorElement(shields.verts, shields.indices, shields.vLineCount, shields.iCount, shieldPos, NULL, 1, NULL);
@@ -449,6 +491,29 @@ void setupGameUI() {
 
 	passer = createVectorElement(commsBox, commsBoxInd, countof(commsBox)/VECTOR_VERTEX_LENGTH, countof(commsBoxInd), bottomAnchor, NULL, 1, NULL);
 	insertElementIntoUI(BaseGameUI, passer);
+
+	const float crosshair[] = {
+		-0.25, 0.00, 0,			//0
+		-0.2, 0.00, 0,			//1
+		-0.1, 0.05, 0,				//2
+		-0.1, -0.05, 0,			//3
+
+		0.25, 0.00, 0,			//4
+		0.2, 0.00, 0,				//5
+		0.1, 0.05, 0,				//6
+		0.1, -0.05, 0,				//7
+
+		0.0, -0.001, 0,			//8
+		0.0, 0.001, 0,			//9
+	};
+	const unsigned int crosshairInds[] = {
+		0,1, 1,2, 1,3, 
+		4,5, 5,6, 5,7,
+		8,9,
+	};
+
+	passer = createVectorElement(crosshair, crosshairInds, countof(crosshair) / VECTOR_VERTEX_LENGTH, countof(crosshairInds), zeroPos, NULL, 1, NULL);
+	insertElementIntoUI(BaseGameUI, passer);
 }
 
 void setupDynamicUI() {
@@ -508,6 +573,16 @@ void setupDynamicUI() {
 	string = createVecText(placeholder, textpos, 0.06);
 	passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, scorePos, NULL, 1, NULL);
 	passer->scale = 0.06;
+	insertElementIntoUI(DynamicGameUI, passer);
+	freeUnfinObj(string);
+
+	//broadcast, 5, don't include in 'update dynamic ui' because it is handled in 'update broadcast'
+	float broadcastPos[] = {
+		0,-1,0,
+	};
+	string = createVecText(" ", textpos, DFS);
+	passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, broadcastPos, NULL, 1, NULL);
+	passer->scale = DFS;
 	insertElementIntoUI(DynamicGameUI, passer);
 	freeUnfinObj(string);
 }
@@ -606,8 +681,37 @@ dynamicUpdateClosure:;
 	free(mainString);
 }
 
-void updateDynamicBetweenWaves() {
+long int updateBroadcast(int broadcastSelected, long int progressOnBroadcast) {
+	//printf("Updating Broadcast at progress: %d\n", progressOnBroadcast);
+	float broadcastTextPos[] = {
+		-15,2,0,
+	};
+	//set all to a blank space, except the last entry
+	char displayString[17] = { ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ', ' ', 0, };
+	//displayString[14] = '\0';
+	for (int cChar = 0; cChar < 16; cChar++) {
+		if (progressOnBroadcast + cChar - 16 < 0) {
+			continue;
+		}
+		displayString[cChar] = commsLines[broadcastSelected][progressOnBroadcast + cChar - 16];
+		//if we're into the dead space of the comm line, either break or realize we've completed the line
+		if (displayString[cChar] == 0) {
+			if (cChar == 0) {
+				displayString[0] = 0;
+				UnfinObj string = createVecText(displayString, broadcastTextPos, 0.06);
+				updateDynamicUISegment(string, 5);
+				freeUnfinObj(string);
+				return(-1);
+			}
+			break;
+		}
+	}
+	UnfinObj string = createVecText(displayString, broadcastTextPos, 0.06);
+	updateDynamicUISegment(string, 5);
+	freeUnfinObj(string);
+	//printf("Updating Broadcast with string: %s\n", displayString);
 
+	return(2);
 }
 
 long long int startGameButton(void* ourself, long long int data, short int clickData) {
@@ -1163,6 +1267,10 @@ void debugCommands() {
 	input = getche();
 	if (input == 'a') {
 		OurShip.armour -= 10;
+	}
+	if (input == 'w') {
+		ENEMIES_PER_WAVE = 0;
+		gError("Clearing out spawn queue");
 	}
 	goto begin;
 }

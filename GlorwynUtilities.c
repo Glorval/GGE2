@@ -35,6 +35,10 @@ void gError(char* errorMessage) {
 	printf("\n\x1B[38;5;88m%s\x1B[0m\n", errorMessage);
 }
 
+int randNum(int lower, int upper) {
+	return((rand() % ((upper + 1) - lower)) + lower);
+}
+
 void normalizeQuat(float* quat) {
 	float temp = 0;
 	temp = quat[0];
