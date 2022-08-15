@@ -25,38 +25,74 @@ int main(){
 	
 	/*int audioID = createTrackHandler();
 	AudioTrack testTrack = { 0 };
-	testTrack.tones = calloc(9, sizeof(UINT));
+	int tracklen = 18;
+	testTrack.tones = calloc(tracklen, sizeof(UINT));
 	testTrack.tones[0] = Ab3;
 	testTrack.tones[1] = Ab3;
 	testTrack.tones[2] = Ab4;
 	testTrack.tones[3] = Ab3;
-	testTrack.tones[4] = Ab3;
-	testTrack.tones[5] = Gb4;
-	testTrack.tones[6] = Ab3;
-	testTrack.tones[7] = Ab3;
+	testTrack.tones[4] = Gb4;
+	testTrack.tones[5] = Ab3;
+	testTrack.tones[6] = E4;
+	testTrack.tones[7] = Eb4;
 	testTrack.tones[8] = E4;
-	testTrack.toneLengths = calloc(9, sizeof(UINT));
+	testTrack.tones[9] = F4;
+	testTrack.tones[10] = Gb4;
+	testTrack.tones[11] = Ab4;	
+	testTrack.tones[12] = G4;
+	testTrack.tones[13] = E4;
+	testTrack.tones[14] = D4;
+	testTrack.tones[15] = Ab4;
+	testTrack.tones[16] = Ab4;
+	testTrack.tones[17] = Ab4;
+	testTrack.toneLengths = calloc(tracklen, sizeof(UINT));
 	testTrack.toneLengths[0] = 200;
 	testTrack.toneLengths[1] = 200;
 	testTrack.toneLengths[2] = 200;
-	testTrack.toneLengths[3] = 200;
+	testTrack.toneLengths[3] = 400;
 	testTrack.toneLengths[4] = 200;
-	testTrack.toneLengths[5] = 200;
-	testTrack.toneLengths[6] = 200;
-	testTrack.toneLengths[7] = 200;
-	testTrack.toneLengths[8] = 400;
+	testTrack.toneLengths[5] = 400;
+	testTrack.toneLengths[6] = 400;
+	testTrack.toneLengths[7] = 400;
+	testTrack.toneLengths[8] = 200;
+	testTrack.toneLengths[9] = 200;
+	testTrack.toneLengths[10] = 200;
+	testTrack.toneLengths[11] = 400;
+	testTrack.toneLengths[12] = 400;
+	testTrack.toneLengths[13] = 400;
+	testTrack.toneLengths[14] = 400;
+	testTrack.toneLengths[15] = 200;
+	testTrack.toneLengths[16] = 400;
+	testTrack.toneLengths[17] = 600;
 	testTrack.cPos = 0;
 	testTrack.enabled = 1;
 	testTrack.loop = 1;
-	testTrack.tracklen = 9;
+	testTrack.tracklen = tracklen;
 	setPlayFreq(audioID, 0);
+	addTrack(audioID, testTrack);*/
+
+	/*int audioID = createTrackHandler();
+	AudioTrack testTrack = { 0 };
+	static unsigned int tones[] = { Ab3, Ab3, Ab4, Ab3, Gb4, Ab3, Eb4, D4, C4, Bb3, Bb3, Ab3, Ab3, Ab3, Bb3, Ab3, Gb3, Ab3, C4, Ab3, Ab3, Ab3, Fs3, Ab3, Ab3, Ab3, F3, Ab3,};
+	int tracklen = countof(tones);
+	testTrack.tones = tones;
+	testTrack.toneLengths = calloc(tracklen, sizeof(UINT));
+	testTrack.toneLengths[2] = 400;
+	testTrack.toneLengths[3] = 400;
+	testTrack.toneLengths[4] = 400;
+	testTrack.toneLengths[5] = 400;
+
+	testTrack.cPos = 0;
+	testTrack.enabled = 1;
+	testTrack.loop = 1;
+	testTrack.tracklen = tracklen;
+	setDefaultLength(audioID, 200);
 	addTrack(audioID, testTrack);*/
 
 
 	float counter = 1;
 	int gameFlag = IN_MAIN_MENU;
 	srand(time(NULL));
-
 	int framesTillCheck = 60;
 	ULONGLONG startOf, endOf;
 	startOf = GetTickCount64();

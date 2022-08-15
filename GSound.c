@@ -50,6 +50,28 @@ void destroyTrackHandler(int audioID) {
 	killSelf[audioID] = 1;
 }
 
+AudioTrack createTrack(unsigned int* tones, unsigned int* lens, unsigned int count) {
+	AudioTrack returns = { 0 };
+	returns.tones = calloc(count, sizeof(unsigned int));
+	returns.toneLengths = calloc(count, sizeof(unsigned int));
+	for (unsigned int c = 0; c < count; c++) {
+		returns.tones[c] = tones[c];
+		returns.toneLengths[c] = lens[c];
+	}
+	return(returns);
+}
+
+AudioTrack createTrackNoLen(unsigned int* tones, unsigned int count) {
+	AudioTrack returns = { 0 };
+	returns.tones = calloc(count, sizeof(unsigned int));
+	returns.toneLengths = NULL;
+	for (unsigned int c = 0; c < count; c++) {
+		returns.tones[c] = tones[c];
+	}
+	return(returns);
+}
+
+
 int addTrack(int audioID, AudioTrack track) {
 	TrackList = realloc(TrackList, sizeof(AudioTrack) * (TrackCount+ 1));
 	TrackList[TrackCount] = track;
@@ -141,7 +163,7 @@ start:;
 			//if there is no tone length specified, play default tone length. 
 			if (TrackList[cTrack].toneLengths == NULL || TrackList[cTrack].toneLengths[cpos] == 0) {
 				printf("Trying to beep for %d at %dhz.\n", DefToneLen, TrackList[cTrack].tones[cpos]);
-				Beep(TrackList[cTrack].toneLengths == NULL || TrackList[cTrack].tones[cpos], DefToneLen);
+				Beep(TrackList[cTrack].tones[cpos], DefToneLen);
 				fflush(stdout);
 				fflush(stdin);
 				fflush(stderr);

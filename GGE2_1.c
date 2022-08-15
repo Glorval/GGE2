@@ -15,12 +15,12 @@ GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	glfwWindowHint(GLFW_REFRESH_RATE, 120);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	//glfwWindowHint(GLFW_REFRESH_RATE, 120);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 
-	GLFWwindow* window = glfwCreateWindow(windX, windY, APPLICATIONNAME, NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(windX, windY, APPLICATIONNAME, primary, NULL);
 
 	if (window == NULL) {
 		printf("Failed to create GLFW window");
@@ -68,6 +68,7 @@ GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 	perspective[2][3] = -1.0;
 	perspective[3][2] = -((f * n) / (f - n));
 	glUniformMatrix4fv(ProgramData.perspectiveLoc, 1, 0, perspective);
+	//printf("Window Ratio: %f\n", ((float)windY / (float)windX));
 	glUniform1f(ProgramData.windowRatioLoc, ((float)windY / (float)windX));
 
 	glfwSetWindowSizeCallback(window, window_resize_handler);
@@ -135,15 +136,22 @@ int setupShaders() {
 }
 
 void window_resize_handler(GLFWwindow* window, int width, int height) {
-	printf("%d, %d\n", width, height);
+	//printf("%d, %d, %f\n", width, height, ((float)height/(float)width));
 	if (width == 0 || height == 0) {//safety
 		return;
 	}
-	float aspect = (float)((double)width / (double)height);
+	if (((float)height / (float)width) < 0.5) {
+		width = (int)((float)height / (float)0.51);
+		//printf("Too short a window, force scaling\n");
+		glfwSetWindowSize(window, width, height);
+	}
+	else if (((float)height / (float)width) > 0.99999) {
+		width = (int)((float)height / (float)0.999);
+		//printf("Too narrow a window, force scaling\n");
+		glfwSetWindowSize(window, width, height);
+	}
+	float aspect = width / height;
 	//float fov = 45;
-	float far = 1000;
-	float near = 0.1;
-
 	float perspective[4][4];
 	float f = 1000;
 	float n = 0.1;
@@ -162,6 +170,7 @@ void window_resize_handler(GLFWwindow* window, int width, int height) {
 	perspective[2][3] = -1.0;
 	perspective[3][2] = -((f * n) / (f - n));
 	glUniformMatrix4fv(ProgramData.perspectiveLoc, 1, 0, perspective);
+	//printf("Window Ratio: %f\n", ((float)windY / (float)windX));
 	glUniform1f(ProgramData.windowRatioLoc, ((float)height / (float)width));
 	glViewport(0, 0, width, height);
 }

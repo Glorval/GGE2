@@ -7,10 +7,12 @@
 #include "GSound.h"
 
 //Defines, enums/struct setup, master variables, function decs
-#define UICount 3 //update whenever adding another base UI layer
+#define UICount 5 //update whenever adding another base UI layer
 #define MainMenuUI masterUIList[0]
-#define BaseGameUI masterUIList[1]
-#define DynamicGameUI masterUIList[2]
+#define SettingsUI masterUIList[1]
+#define BaseGameUI masterUIList[2]
+#define DynamicGameUI masterUIList[3]
+#define EndscreenUI masterUIList[4]
 
 #define DONT_STATE_CHANGE -1
 
@@ -32,8 +34,8 @@
 #define COMMS_UPDATE_DELAY (long int)8
 static float  BASE_ARMOUR_REPAIR = 400; //How much armour will be repaired if no enemies pass
 static float BASE_HULL_REPAIR = 100; //how much hull will repair if no enemies pass
-static float PASSED_ENEMY_WORTH_ARMOUR = 2;//how much each passing enemy effect hull repair
-static float PASSED_ENEMY_WORTH_HULL = 1;//how much each passing enemy effects hull repair
+static float PASSED_ENEMY_WORTH_ARMOUR = 3;//how much each passing enemy effect hull repair
+static float PASSED_ENEMY_WORTH_HULL = 2;//how much each passing enemy effects hull repair
 static int passedEnemies = 0;
 static unsigned int score = 0;
 #define SCORE_FOR_KILL 10
@@ -43,6 +45,7 @@ static unsigned int score = 0;
 #define FULL_RETRO 0
 #define FULL_RETRO_COMPAT 1
 #define MODERN 2
+#define NO_AUDIO 3
 #define DEFAULT_AUDIO_SETTING MODERN
 
 //GENERAL ENEMY ATTRIBUTES
@@ -163,6 +166,7 @@ static int AudioSetting;
 
 
 World* loadGame();
+void setupSettingsUI();
 void setupMasterUIList();
 void setupMainMenu();
 void setupGameUI();
@@ -171,10 +175,12 @@ int getsetGamestate(int flag);
 void runGame(GLFWwindow* window, int flagSetting);
 void setupDynamicUI();
 void updateDynamicUI();
-void updateDynamicBetweenWaves();//for updating stuff like the comms and such
 
+//button actions
 long long int startGameButton(void* ourself, long long int data, short int clickData);
-
+long long int settingsButton(void* ourself, long long int data, short int clickData);
+long long int fullscreenButton(void* ourself, long long int data, short int clickData);
+long long int returnToMenuButton(void* ourself, long long int data, short int clickData);
 
 EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips);
 void updateShipLifeStatus(EnShip* enemyShip);
@@ -199,8 +205,10 @@ void debugCommands();
 
 
 //Audio handler dec's
+void setAudioFunctions(int AudioSetting);
 
-//0 for feeding a hit, 1 for progressing it a frame
-//struct audiohandlers {
-//    void (*bulletAudioHandler)(int);
-//};
+static unsigned long long playingBulletSound = 0;
+void (*realBulletAudioHandler)(int);
+void silentBulletHandler(int newFrameUpdate);
+void bulletAudioHandler(int newFrameUpdate);
+void retroBulletAudioHandler(int newFrameUpdate);

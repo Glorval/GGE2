@@ -1,13 +1,5 @@
 #include "LibertyBlaster.h"
 #define _CRT_SECURE_NO_WARNINGS
-void setBulletAudioQueue();
-void bulletAudioHandler(int newFrameUpdate);
-void (*realBulletAudioHandler)(int);
-void retroBulletAudioHandler(int newFrameUpdate);
-
-
-
-
 #include "booletmanager.c"
 #include "Entities.c"
 
@@ -33,6 +25,8 @@ static const char commsLines[9][100] = {
 struct ourShip OurShip = { 0 };
 idSet enShipStuff = { 0 };
 
+volatile static int ShouldBeFullscreen = 1;
+volatile static int IsFullscreen = 1;
 
 int getsetGamestate(int flag) {
 	static int ourState = IN_MAIN_MENU;
@@ -87,7 +81,6 @@ int updatePlayerOnWave(unsigned int waveNum) {
 
 	return(selectedBroadcast);
 }
-
 
 void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 	//ENEMY_DISTANCE = 500  -This one doesn't need to be changed terribly much
@@ -193,7 +186,29 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	static int currentCommsBroadcast = -1;
 
 
+
+
 	if (flagSetting == IN_MAIN_MENU) { //MAIN MENU LOOP
+		MainMenuUI->active = 1;//ez way to make sure the right layer is up
+		SettingsUI->active = 0;
+		runMasterUI();
+	}
+	else if (flagSetting == IN_SETTINGS) { //SETTINGS LOOP
+		if (ShouldBeFullscreen == 1 && IsFullscreen != 1) {
+			GLFWmonitor* monitor;
+			monitor = glfwGetPrimaryMonitor();
+			GLFWvidmode* mode = glfwGetVideoMode(monitor);
+			glfwSetWindowMonitor(gamewindow, monitor, 0, 0, mode->width, mode->height, 60);
+			IsFullscreen = 1;
+		} else if (ShouldBeFullscreen == 0 && IsFullscreen == 1) {			
+			GLFWmonitor* monitor;
+			monitor = glfwGetPrimaryMonitor();
+			GLFWvidmode* mode = glfwGetVideoMode(monitor);
+			glfwSetWindowMonitor(gamewindow, NULL, 5, 20, (int)((float)mode->width * 0.9), (int)((float)mode->height * 0.9), 60);
+			IsFullscreen = 0;
+		}
+		SettingsUI->active = 1;
+		MainMenuUI->active = 0;
 		runMasterUI();
 	}
 	else if (flagSetting == STARTING_GAME) { //GAME LOAD
@@ -300,11 +315,12 @@ World* loadGame() {
 	gameworld.vecColour[2] = 0;
 	gameworld.vecColour[3] = 1;
 	
-	setBulletAudioQueue();
+	setAudioFunctions(DEFAULT_AUDIO_SETTING);
 
 	loadEnemyShip();
 	setupMasterUIList();
 	setupMainMenu();
+	setupSettingsUI();
 	setupGameUI();
 	setupDynamicUI();
 	return(&gameworld);
@@ -337,7 +353,7 @@ void setupMainMenu() {
 		0.3, -0.06, -0.5,
 		-0.3, -0.06, -0.5,
 	};
-	unsigned int gameStartInds[] = {
+	unsigned int buttonInds[] = {
 		0,1,2,1, 2,3, 3,0
 	};
 	float pos[] = { 0,-0.3,0};
@@ -345,10 +361,27 @@ void setupMainMenu() {
 	float buttontextpos[] = { -4.725,0,0 };
 	
 	UnfinObj buttontext = createVecText("START GAME", buttontextpos, 0.05);
-	insertElementIntoUI(MainMenuUI, createVectorElement(gameStartButton, gameStartInds, (sizeof(gameStartButton) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(gameStartInds) / sizeof(unsigned int), pos, startGameButton, 1, clickarea));
+	insertElementIntoUI(MainMenuUI, createVectorElement(gameStartButton, buttonInds, (sizeof(gameStartButton) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, startGameButton, 1, clickarea));
 	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
 	//passer->position[X_pos] = -0.18;
 	passer->position[Y_pos] = -0.325;
+	passer->scale = 0.051;
+	insertElementIntoUI(MainMenuUI, passer);
+	freeUnfinObj(buttontext);
+
+	float settingsButtonverts[] = {
+		-0.3, 0.06, -0.5,
+		0.3, 0.06, -0.5,
+		0.3, -0.06, -0.5,
+		-0.3, -0.06, -0.5,
+	};
+	buttontextpos[0] = -3.675;
+	pos[1] = -0.5;
+	insertElementIntoUI(MainMenuUI, createVectorElement(settingsButtonverts, buttonInds, (sizeof(settingsButtonverts) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, settingsButton, 1, clickarea));
+	buttontext = createVecText("SETTINGS", buttontextpos, 0.05);
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+	//passer->position[X_pos] = -0.18;
+	passer->position[Y_pos] = -0.525;
 	passer->scale = 0.051;
 	insertElementIntoUI(MainMenuUI, passer);
 	freeUnfinObj(buttontext);
@@ -362,6 +395,51 @@ void setupMainMenu() {
 	passer->scale = 0.15;
 	insertElementIntoUI(MainMenuUI, passer);
 	freeUnfinObj(title);
+}
+
+void setupSettingsUI() {
+	SettingsUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
+	SettingsUI->vecColour[0] = 0;
+	SettingsUI->vecColour[1] = 1;
+	SettingsUI->vecColour[2] = 0;
+	SettingsUI->vecColour[3] = 1;
+	UIElement* passer = NULL;
+
+	float buttonBase[] = {
+		-0.3, 0.06, -0.5,
+		0.3, 0.06, -0.5,
+		0.3, -0.06, -0.5,
+		-0.3, -0.06, -0.5,
+	};
+	unsigned int buttonInds[] = {
+		0,1,2,1, 2,3, 3,0
+	};
+	float pos[] = { 0,0.5,0 };
+	float clickarea[] = { 0.3,0.3,0.06,0.06 };
+	float buttontextpos[] = { -4.725,0,0 };
+	
+	//0
+	insertElementIntoUI(SettingsUI, createVectorElement(buttonBase, buttonInds, (sizeof(buttonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, fullscreenButton, 1, clickarea));
+
+	UnfinObj buttontext = createVecText("FULLSCREEN", buttontextpos, 0.05);	
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+	//passer->position[X_pos] = -0.18;
+	passer->position[Y_pos] = 0.475;
+	passer->scale = 0.051;
+	insertElementIntoUI(SettingsUI, passer);//1
+	freeUnfinObj(buttontext);
+
+
+	pos[1] = -0.5;
+	buttontextpos[0] = -1.725;
+	insertElementIntoUI(SettingsUI, createVectorElement(buttonBase, buttonInds, (sizeof(buttonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, returnToMenuButton, 1, clickarea));
+	buttontext = createVecText("BACK", buttontextpos, 0.05);
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+	//passer->position[X_pos] = -0.18;
+	passer->position[Y_pos] = -0.525;
+	passer->scale = 0.051;
+	insertElementIntoUI(SettingsUI, passer);//1
+	freeUnfinObj(buttontext);
 }
 
 void setupGameUI() {
@@ -723,6 +801,44 @@ long long int startGameButton(void* ourself, long long int data, short int click
 	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
 		getsetGamestate(STARTING_GAME);
 		glfwSetInputMode(gamewindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+}
+
+long long int settingsButton(void* ourself, long long int data, short int clickData) {
+	//UIElement* us = ourself;
+	//us->elementActive = 0;
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	//standard left click
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		getsetGamestate(IN_SETTINGS);
+	}
+}
+
+long long int fullscreenButton(void* ourself, long long int data, short int clickData) {
+	//UIElement* us = ourself;
+	//us->elementActive = 0;
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	//standard left click
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		printf("setting fullscreen");
+		if (ShouldBeFullscreen == 1) {
+			ShouldBeFullscreen = 0;
+		} else {
+			ShouldBeFullscreen = 1;
+		}
+	}
+}
+
+long long int returnToMenuButton(void* ourself, long long int data, short int clickData) {
+	//UIElement* us = ourself;
+	//us->elementActive = 0;
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	//standard left click
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		getsetGamestate(IN_MAIN_MENU);
 	}
 }
 
@@ -1186,13 +1302,22 @@ void gameCursorMovement() {
 
 //AUDIO HANDLING
 
-void (*realBulletAudioHandler)(int);
-unsigned long long playingBulletSound = 0;
+//void (*realBulletAudioHandler)(int);
+
+void setAudioFunctions(int AudioSetting) {
+	if (AudioSetting == NO_AUDIO) {
+		realBulletAudioHandler = silentBulletHandler;//retroBulletAudioHandler;//noBulletAudioHandler;
+	}
+
+	else if (AudioSetting == DEFAULT_AUDIO_SETTING) {
+		realBulletAudioHandler = silentBulletHandler;//retroBulletAudioHandler;//noBulletAudioHandler;
+	}
+}
 
 void bulletAudioHandler(int newFrameUpdate) {
 	realBulletAudioHandler(newFrameUpdate);
 }
-void noBulletAudioHandler(int newFrameUpdate) {
+void silentBulletHandler(int newFrameUpdate) {
 	if (newFrameUpdate == 0) {
 		OurShip.lastHits[FTHS - 1]++;
 		int totalHits = 0;
@@ -1250,11 +1375,6 @@ void retroBulletAudioHandler(int newFrameUpdate) {
 		}
 		OurShip.lastHits[FTHS - 1] = 0;
 	}
-}
-
-
-void setBulletAudioQueue() {
-	realBulletAudioHandler = noBulletAudioHandler;//retroBulletAudioHandler;//noBulletAudioHandler;
 }
 
 
