@@ -55,7 +55,7 @@ static unsigned int score = 0;
 //GENERAL ENEMY ATTRIBUTES
 static int ENEMY_DISTANCE = 500;//500
 static int SPAWN_RATE = 20;//how many frames between spawns
-#define DEFAULT_ENEMY_MAX 50
+#define MAX_ENEMY_COUNT 80
 static int ENEMY_POS_RANGE = 2500;//2500
 static int ENEMIES_PER_WAVE = 5;
 //#define SPAWNING_TOLERANCE 10//how many enemies 

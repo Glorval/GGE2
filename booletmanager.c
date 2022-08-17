@@ -51,22 +51,25 @@ int checkBooletAgainstAllShips(Boolet* boolet, EnShip* enemyShipList, int shipCo
 	temp++;
 
 	for (int c = 0; c < shipCount; c++) {
-		float dist = //sqrtf(
-			((enemyShipList[c].position[X_pos] - boolet->pos[X_pos]) * (enemyShipList[c].position[X_pos] - boolet->pos[X_pos]) / off[0]) +
-			((enemyShipList[c].position[Y_pos] - boolet->pos[Y_pos]) * (enemyShipList[c].position[Y_pos] - boolet->pos[Y_pos]) / off[1]) +
-			((enemyShipList[c].position[Z_pos] - boolet->pos[Z_pos]) * (enemyShipList[c].position[Z_pos] - boolet->pos[Z_pos]) / off[2]);
-		//);
+		//limit to being only living ships checked against
+		if (enemyShipList[c].currentlyDed != 1) {
+			float dist = //sqrtf(
+				((enemyShipList[c].position[X_pos] - boolet->pos[X_pos]) * (enemyShipList[c].position[X_pos] - boolet->pos[X_pos]) / off[0]) +
+				((enemyShipList[c].position[Y_pos] - boolet->pos[Y_pos]) * (enemyShipList[c].position[Y_pos] - boolet->pos[Y_pos]) / off[1]) +
+				((enemyShipList[c].position[Z_pos] - boolet->pos[Z_pos]) * (enemyShipList[c].position[Z_pos] - boolet->pos[Z_pos]) / off[2]);
+			//);
 
-		/*unsigned int i = *(unsigned int*)&dist;
-		i += 127 << 23;
-		i >>= 1;
-		dist = *(float*)&i;*/
+			/*unsigned int i = *(unsigned int*)&dist;
+			i += 127 << 23;
+			i >>= 1;
+			dist = *(float*)&i;*/
 
-		float tolerance = ((fabsf(boolet->velocity[0]) + fabsf(boolet->velocity[1]) + fabsf(boolet->velocity[2]))/ BOOLET_LENIANCY) + EXTRA_BOOLET_TOLERANCE;
-		//printf("%f,\t%f\n", dist, tolerance);
-		if (dist < tolerance * tolerance) {
-			return(c);
-		}
+			float tolerance = ((fabsf(boolet->velocity[0]) + fabsf(boolet->velocity[1]) + fabsf(boolet->velocity[2])) / BOOLET_LENIANCY) + EXTRA_BOOLET_TOLERANCE;
+			//printf("%f,\t%f\n", dist, tolerance);
+			if (dist < tolerance * tolerance) {
+				return(c);
+			}
+		}		
 	}
 		//potential method: Orientate the 'hitbox' according to the ship, then test the distance between
 		//the boolet and the ship using the scaled hitbox (akin to the heading stuff) as a tolerance

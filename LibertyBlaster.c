@@ -111,7 +111,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_FIRE_CHANCE = 1.5;
 		SPAWN_RATE = 1;//30
 		ENEMIES_PER_WAVE = 80;
-		*maxOnScreenEnemies = 65;//20
+		*maxOnScreenEnemies = 20;//20
 	}
 
 	//'early-mid game' settings wave 2-4 
@@ -171,7 +171,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_FIRE_CHANCE = 3.0;
 		SPAWN_RATE = 8;
 		ENEMIES_PER_WAVE = 300;
-		*maxOnScreenEnemies = 80;
+		*maxOnScreenEnemies = MAX_ENEMY_COUNT;
 	}
 
 }
@@ -181,14 +181,14 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	volatile static EnShip* enemyShipList = NULL;
 	static unsigned int waveNum = 0;
-	static int maxOnScreenEnemies = DEFAULT_ENEMY_MAX;
+	static int maxOnScreenEnemies = MAX_ENEMY_COUNT;
 	static long int enteredBetweenWave = 0;
 	static int currentCommsBroadcast = -1;
 
 	if (flagSetting == CLEAR_GAME) {
 		free(enemyShipList);
 		waveNum = 0;
-		maxOnScreenEnemies = DEFAULT_ENEMY_MAX;
+		maxOnScreenEnemies = MAX_ENEMY_COUNT;
 		enteredBetweenWave = 0;
 		currentCommsBroadcast = -1;
 		attemptToResetGameVariables();
@@ -224,9 +224,9 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		glDisable(GL_LINE_SMOOTH);
 
 		//set up enemy ship list
-		enemyShipList = calloc(DEFAULT_ENEMY_MAX, sizeof(EnShip));
+		enemyShipList = calloc(MAX_ENEMY_COUNT, sizeof(EnShip));
 		enShipStuff = getRefID(ENSHIP);
-		for (int cShip = 0; cShip < DEFAULT_ENEMY_MAX; cShip++) {
+		for (int cShip = 0; cShip < MAX_ENEMY_COUNT; cShip++) {
 			//enemyShipList[cShip].ID = enShipStuff.ID;
 			//enemyShipList[cShip].indexCount = enShipStuff.indC;
 			setShip(&enemyShipList[cShip]);
@@ -308,9 +308,10 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	} 
 	else if (flagSetting == END_SCREEN) {
 
-	} else if (flagSetting == IN_SETTINGS) {
+	} 
 
-	}
+
+EndOfFunction:;
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 }
@@ -1128,30 +1129,8 @@ void ourShipHandler() {
 }
 
 EnShip* enemyShipHandler(volatile EnShip* enemyShipList, int upEnemyShips) {
-	static int maxShipCount = DEFAULT_ENEMY_MAX;
+	static int maxShipCount = MAX_ENEMY_COUNT;
 	static int framesSinceLastSpawn = 0;
-	
-	/*if (enemyShipList == NULL) {
-		enemyShipList = calloc(maxShipCount, sizeof(EnShip));
-	}*/
-	//problem is that it's not 'saving' correctly, it's just a pointer and it's supposed to save to an array
-	if (upEnemyShips > maxShipCount) {
-		printf("Increasing ship count, old pointer %p, ", enemyShipList);
-		enemyShipList = realloc(enemyShipList, upEnemyShips * sizeof(EnShip));
-		printf("new pointer %p\n", enemyShipList);
-		for (int cNewShip = 0; cNewShip < upEnemyShips; cNewShip++) {
-			printf("current ship setting %d", cNewShip);
-			setShip(&enemyShipList[cNewShip]);
-			
-			if (cNewShip > maxShipCount) {
-				enemyShipList[cNewShip].worldID = insertObjectIntoWorld(&gameworld, &enemyShipList[cNewShip], 0);
-				printf("it is also getting inserted with worldID of %d", enemyShipList[cNewShip].worldID);
-			}
-			printf("\n");
-			//voidShip(&enemyShipList[cNewShip]);
-		}
-		maxShipCount = upEnemyShips;
-	}
 
 	int shipsToGoThrough = maxShipCount;
 	if (upEnemyShips < maxShipCount && upEnemyShips > 0) {

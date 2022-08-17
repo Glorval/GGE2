@@ -38,7 +38,6 @@ World createWorld(int worldType) {
 //returns the ID of the object so it can be accessed later
 int insertObjectIntoWorld(World* world, Object* object, int renderIt) {
 	//if (world->objectCount == world->objectListSize) {
-	printf("Inserting object %p with ID %d\n", object, world->objectCount);
 		//POTENTIAL PERFORMANCE TODO- Could check the actual size of the list versus what we needand spare some realloc calls that might be redundant
 		world->objectCount++;
 		world->objectListSize = world->objectCount;
