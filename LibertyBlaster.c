@@ -109,9 +109,9 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_TARGET_DIST = 150;
 		ENEMY_TARGET_DIST_MAX = 300;
 		ENEMY_FIRE_CHANCE = 1.5;
-		SPAWN_RATE = 30;
-		ENEMIES_PER_WAVE = 40;
-		maxOnScreenEnemies = 20;
+		SPAWN_RATE = 1;//30
+		ENEMIES_PER_WAVE = 80;
+		*maxOnScreenEnemies = 65;//20
 	}
 
 	//'early-mid game' settings wave 2-4 
@@ -126,7 +126,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_FIRE_CHANCE = 2.5;
 		SPAWN_RATE = 20;
 		ENEMIES_PER_WAVE = 70;
-		maxOnScreenEnemies = 30;
+		*maxOnScreenEnemies = 30;
 	}
 
 	//'mid game' settings wave 5-8
@@ -141,7 +141,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_FIRE_CHANCE = 3.0;
 		SPAWN_RATE = 15;
 		ENEMIES_PER_WAVE = 120;
-		maxOnScreenEnemies = 40;
+		*maxOnScreenEnemies = 40;
 	}
 
 	//'late game' settings wave 9-19
@@ -156,7 +156,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_FIRE_CHANCE = 3.0;
 		SPAWN_RATE = 12;
 		ENEMIES_PER_WAVE = 220;
-		maxOnScreenEnemies = 65;
+		*maxOnScreenEnemies = 65;
 	}
 
 	//'death mode' settings wave 20+
@@ -171,7 +171,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_FIRE_CHANCE = 3.0;
 		SPAWN_RATE = 8;
 		ENEMIES_PER_WAVE = 300;
-		maxOnScreenEnemies = 80;
+		*maxOnScreenEnemies = 80;
 	}
 
 }
@@ -185,7 +185,15 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	static long int enteredBetweenWave = 0;
 	static int currentCommsBroadcast = -1;
 
-
+	if (flagSetting == CLEAR_GAME) {
+		free(enemyShipList);
+		waveNum = 0;
+		maxOnScreenEnemies = DEFAULT_ENEMY_MAX;
+		enteredBetweenWave = 0;
+		currentCommsBroadcast = -1;
+		attemptToResetGameVariables();
+		getsetGamestate(IN_MAIN_MENU);
+	}
 
 
 	if (flagSetting == IN_MAIN_MENU) { //MAIN MENU LOOP
@@ -222,7 +230,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 			//enemyShipList[cShip].ID = enShipStuff.ID;
 			//enemyShipList[cShip].indexCount = enShipStuff.indC;
 			setShip(&enemyShipList[cShip]);
-			enemyShipList[cShip].worldID = insertObjectIntoWorld(&gameworld, &enemyShipList[cShip], 1);
+			enemyShipList[cShip].worldID = insertObjectIntoWorld(&gameworld, (Object*)&enemyShipList[cShip], 1);
 		}
 
 		//initialize boolet system
@@ -246,7 +254,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		DynamicGameUI->active = 1;
 
 		//select the next game state
-		updateEnemiesOnWave(waveNum, maxOnScreenEnemies);//in case it differs from base defines
+		updateEnemiesOnWave(waveNum, &maxOnScreenEnemies);//in case it differs from base defines
 		getsetGamestate(IN_GAME);
 	}
 	else if (flagSetting == IN_GAME) { //GAME LOOP
@@ -257,7 +265,9 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		}
 		updateDynamicUI();
 		runMasterUI();
+		printf("In the main function, the pointer starts as %p\n", enemyShipList);
 		enemyShipList = enemyShipHandler(enemyShipList, maxOnScreenEnemies);
+		printf("In the main, it becomes becomes %p\n", enemyShipList);
 		if (ENEMIES_PER_WAVE == -1) {//if wave is out of enemies
 			waveNum++;
 			printf("Switching to between waves, Wave %d", waveNum);
@@ -292,6 +302,10 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		}
 		
 	} 
+	else if (flagSetting == PAUSE_MENU) { //GAME LOOP
+		runMasterUI();
+		drawWorld(&gameworld);
+	} 
 	else if (flagSetting == END_SCREEN) {
 
 	} else if (flagSetting == IN_SETTINGS) {
@@ -320,6 +334,7 @@ World* loadGame() {
 	loadEnemyShip();
 	setupMasterUIList();
 	setupMainMenu();
+	setupPauseMenu();
 	setupSettingsUI();
 	setupGameUI();
 	setupDynamicUI();
@@ -357,7 +372,7 @@ void setupMainMenu() {
 		0,1,2,1, 2,3, 3,0
 	};
 	float pos[] = { 0,-0.3,0};
-	float clickarea[] = { 0.2,0.2,0.06,0.06 };
+	float clickarea[] = { 0.3,0.3,0.06,0.06 };
 	float buttontextpos[] = { -4.725,0,0 };
 	
 	UnfinObj buttontext = createVecText("START GAME", buttontextpos, 0.05);
@@ -386,15 +401,71 @@ void setupMainMenu() {
 	insertElementIntoUI(MainMenuUI, passer);
 	freeUnfinObj(buttontext);
 
+	//Exit gaem button
+	buttontextpos[0] = -4.275;
+	pos[1] = -0.7;
+	insertElementIntoUI(MainMenuUI, createVectorElement(settingsButtonverts, buttonInds, (sizeof(settingsButtonverts) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, exitGameButton, 1, clickarea));
+	buttontext = createVecText("EXIT GAME", buttontextpos, 0.05);
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+	//passer->position[X_pos] = -0.18;
+	passer->position[Y_pos] = -0.725;
+	passer->scale = 0.051;
+	insertElementIntoUI(MainMenuUI, passer);
+	freeUnfinObj(buttontext);
+
 
 	float titlePos[] = { -3.15, 0.0,0 };
 	float titleScreenpos[] = { 0, 0.3, 0 };
-	UnfinObj title = createVecText("BLAZING\nLIBERTY", titlePos, 0.3);
+	UnfinObj title = createVecText("BLAZING\nLIBERTY", titlePos, 0.3);//BLAZING\nLIBERTY
 	//UnfinObj title = createVecText("ABCDEFG\n01234\n56789", titlePos, 0.15);
 	passer = createVectorElement(title.verts, title.indices, title.vLineCount, title.iCount, titleScreenpos, NULL, 1, NULL);
 	passer->scale = 0.15;
 	insertElementIntoUI(MainMenuUI, passer);
 	freeUnfinObj(title);
+}
+
+void setupPauseMenu() {
+	PauseScreenUI->active = 0;
+	PauseScreenUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
+	PauseScreenUI->vecColour[0] = 0;
+	PauseScreenUI->vecColour[1] = 1;
+	PauseScreenUI->vecColour[2] = 0;
+	PauseScreenUI->vecColour[3] = 1;
+
+	UIElement* passer = NULL;
+
+
+	float buttonBase[] = {
+		-0.3, 0.06, -0.5,
+		0.3, 0.06, -0.5,
+		0.3, -0.06, -0.5,
+		-0.3, -0.06, -0.5,
+	};
+	unsigned int buttonInds[] = {
+		0,1,2,1, 2,3, 3,0
+	};
+	float pos[] = { 0,0.3,0 };
+	float clickarea[] = { 0.2,0.2,0.06,0.06 };
+	float buttontextpos[] = { -4.225,0,0 };
+
+	UnfinObj buttontext = createVecText("MAIN MENU", buttontextpos, 0.05);
+	insertElementIntoUI(PauseScreenUI, createVectorElement(buttonBase, buttonInds, (sizeof(buttonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, returnToMenuButton, 1, clickarea));
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+	//passer->position[X_pos] = -0.18;
+	passer->position[Y_pos] = 0.275;
+	passer->scale = 0.051;
+	insertElementIntoUI(PauseScreenUI, passer);
+	freeUnfinObj(buttontext);
+
+	pos[1] = -0.3;
+	insertElementIntoUI(PauseScreenUI, createVectorElement(buttonBase, buttonInds, (sizeof(buttonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, exitGameButton, 1, clickarea));
+	buttontext = createVecText("EXIT GAME", buttontextpos, 0.05);
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+	//passer->position[X_pos] = -0.18;
+	passer->position[Y_pos] = -0.325;
+	passer->scale = 0.051;
+	insertElementIntoUI(PauseScreenUI, passer);
+	freeUnfinObj(buttontext);
 }
 
 void setupSettingsUI() {
@@ -838,7 +909,25 @@ long long int returnToMenuButton(void* ourself, long long int data, short int cl
 	char* ourData = &data;
 	//standard left click
 	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
-		getsetGamestate(IN_MAIN_MENU);
+		SettingsUI->active = 0;
+		BaseGameUI->active = 0;
+		DynamicGameUI->active = 0;
+		EndscreenUI->active = 0;
+		PauseScreenUI->active = 0;
+
+		attemptToResetGameVariables();
+		getsetGamestate(CLEAR_GAME);
+	}
+}
+
+long long int exitGameButton(void* ourself, long long int data, short int clickData) {
+	//UIElement* us = ourself;
+	//us->elementActive = 0;
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	//standard left click
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		exit(69);//ez
 	}
 }
 
@@ -855,6 +944,7 @@ void expandedMouseClick(GLFWwindow* window, int button, int action, int mods) {
 }
 
 void keypressHandler(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	static int PauseMenuStatus = -1;
 	if (key == GLFW_KEY_W) {
 		if (action == GLFW_PRESS) {
 			OurShip.keysHolding[wkey] = 1;
@@ -907,6 +997,23 @@ void keypressHandler(GLFWwindow* window, int key, int scancode, int action, int 
 		OurShip.heading[X_pos] = 0;
 		OurShip.heading[Y_pos]  = 0;
 		OurShip.heading[Z_pos]  = 0;
+	}
+
+	if (key == GLFW_KEY_ESCAPE) {
+		if (action == GLFW_PRESS) {
+			int curGameState = getsetGamestate(DONT_STATE_CHANGE);
+			if (curGameState == IN_GAME || curGameState == BETWEEN_WAVES) {
+				PauseMenuStatus = curGameState; //save this for later
+				getsetGamestate(PAUSE_MENU);
+				glfwSetInputMode(gamewindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				PauseScreenUI->active = 1;
+			}
+			if (curGameState == PAUSE_MENU) {
+				getsetGamestate(PauseMenuStatus);
+				glfwSetInputMode(gamewindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				PauseScreenUI->active = 0;
+			}
+		}		
 	}
 }
 
@@ -1020,24 +1127,41 @@ void ourShipHandler() {
 	OurShip.shieldChargeTimeTracker++;
 }
 
-EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips) {
+EnShip* enemyShipHandler(volatile EnShip* enemyShipList, int upEnemyShips) {
 	static int maxShipCount = DEFAULT_ENEMY_MAX;
 	static int framesSinceLastSpawn = 0;
 	
 	/*if (enemyShipList == NULL) {
 		enemyShipList = calloc(maxShipCount, sizeof(EnShip));
 	}*/
-	if (upEnemyShips != maxShipCount && upEnemyShips != 0) {
+	//problem is that it's not 'saving' correctly, it's just a pointer and it's supposed to save to an array
+	if (upEnemyShips > maxShipCount) {
+		printf("Increasing ship count, old pointer %p, ", enemyShipList);
 		enemyShipList = realloc(enemyShipList, upEnemyShips * sizeof(EnShip));
-		for (int cNewShip = 0; cNewShip < maxShipCount; cNewShip++) {
+		printf("new pointer %p\n", enemyShipList);
+		for (int cNewShip = 0; cNewShip < upEnemyShips; cNewShip++) {
+			printf("current ship setting %d", cNewShip);
 			setShip(&enemyShipList[cNewShip]);
+			
+			if (cNewShip > maxShipCount) {
+				enemyShipList[cNewShip].worldID = insertObjectIntoWorld(&gameworld, &enemyShipList[cNewShip], 0);
+				printf("it is also getting inserted with worldID of %d", enemyShipList[cNewShip].worldID);
+			}
+			printf("\n");
+			//voidShip(&enemyShipList[cNewShip]);
 		}
 		maxShipCount = upEnemyShips;
 	}
 
+	int shipsToGoThrough = maxShipCount;
+	if (upEnemyShips < maxShipCount && upEnemyShips > 0) {
+		shipsToGoThrough = upEnemyShips;
+	}
+
 	//update AI, position, and ded status
 	int allGone = 1; //A flag that gets set to zero if there are still ships left. If all ships ARE indeed gone, set the enemies left to -1 to indicate we are all done
-	for (int cShip = 0; cShip < maxShipCount; cShip++) {
+	printf("Ships to go through: %d\n", shipsToGoThrough);
+	for (int cShip = 0; cShip < shipsToGoThrough; cShip++) {
 		updateShipLifeStatus(&enemyShipList[cShip]);
 		if (enemyShipList[cShip].currentlyDed == 0) {
 			updateOurAI(&enemyShipList[cShip], OurShip, 1);
@@ -1162,6 +1286,7 @@ void setShip(EnShip* enemyShip) {
 	enShipStuff = getRefID(ENSHIP);
 	enemyShip->ID = enShipStuff.ID;
 	enemyShip->indexCount = enShipStuff.indC;
+	enemyShip->scale = 0;
 	enemyShip->hp = 0;
 	enemyShip->currentlyDed = 1;
 	enemyShip->targeting = 0;
@@ -1296,7 +1421,11 @@ void gameCursorMovement() {
 }
 
 
+void attemptToResetGameVariables() {
+	passedEnemies = 0;
+	score = 0;
 
+}
 
 
 

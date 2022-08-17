@@ -3020,6 +3020,94 @@ void setupVecSym() {
 	Periodobj.vLineCount = countof(Period) / VECTOR_VERTEX_LENGTH;
 	Periodobj.scale = 1;
 	vecFont['.'] = &Periodobj;
+
+	static float Comma[] = {
+			0.2, 0.20, 0,		//0
+			0.1, 0.30, 0,		//1
+			-0.1, 0.10, 0,		//2
+			0.0, 0.00, 0,		//3
+	};
+	static unsigned int Commainds[] = {
+		0,1, 1,2, 2,3, 3,0,
+	};
+	static UnfinObj Commaobj = { 0 };
+	Commaobj.verts = Comma;
+	Commaobj.indices = Commainds;
+	Commaobj.iCount = countof(Commainds);
+	Commaobj.vLineCount = countof(Comma) / VECTOR_VERTEX_LENGTH;
+	Commaobj.scale = 1;
+	vecFont[','] = &Commaobj;
+
+	static float Apostrophe[] = {
+			0.2, 0.90, 0,		//0
+			0.1, 1.00, 0,		//1
+			-0.1, 0.80, 0,		//2
+			0.0, 0.70, 0,		//3
+	};
+	static unsigned int Apostropheinds[] = {
+		0,1, 1,2, 2,3, 3,0,
+	};
+	static UnfinObj Apostropheobj = { 0 };
+	Apostropheobj.verts = Apostrophe;
+	Apostropheobj.indices = Apostropheinds;
+	Apostropheobj.iCount = countof(Apostropheinds);
+	Apostropheobj.vLineCount = countof(Apostrophe) / VECTOR_VERTEX_LENGTH;
+	Apostropheobj.scale = 1;
+	vecFont['\''] = &Apostropheobj;
+	
+	static float Exclamation[] = {
+			0.15, 0.15, 0,		//0
+			0, 0.3, 0,				//1
+			-0.15, 0.15, 0,		//2
+			0, 0.0, 0,				//3
+
+			0, 0.4, 0,				//4
+			0.1, 1, 0,				//5
+			-0.1, 1, 0,				//6
+	};
+	static unsigned int Exclamationinds[] = {
+		0,1, 1,2, 2,3, 3,0,
+		4,5, 5,6, 6,4,
+	};
+	static UnfinObj Exclamationobj = { 0 };
+	Exclamationobj.verts = Exclamation;
+	Exclamationobj.indices = Exclamationinds;
+	Exclamationobj.iCount = countof(Exclamationinds);
+	Exclamationobj.vLineCount = countof(Exclamation) / VECTOR_VERTEX_LENGTH;
+	Exclamationobj.scale = 1;
+	vecFont['!'] = &Exclamationobj;
+
+	static float Plus[] = {
+			0.0, 0.3, 0,			//0
+			0, 0.7, 0,				//1
+			-0.2, 0.5, 0,			//2
+			0.2, 0.5, 0,			//3
+	};
+	static unsigned int Plusinds[] = {
+		0,1, 2,3,
+	};
+	static UnfinObj Plusobj = { 0 };
+	Plusobj.verts = Plus;
+	Plusobj.indices = Plusinds;
+	Plusobj.iCount = countof(Plusinds);
+	Plusobj.vLineCount = countof(Plus) / VECTOR_VERTEX_LENGTH;
+	Plusobj.scale = 1;
+	vecFont['+'] = &Plusobj;
+
+	static float Minus[] = {
+			-0.2, 0.5, 0,			//0
+			0.2, 0.5, 0,			//1
+	};
+	static unsigned int Minusinds[] = {
+		0,1,
+	};
+	static UnfinObj Minusobj = { 0 };
+	Minusobj.verts = Minus;
+	Minusobj.indices = Minusinds;
+	Minusobj.iCount = countof(Minusinds);
+	Minusobj.vLineCount = countof(Minus) / VECTOR_VERTEX_LENGTH;
+	Minusobj.scale = 1;
+	vecFont['-'] = &Minusobj;
 }
 
 void setupUI(int flag) {

@@ -7,12 +7,13 @@
 #include "GSound.h"
 
 //Defines, enums/struct setup, master variables, function decs
-#define UICount 5 //update whenever adding another base UI layer
+#define UICount 6 //update whenever adding another base UI layer
 #define MainMenuUI masterUIList[0]
 #define SettingsUI masterUIList[1]
 #define BaseGameUI masterUIList[2]
 #define DynamicGameUI masterUIList[3]
 #define EndscreenUI masterUIList[4]
+#define PauseScreenUI masterUIList[5]
 
 #define DONT_STATE_CHANGE -1
 
@@ -23,6 +24,9 @@
 #define BETWEEN_WAVES 3
 #define END_SCREEN 4
 #define IN_SETTINGS 5
+#define PAUSE_MENU 6
+
+#define CLEAR_GAME 10
 
 
 //Game defines
@@ -159,7 +163,7 @@ struct ourShip {
 
 volatile static RefObj* masterObjList;
 volatile static unsigned int masterObjLenght;
-volatile World gameworld;
+volatile static World gameworld;
 volatile GLFWwindow* gamewindow;
 
 static int AudioSetting;
@@ -169,6 +173,7 @@ World* loadGame();
 void setupSettingsUI();
 void setupMasterUIList();
 void setupMainMenu();
+void setupPauseMenu();
 void setupGameUI();
 
 int getsetGamestate(int flag);
@@ -181,6 +186,8 @@ long long int startGameButton(void* ourself, long long int data, short int click
 long long int settingsButton(void* ourself, long long int data, short int clickData);
 long long int fullscreenButton(void* ourself, long long int data, short int clickData);
 long long int returnToMenuButton(void* ourself, long long int data, short int clickData);
+long long int exitGameButton(void* ourself, long long int data, short int clickData);
+
 
 EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips);
 void updateShipLifeStatus(EnShip* enemyShip);
@@ -198,6 +205,8 @@ void keypressHandler(GLFWwindow* window, int key, int scancode, int action, int 
 
 void gameCursorMovement();
 
+
+void attemptToResetGameVariables();
 
 
 void debugCommands();

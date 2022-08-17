@@ -23,6 +23,7 @@ int main(){
 
 	_beginthread(debugCommands, 0, NULL);
 	
+
 	/*int audioID = createTrackHandler();
 	AudioTrack testTrack = { 0 };
 	int tracklen = 18;

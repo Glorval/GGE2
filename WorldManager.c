@@ -38,6 +38,7 @@ World createWorld(int worldType) {
 //returns the ID of the object so it can be accessed later
 int insertObjectIntoWorld(World* world, Object* object, int renderIt) {
 	//if (world->objectCount == world->objectListSize) {
+	printf("Inserting object %p with ID %d\n", object, world->objectCount);
 		//POTENTIAL PERFORMANCE TODO- Could check the actual size of the list versus what we needand spare some realloc calls that might be redundant
 		world->objectCount++;
 		world->objectListSize = world->objectCount;
@@ -87,6 +88,7 @@ void drawWorld(World* world) {
 		glUniform4f(ProgramData.colourLoc, world->vecColour[0], world->vecColour[1], world->vecColour[2], world->vecColour[3]);// 4, world->vecColour);
 		while (current < world->objectCount) {
 			if (world->renderObject[current] == 1) {
+				printf("Drawing item: %d\n", current);
 				drawVectorObjectSET(world->objects[current]);
 			}
 			current++;
