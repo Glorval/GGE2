@@ -1,28 +1,31 @@
 #define _CRT_SECURE_NO_WARNINGS
+
+
 //#include "GGE2_1.h"
 #include <Windows.h>
+
 
 #include "LibertyBlaster.h" //Includes GGE2.1
 
 #include <time.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include <math.h>
 #include <process.h>
 
 
-
 void moveCam(World* ourWorld);
 
-//int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
-int main(){
+int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
+//int main(){
 	printf("Hi\n");
 
 	//testworld = createWorld(STANDARD_WORLD);	
 
 	volatile World* lineworld = loadGame();
 
+#if WinMain
 	_beginthread(debugCommands, 0, NULL);
-	
+#endif
 
 	/*int audioID = createTrackHandler();
 	AudioTrack testTrack = { 0 };

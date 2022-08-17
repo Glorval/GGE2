@@ -214,7 +214,7 @@ void debugCommands();
 
 
 //Audio handler dec's
-void setAudioFunctions(int AudioSetting);
+void setAudioFunctions(int audioSetting);
 
 static unsigned long long playingBulletSound = 0;
 void (*realBulletAudioHandler)(int);

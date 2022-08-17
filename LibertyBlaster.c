@@ -109,7 +109,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 		ENEMY_TARGET_DIST = 150;
 		ENEMY_TARGET_DIST_MAX = 300;
 		ENEMY_FIRE_CHANCE = 1.5;
-		SPAWN_RATE = 1;//30
+		SPAWN_RATE = 30;//30
 		ENEMIES_PER_WAVE = 80;
 		*maxOnScreenEnemies = 20;//20
 	}
@@ -231,6 +231,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 			//enemyShipList[cShip].indexCount = enShipStuff.indC;
 			setShip(&enemyShipList[cShip]);
 			enemyShipList[cShip].worldID = insertObjectIntoWorld(&gameworld, (Object*)&enemyShipList[cShip], 1);
+			voidShip(&enemyShipList[cShip]);
 		}
 
 		//initialize boolet system
@@ -265,12 +266,10 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		}
 		updateDynamicUI();
 		runMasterUI();
-		printf("In the main function, the pointer starts as %p\n", enemyShipList);
 		enemyShipList = enemyShipHandler(enemyShipList, maxOnScreenEnemies);
-		printf("In the main, it becomes becomes %p\n", enemyShipList);
 		if (ENEMIES_PER_WAVE == -1) {//if wave is out of enemies
 			waveNum++;
-			printf("Switching to between waves, Wave %d", waveNum);
+			//printf("Switching to between waves, Wave %d", waveNum);
 			enteredBetweenWave = 0;
 			currentCommsBroadcast = -1;
 			getsetGamestate(BETWEEN_WAVES);
@@ -297,7 +296,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		
 
 		if (broadcastFlag < 0) {
-			printf("Wave starting");
+			//printf("Wave starting");
 			getsetGamestate(IN_GAME);
 		}
 		
@@ -894,7 +893,7 @@ long long int fullscreenButton(void* ourself, long long int data, short int clic
 	char* ourData = &data;
 	//standard left click
 	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
-		printf("setting fullscreen");
+		//printf("setting fullscreen");
 		if (ShouldBeFullscreen == 1) {
 			ShouldBeFullscreen = 0;
 		} else {
@@ -1139,7 +1138,7 @@ EnShip* enemyShipHandler(volatile EnShip* enemyShipList, int upEnemyShips) {
 
 	//update AI, position, and ded status
 	int allGone = 1; //A flag that gets set to zero if there are still ships left. If all ships ARE indeed gone, set the enemies left to -1 to indicate we are all done
-	printf("Ships to go through: %d\n", shipsToGoThrough);
+	//printf("Ships to go through: %d\n", shipsToGoThrough);
 	for (int cShip = 0; cShip < shipsToGoThrough; cShip++) {
 		updateShipLifeStatus(&enemyShipList[cShip]);
 		if (enemyShipList[cShip].currentlyDed == 0) {
@@ -1412,7 +1411,7 @@ void attemptToResetGameVariables() {
 
 //void (*realBulletAudioHandler)(int);
 
-void setAudioFunctions(int AudioSetting) {
+void setAudioFunctions(int audioSetting) {
 	if (AudioSetting == NO_AUDIO) {
 		realBulletAudioHandler = silentBulletHandler;//retroBulletAudioHandler;//noBulletAudioHandler;
 	}

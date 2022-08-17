@@ -20,8 +20,8 @@ UI (Usually 2d stuff rendered in triangle mode like standard and with colours on
 #define countof(thing) sizeof(thing)/sizeof(thing[0])
 
 
-static window_X = 0;
-static window_Y = 0;
+static int window_X = 0;
+static int window_Y = 0;
 //bootleg hax xd
 #define windX window_X/*1900*/
 #define windY window_Y/*1200*/

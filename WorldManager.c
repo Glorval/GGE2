@@ -87,7 +87,7 @@ void drawWorld(World* world) {
 		glUniform4f(ProgramData.colourLoc, world->vecColour[0], world->vecColour[1], world->vecColour[2], world->vecColour[3]);// 4, world->vecColour);
 		while (current < world->objectCount) {
 			if (world->renderObject[current] == 1) {
-				printf("Drawing item: %d\n", current);
+				//printf("Drawing item: %d\n", current);
 				drawVectorObjectSET(world->objects[current]);
 			}
 			current++;
