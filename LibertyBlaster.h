@@ -145,8 +145,6 @@ struct enShip {
 typedef struct enShip EnShip;
 
 struct ourShip {
-    int numHitboxes;
-    float** hitboxes;
     float heading[4]; //x,y,z, velocity vector of where we are going
     char keysHolding[9]; //'toggled' controls on which keys are being pressed. w,a,s,d,q,e,c,v, fire guns,
     short int shields;
@@ -180,6 +178,8 @@ int getsetGamestate(int flag);
 void runGame(GLFWwindow* window, int flagSetting);
 void setupDynamicUI();
 void updateDynamicUI();
+void setupEndscreen();
+void removeEndscreen();
 
 //button actions
 long long int startGameButton(void* ourself, long long int data, short int clickData);

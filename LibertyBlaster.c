@@ -28,6 +28,42 @@ idSet enShipStuff = { 0 };
 volatile static int ShouldBeFullscreen = 1;
 volatile static int IsFullscreen = 1;
 
+void setOurShip() {
+	char* clearing = &OurShip;
+	for (int cByte = 0; cByte < sizeof(struct ourShip); cByte++) {
+		clearing[cByte] = 0;
+	}
+
+	
+	gameworld.camera[X_pos] = 0;
+	gameworld.camera[Y_pos] = 0;
+	gameworld.camera[Z_pos] = 10000;
+	gameworld.camera[W_pos] = 1;
+	gameworld.camera[I_pos] = 0;
+	gameworld.camera[J_pos] = 0;
+	gameworld.camera[K_pos] = 0;
+	gameworld.up[0] = 0;
+	gameworld.up[1] = 0;
+	gameworld.up[2] = -1;
+	gameworld.up[3] = 0;
+
+	gameworld.back[0] = 0;
+	gameworld.back[1] = 0;
+	gameworld.back[2] = 0;
+	gameworld.back[3] = 1;
+
+	gameworld.left[0] = 0;
+	gameworld.left[1] = -1;
+	gameworld.left[2] = 0;
+	gameworld.left[3] = 0;
+
+	OurShip.fireRate = OUR_FIRE_RATE;
+	//The following hp's comments are 'should be's really, but can be change via defines
+	OurShip.shields = MAX_SHIELDS; //Interget offset by 1, so 100% shields will be displayed for 1,000
+	OurShip.armour = MAX_ARMOUR; //Interget offset by 1, so 100% shields will be displayed for 1,000
+	OurShip.hp = MAX_HULL;
+}
+
 int getsetGamestate(int flag) {
 	static int ourState = IN_MAIN_MENU;
 	if (flag != DONT_STATE_CHANGE) {
@@ -186,13 +222,14 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	static int currentCommsBroadcast = -1;
 
 	if (flagSetting == CLEAR_GAME) {
-		free(enemyShipList);
 		waveNum = 0;
 		maxOnScreenEnemies = MAX_ENEMY_COUNT;
 		enteredBetweenWave = 0;
 		currentCommsBroadcast = -1;
 		attemptToResetGameVariables();
-		getsetGamestate(IN_MAIN_MENU);
+		updateBroadcast(-1, 0);
+		//our ship gets set up upon game start anyhow
+		getsetGamestate(IN_MAIN_MENU);				
 	}
 
 
@@ -224,27 +261,29 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		glDisable(GL_LINE_SMOOTH);
 
 		//set up enemy ship list
-		enemyShipList = calloc(MAX_ENEMY_COUNT, sizeof(EnShip));
-		enShipStuff = getRefID(ENSHIP);
-		for (int cShip = 0; cShip < MAX_ENEMY_COUNT; cShip++) {
-			//enemyShipList[cShip].ID = enShipStuff.ID;
-			//enemyShipList[cShip].indexCount = enShipStuff.indC;
-			setShip(&enemyShipList[cShip]);
-			enemyShipList[cShip].worldID = insertObjectIntoWorld(&gameworld, (Object*)&enemyShipList[cShip], 1);
-			voidShip(&enemyShipList[cShip]);
+		if (enemyShipList == NULL) {
+			enemyShipList = calloc(MAX_ENEMY_COUNT, sizeof(EnShip));
+			enShipStuff = getRefID(ENSHIP);
+			for (int cShip = 0; cShip < MAX_ENEMY_COUNT; cShip++) {
+				setShip(&enemyShipList[cShip]);
+				enemyShipList[cShip].worldID = insertObjectIntoWorld(&gameworld, (Object*)&enemyShipList[cShip], 1);
+				voidShip(&enemyShipList[cShip]);
+			}
+		} else {
+			for (int cShip = 0; cShip < MAX_ENEMY_COUNT; cShip++) {
+				setShip(&enemyShipList[cShip]);
+				voidShip(&enemyShipList[cShip]);
+			}
 		}
+		
 
 		//initialize boolet system
 		setupBoolet();
 
 		//set up a couple of our own ship's things
-		OurShip.fireRate = OUR_FIRE_RATE;
-		gameworld.camera[Z_pos] = 10000;
-		//The following hp's comments are 'should be's really, but can be change via defines
-		OurShip.shields = MAX_SHIELDS; //Interget offset by 1, so 100% shields will be displayed for 1,000
-		OurShip.armour = MAX_ARMOUR; //Interget offset by 1, so 100% shields will be displayed for 1,000
-		OurShip.hp = MAX_HULL;
+		setOurShip();
 		//update this in case it needs to update off base numbers and such
+		updateBroadcast(-1, 0);
 		updateDynamicUI();
 
 		//disable the main menu UI
@@ -263,6 +302,8 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		ourShipHandler();
 		if (updateBoolets(enemyShipList, maxOnScreenEnemies, &OurShip) == 1) {
 			getsetGamestate(END_SCREEN);
+			setupEndscreen();
+			goto ENDSCREEN;
 		}
 		updateDynamicUI();
 		runMasterUI();
@@ -306,6 +347,9 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		drawWorld(&gameworld);
 	} 
 	else if (flagSetting == END_SCREEN) {
+ENDSCREEN:;
+		runMasterUI();
+
 
 	} 
 
@@ -511,6 +555,62 @@ void setupSettingsUI() {
 	passer->scale = 0.051;
 	insertElementIntoUI(SettingsUI, passer);//1
 	freeUnfinObj(buttontext);
+}
+
+//End screen is a one off creation because I didn't want to make dynamic ui stuff for it
+void setupEndscreen() {
+	
+	static int alreadySetUpBase = 0;
+
+	MainMenuUI->active = 0;
+	SettingsUI->active = 0;
+	BaseGameUI->active = 0;
+	DynamicGameUI->active = 0;
+	EndscreenUI->active = 1;
+	PauseScreenUI->active = 0;	
+	//load up the regular background bits into memory only once
+	if (alreadySetUpBase == 0) {		
+		EndscreenUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
+		EndscreenUI->vecColour[0] = 0;
+		EndscreenUI->vecColour[1] = 1;
+		EndscreenUI->vecColour[2] = 0;
+		EndscreenUI->vecColour[3] = 1;
+
+		UIElement* passer = NULL;
+
+
+		float buttonBase[] = {
+			-0.3, 0.06, -0.5,
+			0.3, 0.06, -0.5,
+			0.3, -0.06, -0.5,
+			-0.3, -0.06, -0.5,
+		};
+		unsigned int buttonInds[] = {
+			0,1,2,1, 2,3, 3,0
+		};
+		float pos[] = { 0,0,0 };
+		float clickarea[] = { 0.3,0.3,0.06,0.06 };
+		float buttontextpos[] = { -4.725,0,0 };
+
+		UnfinObj buttontext = createVecText("RETURN TO MENU", buttontextpos, 0.05);
+		insertElementIntoUI(EndscreenUI, createVectorElement(buttonBase, buttonInds, (sizeof(buttonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, returnToMenuButton, 1, clickarea));
+		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+		//passer->position[X_pos] = -0.18;
+		passer->position[Y_pos] = 0.0;
+		passer->scale = 0.051;
+		insertElementIntoUI(EndscreenUI, passer);
+		freeUnfinObj(buttontext);
+	}
+	
+
+
+
+}
+
+//End screen is a one off creation because I didn't want to make dynamic ui stuff for it
+void removeEndscreen() {
+
+
 }
 
 void setupGameUI() {
@@ -830,6 +930,8 @@ dynamicUpdateClosure:;
 	free(mainString);
 }
 
+//returns -1 on end of broadcast, >0 otherwise
+//Passing in -1 on broadcastSelected clears. (Technically, setting a really high progress could do that, but that's 'undefined')
 long int updateBroadcast(int broadcastSelected, long int progressOnBroadcast) {
 	//printf("Updating Broadcast at progress: %d\n", progressOnBroadcast);
 	float broadcastTextPos[] = {
@@ -837,7 +939,16 @@ long int updateBroadcast(int broadcastSelected, long int progressOnBroadcast) {
 	};
 	//set all to a blank space, except the last entry
 	char displayString[17] = { ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ', ' ', 0, };
-	//displayString[14] = '\0';
+
+	//check if we need to just clear the broadcast
+	if (broadcastSelected == -1) {
+		UnfinObj string = createVecText(displayString, broadcastTextPos, 0.06);
+		updateDynamicUISegment(string, 5);
+		freeUnfinObj(string);
+		return(-1);
+	}
+
+	//go through and fetch the correct character for the 16 character comms display
 	for (int cChar = 0; cChar < 16; cChar++) {
 		if (progressOnBroadcast + cChar - 16 < 0) {
 			continue;
@@ -909,13 +1020,7 @@ long long int returnToMenuButton(void* ourself, long long int data, short int cl
 	char* ourData = &data;
 	//standard left click
 	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
-		SettingsUI->active = 0;
-		BaseGameUI->active = 0;
-		DynamicGameUI->active = 0;
-		EndscreenUI->active = 0;
-		PauseScreenUI->active = 0;
-
-		attemptToResetGameVariables();
+		
 		getsetGamestate(CLEAR_GAME);
 	}
 }
@@ -935,6 +1040,13 @@ void expandedMouseClick(GLFWwindow* window, int button, int action, int mods) {
 	defaultMoustClick(window, button, action, mods);
 
 	if (button == GLFW_MOUSE_BUTTON_2) {
+		if (action == GLFW_PRESS) {
+			OurShip.keysHolding[fireKey] = 1;
+		} else if (action == GLFW_RELEASE) {
+			OurShip.keysHolding[fireKey] = 0;
+		}
+	}
+	else if (button == GLFW_MOUSE_BUTTON_1) {
 		if (action == GLFW_PRESS) {
 			OurShip.keysHolding[fireKey] = 1;
 		} else if (action == GLFW_RELEASE) {
@@ -1400,9 +1512,13 @@ void gameCursorMovement() {
 
 
 void attemptToResetGameVariables() {
+	SettingsUI->active = 0;
+	BaseGameUI->active = 0;
+	DynamicGameUI->active = 0;
+	EndscreenUI->active = 0;
+	PauseScreenUI->active = 0;
 	passedEnemies = 0;
 	score = 0;
-
 }
 
 
@@ -1495,9 +1611,18 @@ void debugCommands() {
 	if (input == 'a') {
 		OurShip.armour -= 10;
 	}
-	if (input == 'w') {
+	else if (input == 'w') {
 		ENEMIES_PER_WAVE = 0;
 		gError("Clearing out spawn queue");
+	}
+	else if (input == 'k') {
+		gError("Attempting to naturally kill the player");
+	}
+	else if (input == 'K') {
+		gError("Attempting to force kill the player");
+	}
+	else {
+		gError("Invalid command");
 	}
 	goto begin;
 }

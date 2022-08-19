@@ -15,17 +15,17 @@
 
 void moveCam(World* ourWorld);
 
-int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
-//int main(){
+//int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
+int main(){
 	printf("Hi\n");
 
 	//testworld = createWorld(STANDARD_WORLD);	
 
 	volatile World* lineworld = loadGame();
 
-#if WinMain
+
 	_beginthread(debugCommands, 0, NULL);
-#endif
+
 
 	/*int audioID = createTrackHandler();
 	AudioTrack testTrack = { 0 };
