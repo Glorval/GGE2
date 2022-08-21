@@ -147,7 +147,7 @@ int updateBoolets(EnShip* enemyShipList, int shipCount, struct ourShip* playerSh
 						} else {
 							playerShip->hp--;
 							if (playerShip->hp <= 0) {
-								returnFlag = -1;
+								returnFlag = 1;
 							}
 						}
 					}

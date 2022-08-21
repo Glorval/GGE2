@@ -3259,8 +3259,8 @@ void drawVecElement(UIElement* uiItem) {
 
 
 
-
-void insertElementIntoUI(UI* ui, UIElement* element){
+//returns ID of element
+int insertElementIntoUI(UI* ui, UIElement* element){
 	if (ui->elementCount > ui->elementListSize) {//This is because the list might be bigger than the current count from deleting elements 
 
 		//POTENTIAL PERFORMANCE TODO- Could check the actual size of the list versus what we needand spare some realloc calls that might be redundant
@@ -3273,6 +3273,7 @@ void insertElementIntoUI(UI* ui, UIElement* element){
 		ui->elements = realloc(ui->elements, ui->elementCount * sizeof(UIElement*));
 		ui->elements[ui->elementCount - 1] = element;
 	}
+	return(ui->elementCount - 1);
 }
 
 void removeElementFromUI(UI* ui, UIElement* element) {

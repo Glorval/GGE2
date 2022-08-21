@@ -28,6 +28,24 @@ idSet enShipStuff = { 0 };
 volatile static int ShouldBeFullscreen = 1;
 volatile static int IsFullscreen = 1;
 
+void disableAllUILayers() {
+	for (int cLayer = 0; cLayer < UICount; cLayer++) {
+		masterUIList[cLayer]->active = 0;
+	}
+}
+
+void activateGameUI() {
+	BaseGameUI->active = 1;
+	DynamicGameUI->active = 1;
+	CrosshairUI->active = 1;
+}
+
+void gotoEndscreen() {
+	glfwSetInputMode(gamewindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	getsetGamestate(END_SCREEN);
+	setupEndscreen();
+}
+
 void setOurShip() {
 	char* clearing = &OurShip;
 	for (int cByte = 0; cByte < sizeof(struct ourShip); cByte++) {
@@ -221,6 +239,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	static long int enteredBetweenWave = 0;
 	static int currentCommsBroadcast = -1;
 
+	//used for just going back to the main menu from wherever
 	if (flagSetting == CLEAR_GAME) {
 		waveNum = 0;
 		maxOnScreenEnemies = MAX_ENEMY_COUNT;
@@ -253,14 +272,15 @@ void runGame(GLFWwindow* window, int flagSetting) {
 			IsFullscreen = 0;
 		}
 		SettingsUI->active = 1;
-		MainMenuUI->active = 0;
+		CrosshairUI->active = 1;
+		MainMenuUI->active = 0;		
 		runMasterUI();
 	}
 	else if (flagSetting == STARTING_GAME) { //GAME LOAD
 		glLineWidth(1);//just in case, make sure we're in the right mode
 		glDisable(GL_LINE_SMOOTH);
 
-		//set up enemy ship list
+		//set up enemy ship list, if it hasn't been set up at all yet we need to do that.
 		if (enemyShipList == NULL) {
 			enemyShipList = calloc(MAX_ENEMY_COUNT, sizeof(EnShip));
 			enShipStuff = getRefID(ENSHIP);
@@ -269,12 +289,22 @@ void runGame(GLFWwindow* window, int flagSetting) {
 				enemyShipList[cShip].worldID = insertObjectIntoWorld(&gameworld, (Object*)&enemyShipList[cShip], 1);
 				voidShip(&enemyShipList[cShip]);
 			}
-		} else {
+		} 
+		//otherwise, just set and void ships
+		else {
 			for (int cShip = 0; cShip < MAX_ENEMY_COUNT; cShip++) {
 				setShip(&enemyShipList[cShip]);
 				voidShip(&enemyShipList[cShip]);
 			}
 		}
+
+		//make sure all the big variables are set to what they need to be.
+		waveNum = 0;
+		maxOnScreenEnemies = MAX_ENEMY_COUNT;
+		enteredBetweenWave = 0;
+		currentCommsBroadcast = -1;
+		attemptToResetGameVariables();
+		updateBroadcast(-1, 0);
 		
 
 		//initialize boolet system
@@ -282,16 +312,17 @@ void runGame(GLFWwindow* window, int flagSetting) {
 
 		//set up a couple of our own ship's things
 		setOurShip();
+
 		//update this in case it needs to update off base numbers and such
 		updateBroadcast(-1, 0);
 		updateDynamicUI();
 
-		//disable the main menu UI
-		MainMenuUI->active = 0;
+		//disable all the layers,
+		disableAllUILayers();
 
-		//enable the in game main UI
-		BaseGameUI->active = 1;
-		DynamicGameUI->active = 1;
+		//enable the ones we need
+		activateGameUI();
+		
 
 		//select the next game state
 		updateEnemiesOnWave(waveNum, &maxOnScreenEnemies);//in case it differs from base defines
@@ -300,9 +331,8 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	else if (flagSetting == IN_GAME) { //GAME LOOP
 		gameCursorMovement();
 		ourShipHandler();
-		if (updateBoolets(enemyShipList, maxOnScreenEnemies, &OurShip) == 1) {
-			getsetGamestate(END_SCREEN);
-			setupEndscreen();
+		if (updateBoolets(enemyShipList, maxOnScreenEnemies, &OurShip) == 1 || OurShip.hp <= 0) {
+			gotoEndscreen();
 			goto ENDSCREEN;
 		}
 		updateDynamicUI();
@@ -322,7 +352,8 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		gameCursorMovement();
 		ourShipHandler();
 		if (updateBoolets(enemyShipList, maxOnScreenEnemies, &OurShip) == 1) {
-			getsetGamestate(END_SCREEN);
+			gotoEndscreen();
+			goto ENDSCREEN;
 		}
 		updateDynamicUI();
 		runMasterUI();		
@@ -381,6 +412,7 @@ World* loadGame() {
 	setupPauseMenu();
 	setupSettingsUI();
 	setupGameUI();
+	setupCrosshairUI();
 	setupDynamicUI();
 	return(&gameworld);
 }
@@ -529,7 +561,7 @@ void setupSettingsUI() {
 	unsigned int buttonInds[] = {
 		0,1,2,1, 2,3, 3,0
 	};
-	float pos[] = { 0,0.5,0 };
+	float pos[] = { 0,0.7,0 };
 	float clickarea[] = { 0.3,0.3,0.06,0.06 };
 	float buttontextpos[] = { -4.725,0,0 };
 	
@@ -539,7 +571,7 @@ void setupSettingsUI() {
 	UnfinObj buttontext = createVecText("FULLSCREEN", buttontextpos, 0.05);	
 	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
 	//passer->position[X_pos] = -0.18;
-	passer->position[Y_pos] = 0.475;
+	passer->position[Y_pos] = 0.675;
 	passer->scale = 0.051;
 	insertElementIntoUI(SettingsUI, passer);//1
 	freeUnfinObj(buttontext);
@@ -555,6 +587,38 @@ void setupSettingsUI() {
 	passer->scale = 0.051;
 	insertElementIntoUI(SettingsUI, passer);//1
 	freeUnfinObj(buttontext);
+
+	pos[1] = 0;
+	buttontextpos[0] = -8.95;
+	buttontext = createVecText("CROSSHAIR SETTINGS", buttontextpos, 0.0751);
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+	//passer->position[X_pos] = -0.18;
+	passer->position[Y_pos] = 0.40;
+	passer->scale = 0.0751;
+	insertElementIntoUI(SettingsUI, passer);//1
+	freeUnfinObj(buttontext);
+
+
+	const float dotClickArea[] = { 0.08, 0.08, 0.06, 0.001 };
+	buttontextpos[0] = -1.05;
+	buttontextpos[1] = 0;
+	buttontext = createVecText("DOT", buttontextpos, 0.052);
+	pos[1] = 0.3;
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, dotSettingsButton, 1, dotClickArea);
+	passer->scale = 0.052;
+	insertElementIntoUI(SettingsUI, passer);//1
+	freeUnfinObj(buttontext);
+
+
+	const float wingsClickArea[] = { 0.14, 0.14, 0.06, 0 };
+	buttontextpos[0] = -2.1;
+	buttontextpos[1] = 0;
+	buttontext = createVecText("WINGS", buttontextpos, 0.051);
+	pos[1] = 0.20;
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, wingsSettingButton, 1, wingsClickArea);
+	passer->scale = 0.051;
+	insertElementIntoUI(SettingsUI, passer);//1
+	freeUnfinObj(buttontext);
 }
 
 //End screen is a one off creation because I didn't want to make dynamic ui stuff for it
@@ -562,12 +626,8 @@ void setupEndscreen() {
 	
 	static int alreadySetUpBase = 0;
 
-	MainMenuUI->active = 0;
-	SettingsUI->active = 0;
-	BaseGameUI->active = 0;
-	DynamicGameUI->active = 0;
+	disableAllUILayers();
 	EndscreenUI->active = 1;
-	PauseScreenUI->active = 0;	
 	//load up the regular background bits into memory only once
 	if (alreadySetUpBase == 0) {		
 		EndscreenUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
@@ -585,19 +645,47 @@ void setupEndscreen() {
 			0.3, -0.06, -0.5,
 			-0.3, -0.06, -0.5,
 		};
+		float wideButtonBase[] = {
+			-0.4, 0.06, -0.5,
+			0.4, 0.06, -0.5,
+			0.4, -0.06, -0.5,
+			-0.4, -0.06, -0.5,
+		};
 		unsigned int buttonInds[] = {
 			0,1,2,1, 2,3, 3,0
 		};
 		float pos[] = { 0,0,0 };
 		float clickarea[] = { 0.3,0.3,0.06,0.06 };
-		float buttontextpos[] = { -4.725,0,0 };
+		float wideClickArea[] = { 0.4,0.4,0.06,0.06 };
+		float buttontextpos[] = { -6.725,-0.5,0 };
 
 		UnfinObj buttontext = createVecText("RETURN TO MENU", buttontextpos, 0.05);
-		insertElementIntoUI(EndscreenUI, createVectorElement(buttonBase, buttonInds, (sizeof(buttonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, returnToMenuButton, 1, clickarea));
+		insertElementIntoUI(EndscreenUI, createVectorElement(wideButtonBase, buttonInds, (sizeof(wideButtonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, returnToMenuButton, 1, wideClickArea));
 		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
 		//passer->position[X_pos] = -0.18;
 		passer->position[Y_pos] = 0.0;
 		passer->scale = 0.051;
+		insertElementIntoUI(EndscreenUI, passer);
+		freeUnfinObj(buttontext);
+
+		pos[1] = -0.2;
+		buttontextpos[0] = -5.225;
+		buttontext = createVecText("START AGAIN", buttontextpos, 0.05);
+		insertElementIntoUI(EndscreenUI, createVectorElement(wideButtonBase, buttonInds, (sizeof(wideButtonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, startGameButton, 1, wideClickArea));
+		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+		//passer->position[X_pos] = -0.18;
+		passer->position[Y_pos] = -0.2;
+		passer->scale = 0.051;
+		insertElementIntoUI(EndscreenUI, passer);
+		freeUnfinObj(buttontext);
+
+		pos[1] = 0.4;
+		buttontextpos[0] = -4.4625;
+		buttontext = createVecText("GAME OVER", buttontextpos, 0.25);
+		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+		//passer->position[X_pos] = -0.18;
+		//passer->position[Y_pos] = 0.3;
+		passer->scale = 0.25;
 		insertElementIntoUI(EndscreenUI, passer);
 		freeUnfinObj(buttontext);
 	}
@@ -607,11 +695,6 @@ void setupEndscreen() {
 
 }
 
-//End screen is a one off creation because I didn't want to make dynamic ui stuff for it
-void removeEndscreen() {
-
-
-}
 
 void setupGameUI() {
 	BaseGameUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
@@ -740,30 +823,61 @@ void setupGameUI() {
 
 	passer = createVectorElement(commsBox, commsBoxInd, countof(commsBox)/VECTOR_VERTEX_LENGTH, countof(commsBoxInd), bottomAnchor, NULL, 1, NULL);
 	insertElementIntoUI(BaseGameUI, passer);
-
-	const float crosshair[] = {
-		-0.25, 0.00, 0,			//0
-		-0.2, 0.00, 0,			//1
-		-0.1, 0.05, 0,				//2
-		-0.1, -0.05, 0,			//3
-
-		0.25, 0.00, 0,			//4
-		0.2, 0.00, 0,				//5
-		0.1, 0.05, 0,				//6
-		0.1, -0.05, 0,				//7
-
-		0.0, -0.001, 0,			//8
-		0.0, 0.001, 0,			//9
-	};
-	const unsigned int crosshairInds[] = {
-		0,1, 1,2, 1,3, 
-		4,5, 5,6, 5,7,
-		8,9,
-	};
-
-	passer = createVectorElement(crosshair, crosshairInds, countof(crosshair) / VECTOR_VERTEX_LENGTH, countof(crosshairInds), zeroPos, NULL, 1, NULL);
-	insertElementIntoUI(BaseGameUI, passer);
 }
+
+
+void setupCrosshairUI() {
+	CrosshairUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
+	CrosshairUI->vecColour[0] = 0;
+	CrosshairUI->vecColour[1] = 1;
+	CrosshairUI->vecColour[2] = 0;
+	CrosshairUI->vecColour[3] = 1;
+
+	UIElement* passer = NULL;
+	const float zeroPos[] = { 0,0,0 };
+
+	const float bigCrosshair[] = {
+		   -0.25, 0.00, 0,			//0
+		   -0.2, 0.00, 0,			//1
+		   -0.1, 0.05, 0,				//2
+		   -0.1, -0.05, 0,			//3
+
+		   0.25, 0.00, 0,			//4
+		   0.2, 0.00, 0,				//5
+		   0.1, 0.05, 0,				//6
+		   0.1, -0.05, 0,				//7
+	};
+	const unsigned int bigCrosshairInds[] = {
+		0,1, 1,2, 1,3,
+		4,5, 5,6, 5,7,
+	};
+
+	passer = createVectorElement(bigCrosshair, bigCrosshairInds, countof(bigCrosshair) / VECTOR_VERTEX_LENGTH, countof(bigCrosshairInds), zeroPos, NULL, 1, NULL);
+	CrosshairWingsID = insertElementIntoUI(CrosshairUI, passer);
+
+	const float smolDot[] = {
+		0.0, 0.001, 0,			//0
+		0.0, -0.001, 0,			//1
+	};
+	const unsigned int smolDotInds[] = {
+		0,1,
+	};
+
+	passer = createVectorElement(smolDot, smolDotInds, countof(smolDot) / VECTOR_VERTEX_LENGTH, countof(smolDotInds), zeroPos, NULL, 1, NULL);
+	CrosshairSmallDotID = insertElementIntoUI(CrosshairUI, passer);
+
+	const float bigDot[] = {
+		0.0, 0.005, 0,			//0
+		0.0, -0.005, 0,			//1
+	};
+	const unsigned int bigDotInds[] = {
+		0,1,
+	};
+
+	passer = createVectorElement(bigDot, bigDotInds, countof(bigDot) / VECTOR_VERTEX_LENGTH, countof(bigDotInds), zeroPos, NULL, 1, NULL);
+	CrosshairBigDotID = insertElementIntoUI(CrosshairUI, passer);
+}
+
 
 void setupDynamicUI() {
 	UIElement* passer = NULL;
@@ -1020,8 +1134,10 @@ long long int returnToMenuButton(void* ourself, long long int data, short int cl
 	char* ourData = &data;
 	//standard left click
 	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
-		
-		getsetGamestate(CLEAR_GAME);
+		disableAllUILayers();
+		MainMenuUI->active = 1;
+		//updateBroadcast(-1, 0);
+		getsetGamestate(IN_MAIN_MENU);
 	}
 }
 
@@ -1035,6 +1151,43 @@ long long int exitGameButton(void* ourself, long long int data, short int clickD
 		exit(69);//ez
 	}
 }
+
+
+long long int dotSettingsButton(void* ourself, long long int data, short int clickData) {
+	//UIElement* us = ourself;
+	//us->elementActive = 0;
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	//standard left click
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		if (CrosshairUI->elements[CrosshairBigDotID]->elementActive == 1) {
+			CrosshairUI->elements[CrosshairBigDotID]->elementActive = 0;
+			CrosshairUI->elements[CrosshairSmallDotID]->elementActive = 1;
+		} else if (CrosshairUI->elements[CrosshairSmallDotID]->elementActive == 1) {
+			CrosshairUI->elements[CrosshairBigDotID]->elementActive = 0;
+			CrosshairUI->elements[CrosshairSmallDotID]->elementActive = 0;
+		} else {
+			CrosshairUI->elements[CrosshairBigDotID]->elementActive = 1;
+		}
+	}
+}
+
+long long int wingsSettingButton(void* ourself, long long int data, short int clickData) {
+	//UIElement* us = ourself;
+	//us->elementActive = 0;
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	//standard left click
+	printf("In wings function\n");
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		if (CrosshairUI->elements[CrosshairWingsID]->elementActive == 1) {
+			CrosshairUI->elements[CrosshairWingsID]->elementActive = 0;
+		} else {
+			CrosshairUI->elements[CrosshairWingsID]->elementActive = 1;
+		}
+	}
+}
+
 
 void expandedMouseClick(GLFWwindow* window, int button, int action, int mods) {
 	defaultMoustClick(window, button, action, mods);
@@ -1512,11 +1665,6 @@ void gameCursorMovement() {
 
 
 void attemptToResetGameVariables() {
-	SettingsUI->active = 0;
-	BaseGameUI->active = 0;
-	DynamicGameUI->active = 0;
-	EndscreenUI->active = 0;
-	PauseScreenUI->active = 0;
 	passedEnemies = 0;
 	score = 0;
 }
@@ -1616,9 +1764,14 @@ void debugCommands() {
 		gError("Clearing out spawn queue");
 	}
 	else if (input == 'k') {
+		OurShip.hp = 0;
 		gError("Attempting to naturally kill the player");
 	}
-	else if (input == 'K') {
+	else if (input == 'K') {		
+		glfwSetInputMode(gamewindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		getsetGamestate(END_SCREEN);
+		setupEndscreen();
+		OurShip.hp = 0;
 		gError("Attempting to force kill the player");
 	}
 	else {
