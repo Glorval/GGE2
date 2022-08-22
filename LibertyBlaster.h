@@ -46,6 +46,9 @@ static float PASSED_ENEMY_WORTH_ARMOUR = 3;//how much each passing enemy effect 
 static float PASSED_ENEMY_WORTH_HULL = 2;//how much each passing enemy effects hull repair
 static int passedEnemies = 0;
 static unsigned int score = 0;
+static int difficulty = 0;
+#define EASY 0
+#define HARD 1
 #define SCORE_FOR_KILL 10
 #define SCORE_LOSS_FOR_PASS 2
 
@@ -80,19 +83,19 @@ static float ENEMY_FIRE_CHANCE = (float)3.0;//Percent chance to begin firing in 
 static float ENEMY_SHIP_DEVIATION = (float)0.0015; //modifier to effect the perfect aiming
 
 //PLAYER SHIP ATTRIBUTES
-#define OUR_ACCELERATION 0.005 //0.0008 //How much holding a key adds to heading
+#define OUR_ACCELERATION 0.0033 //0.0008 //How much holding a key adds to heading
 #define OUR_MAX_SPEED (float)0.4 //max speed
 #define MS_DISP_MULT 500 //Max speed * this = what gets displayed as the highest speed attainable.
-#define FORWARD_BACK_MULT 2 //How much more powerful forward/back is in relation to the other controls
+#define FORWARD_BACK_MULT 3 //How much more powerful forward/back is in relation to the other controls
 #define OUR_FIRE_RATE 8 //is twice as fast due to the alternating guns
 #define OUR_BOOLET_OFFSET .10 //how far to each side boolet spawn
-#define MAX_SHIELDS 100
+#define MAX_SHIELDS 50
 #define SHIELD_RECHARGE_START 120//frames between being hit and shields being able to be recharged
-#define SHIELD_RECHARGE_RATE (float)0.25 //shield hp per frame to heal
+#define SHIELD_RECHARGE_RATE (float)0.15 //shield hp per frame to heal
 //#define SHIELD_RECHARGE_RATE_ABOVE_ONE //flag for another place
 #define MAX_ARMOUR 400
 #define MAX_HULL 200
-#define SHIELD_DIVIDER 1//for display
+#define SHIELD_DIVIDER 0.5//for display
 #define ARMOUR_DIVIDER 4//for display
 #define HULL_DIVIDER 2//for display
 #define FRAMES_TO_COUNT_HITS_FOR_AUDIO 6//How many frames to track for seeing if we need to play an audio queue for being blasted a bunch

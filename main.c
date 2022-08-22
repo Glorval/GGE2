@@ -15,8 +15,8 @@
 
 void moveCam(World* ourWorld);
 
-int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
-//int main(){
+//int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
+int main(){
 	printf("Hi\n");
 
 	//testworld = createWorld(STANDARD_WORLD);	

@@ -156,14 +156,14 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 	//'start' game, settings wave 0 - 1
 	if (waveNum == 0 || waveNum == 1) {
 		ENEMY_DISTANCE = 400;
-		ENEMY_HP = 1;
+		ENEMY_HP = 3;//1
 		ENEMY_POS_RANGE = 1800;
-		ENEMY_TARGET_CHANCE = 0.10;
-		ENEMY_TARGET_DIST_MIN = 1600;
+		ENEMY_TARGET_CHANCE = 0.25;//0.10
+		ENEMY_TARGET_DIST_MIN = 400;//1600
 		ENEMY_TARGET_DIST = 150;
-		ENEMY_TARGET_DIST_MAX = 300;
-		ENEMY_FIRE_CHANCE = 1.5;
-		SPAWN_RATE = 30;//30
+		ENEMY_TARGET_DIST_MAX = 500;//300
+		ENEMY_FIRE_CHANCE = 5;//1.5
+		SPAWN_RATE = 12;//30
 		ENEMIES_PER_WAVE = 80;
 		*maxOnScreenEnemies = 20;//20
 	}

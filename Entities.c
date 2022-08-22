@@ -109,10 +109,14 @@ unsigned int loadEnemyShip() {
 }
 
 void faceShip(EnShip* us, struct ourShip OurShip) {
+	float dist = sqrtf(((gameworld.camera[X_pos] - us->position[X_pos]) * (gameworld.camera[X_pos] - us->position[X_pos]) +
+								(gameworld.camera[Y_pos] - us->position[Y_pos]) * (gameworld.camera[Y_pos] - us->position[Y_pos]) +
+								(gameworld.camera[Z_pos] - us->position[Z_pos]) * (gameworld.camera[Z_pos] - us->position[Z_pos])));
+	dist = dist / 5;//readjust to use against the player's heading for a rough estimate of where the hecc to aim
 	float forwardVector[3] = {
-		(gameworld.camera[X_pos] + (OurShip.heading[X_pos] * 40)) - us->position[X_pos],
-		(gameworld.camera[Y_pos] + (OurShip.heading[Y_pos] * 40)) - us->position[Y_pos],
-		(gameworld.camera[Z_pos] + (OurShip.heading[Z_pos] * 40)) - us->position[Z_pos],
+		(gameworld.camera[X_pos] + (OurShip.heading[X_pos] * dist)) - us->position[X_pos],
+		(gameworld.camera[Y_pos] + (OurShip.heading[Y_pos] * dist)) - us->position[Y_pos],
+		(gameworld.camera[Z_pos] + (OurShip.heading[Z_pos] * dist)) - us->position[Z_pos],
 	};
 
 	forwardVector[0] *= 1 + (((float)(rand() % 20000) / 100) - 100) * ENEMY_SHIP_DEVIATION;
