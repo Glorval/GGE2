@@ -40,10 +40,10 @@ void activateGameUI() {
 	CrosshairUI->active = 1;
 }
 
-void gotoEndscreen() {
+void gotoEndscreen(unsigned int* curWave) {
 	glfwSetInputMode(gamewindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	getsetGamestate(END_SCREEN);
-	setupEndscreen();
+	setupEndscreen(curWave);
 }
 
 void setOurShip() {
@@ -156,14 +156,14 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 	//'start' game, settings wave 0 - 1
 	if (waveNum == 0 || waveNum == 1) {
 		ENEMY_DISTANCE = 400;
-		ENEMY_HP = 3;//1
+		ENEMY_HP = 1;//1
 		ENEMY_POS_RANGE = 1800;
-		ENEMY_TARGET_CHANCE = 0.25;//0.10
-		ENEMY_TARGET_DIST_MIN = 400;//1600
+		ENEMY_TARGET_CHANCE = 0.1;//0.10
+		ENEMY_TARGET_DIST_MIN = 1600;//1600
 		ENEMY_TARGET_DIST = 150;
-		ENEMY_TARGET_DIST_MAX = 500;//300
-		ENEMY_FIRE_CHANCE = 5;//1.5
-		SPAWN_RATE = 12;//30
+		ENEMY_TARGET_DIST_MAX = 300;//300
+		ENEMY_FIRE_CHANCE = 1.5;//1.5
+		SPAWN_RATE = 30;//30
 		ENEMIES_PER_WAVE = 80;
 		*maxOnScreenEnemies = 20;//20
 	}
@@ -315,7 +315,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 
 		//update this in case it needs to update off base numbers and such
 		updateBroadcast(-1, 0);
-		updateDynamicUI();
+		updateDynamicUI(-1);
 
 		//disable all the layers,
 		disableAllUILayers();
@@ -332,10 +332,10 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		gameCursorMovement();
 		ourShipHandler();
 		if (updateBoolets(enemyShipList, maxOnScreenEnemies, &OurShip) == 1 || OurShip.hp <= 0) {
-			gotoEndscreen();
+			gotoEndscreen(&waveNum);
 			goto ENDSCREEN;
 		}
-		updateDynamicUI();
+		updateDynamicUI(-1);
 		runMasterUI();
 		enemyShipList = enemyShipHandler(enemyShipList, maxOnScreenEnemies);
 		if (ENEMIES_PER_WAVE == -1) {//if wave is out of enemies
@@ -352,10 +352,10 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		gameCursorMovement();
 		ourShipHandler();
 		if (updateBoolets(enemyShipList, maxOnScreenEnemies, &OurShip) == 1) {
-			gotoEndscreen();
+			gotoEndscreen(waveNum);
 			goto ENDSCREEN;
 		}
-		updateDynamicUI();
+		updateDynamicUI(waveNum);
 		runMasterUI();		
 		drawWorld(&gameworld);
 		//if we JUST entered between the waves, do updates to all the variables and select our current comms broadcast
@@ -622,14 +622,18 @@ void setupSettingsUI() {
 }
 
 //End screen is a one off creation because I didn't want to make dynamic ui stuff for it
-void setupEndscreen() {
+void setupEndscreen(unsigned int* endingWave) {
 	
 	static int alreadySetUpBase = 0;
+
+	static int ourScoreID = 0;
+	static int ourWaveID = 0;
 
 	disableAllUILayers();
 	EndscreenUI->active = 1;
 	//load up the regular background bits into memory only once
 	if (alreadySetUpBase == 0) {		
+		alreadySetUpBase = 1;
 		EndscreenUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
 		EndscreenUI->vecColour[0] = 0;
 		EndscreenUI->vecColour[1] = 1;
@@ -659,39 +663,98 @@ void setupEndscreen() {
 		float wideClickArea[] = { 0.4,0.4,0.06,0.06 };
 		float buttontextpos[] = { -6.725,-0.5,0 };
 
+		//main menu button
+		pos[1] = -0.4;
 		UnfinObj buttontext = createVecText("RETURN TO MENU", buttontextpos, 0.05);
 		insertElementIntoUI(EndscreenUI, createVectorElement(wideButtonBase, buttonInds, (sizeof(wideButtonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, returnToMenuButton, 1, wideClickArea));
 		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
-		//passer->position[X_pos] = -0.18;
-		passer->position[Y_pos] = 0.0;
 		passer->scale = 0.051;
 		insertElementIntoUI(EndscreenUI, passer);
 		freeUnfinObj(buttontext);
 
-		pos[1] = -0.2;
+		//start again button
+		pos[1] = -0.6;
 		buttontextpos[0] = -5.225;
 		buttontext = createVecText("START AGAIN", buttontextpos, 0.05);
 		insertElementIntoUI(EndscreenUI, createVectorElement(wideButtonBase, buttonInds, (sizeof(wideButtonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, startGameButton, 1, wideClickArea));
 		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
-		//passer->position[X_pos] = -0.18;
-		passer->position[Y_pos] = -0.2;
 		passer->scale = 0.051;
 		insertElementIntoUI(EndscreenUI, passer);
 		freeUnfinObj(buttontext);
 
-		pos[1] = 0.4;
+		//the static text that remains unchanged game to game, aka, not the score itself or wave number
+		pos[1] = 0.6;
 		buttontextpos[0] = -4.4625;
 		buttontext = createVecText("GAME OVER", buttontextpos, 0.25);
 		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
-		//passer->position[X_pos] = -0.18;
-		//passer->position[Y_pos] = 0.3;
 		passer->scale = 0.25;
 		insertElementIntoUI(EndscreenUI, passer);
 		freeUnfinObj(buttontext);
+		
+		pos[1] = 0.3;
+		buttontextpos[0] = -5.25;
+		buttontext = createVecText("FINAL SCORE", buttontextpos, 0.065);
+		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+		passer->scale = 0.065;
+		insertElementIntoUI(EndscreenUI, passer);
+
+		pos[1] = 0.0;
+		buttontextpos[0] = -5.775;
+		buttontext = createVecText("WAVE REACHED", buttontextpos, 0.065);
+		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+		passer->scale = 0.065;
+		insertElementIntoUI(EndscreenUI, passer);
+
+		//score's object
+		buttontextpos[0] = 0;
+		buttontext = createVecText("F", buttontextpos, 0.065);
+		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+		passer->scale = 0.065;
+		passer->position[1] = 0.18;
+		ourScoreID = insertElementIntoUI(EndscreenUI, passer);
+
+		//wave's object
+		buttontextpos[0] = 0;
+		buttontext = createVecText("D", buttontextpos, 0.065);
+		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+		passer->scale = 0.065;
+		passer->position[1] = -0.12;
+		ourWaveID = insertElementIntoUI(EndscreenUI, passer);
 	}
 	
+	char mainString[25] = { 0 };
+	//Wave number display
+	float pos[] = {
+		0,0,0,
+	};	
+	int temp = (int)*endingWave;
+	_itoa(temp, mainString, 10);
+	pos[0] -= ((strlen(mainString) - 1) * 0.525);
+	UnfinObj newData = createVecText(mainString, pos, 0.06);	
 
+	glBindVertexArray(EndscreenUI->elements[ourWaveID]->ID);
+	glBindBuffer(GL_ARRAY_BUFFER, EndscreenUI->elements[ourWaveID]->VBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EndscreenUI->elements[ourWaveID]->EBO);
+	glBufferData(GL_ARRAY_BUFFER, newData.vLineCount * VERTEX_SIZE * VECTOR_VERTEX_LENGTH, newData.verts, GL_STREAM_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, newData.iCount * IND_SIZE, newData.indices, GL_STREAM_DRAW);
+	EndscreenUI->elements[ourWaveID]->indexCount = newData.iCount;
+	glBindVertexArray(0);
+	freeUnfinObj(newData);
 
+	//Score display
+	_ultoa_s((unsigned long)score, mainString, 23, 10);
+	pos[0] = 0;
+	pos[0] -= ((strlen(mainString) - 1) * 0.525);
+	newData = createVecText(mainString, pos, 0.06);
+
+	glBindVertexArray(EndscreenUI->elements[ourScoreID]->ID);
+	glBindBuffer(GL_ARRAY_BUFFER, EndscreenUI->elements[ourScoreID]->VBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EndscreenUI->elements[ourScoreID]->EBO);
+	glBufferData(GL_ARRAY_BUFFER, newData.vLineCount* VERTEX_SIZE* VECTOR_VERTEX_LENGTH, newData.verts, GL_STREAM_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, newData.iCount* IND_SIZE, newData.indices, GL_STREAM_DRAW);
+	EndscreenUI->elements[ourScoreID]->indexCount = newData.iCount;
+	glBindVertexArray(0);
+	freeUnfinObj(newData);
 
 }
 
@@ -948,6 +1011,16 @@ void setupDynamicUI() {
 	passer->scale = DFS;
 	insertElementIntoUI(DynamicGameUI, passer);
 	freeUnfinObj(string);
+
+	//wave display, 6
+	float wavePos[] = {
+		0,0.6,0,
+	};
+	string = createVecText(" ", textpos, 0.05);
+	passer = createVectorElement(string.verts, string.indices, string.vLineCount, string.iCount, wavePos, NULL, 1, NULL);
+	passer->scale = 0.05;
+	insertElementIntoUI(DynamicGameUI, passer);
+	freeUnfinObj(string);
 }
 
 void updateDynamicUISegment(UnfinObj newData, unsigned int currentEntry) {
@@ -960,7 +1033,8 @@ void updateDynamicUISegment(UnfinObj newData, unsigned int currentEntry) {
 	glBindVertexArray(0);
 }
 
-void updateDynamicUI() {
+//wave display is for displaying 'Coming Wave: %d', if -1, no display
+void updateDynamicUI(unsigned int waveDisplay) {
 	//set up our vars
 	char* mainString = calloc(20, sizeof(char));
 
@@ -1039,6 +1113,38 @@ void updateDynamicUI() {
 	string = createVecText(mainString, scoreTextPos, 0.06);
 	updateDynamicUISegment(string, 4);
 	freeUnfinObj(string);
+
+	static int currentlyDisplayingWave = 0;
+	if (waveDisplay != -1 && currentlyDisplayingWave == 0) {
+		//Wave update
+		char waveString[35] = { "Wave " };
+		float waveTextPos[] = {
+			0, 0, 0
+		};
+		_ultoa_s((unsigned long)waveDisplay, mainString, 19, 10);
+		strncat_s(waveString, 34, mainString, 8);
+		strncat_s(waveString, 34, " Starting", 11);
+		size_t waveStringLen = strlen(waveString);
+		for (size_t c = 1; c < waveStringLen; c++) {
+			waveTextPos[0] -= 0.525;
+		}
+		//armourTextPos[0] -= (strlen(mainString) * 1.05);
+		string = createVecText(waveString, waveTextPos, 0.06);
+		updateDynamicUISegment(string, 6);
+		freeUnfinObj(string);
+
+		currentlyDisplayingWave = 1;
+	} else if(waveDisplay == -1 && currentlyDisplayingWave == 1){
+		char waveString[2] = { " " };
+		float waveTextPos[] = {
+			0, 0, 0
+		};
+		string = createVecText(waveString, waveTextPos, 1);
+		updateDynamicUISegment(string, 6);
+		freeUnfinObj(string);
+		currentlyDisplayingWave = 0;
+	}
+	
 
 dynamicUpdateClosure:;
 	free(mainString);
@@ -1770,7 +1876,8 @@ void debugCommands() {
 	else if (input == 'K') {		
 		glfwSetInputMode(gamewindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		getsetGamestate(END_SCREEN);
-		setupEndscreen();
+		int temp = 0;
+		setupEndscreen(&temp);
 		OurShip.hp = 0;
 		gError("Attempting to force kill the player");
 	}

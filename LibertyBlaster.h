@@ -46,9 +46,6 @@ static float PASSED_ENEMY_WORTH_ARMOUR = 3;//how much each passing enemy effect 
 static float PASSED_ENEMY_WORTH_HULL = 2;//how much each passing enemy effects hull repair
 static int passedEnemies = 0;
 static unsigned int score = 0;
-static int difficulty = 0;
-#define EASY 0
-#define HARD 1
 #define SCORE_FOR_KILL 10
 #define SCORE_LOSS_FOR_PASS 2
 
@@ -185,9 +182,9 @@ void setupCrosshairUI();
 int getsetGamestate(int flag);
 void runGame(GLFWwindow* window, int flagSetting);
 void setupDynamicUI();
-void updateDynamicUI();
-void setupEndscreen();
-void removeEndscreen();
+void updateDynamicUI(unsigned int waveDisplay);
+void setupEndscreen(unsigned int* endingWave);
+//void removeEndscreen();
 
 //button actions
 long long int startGameButton(void* ourself, long long int data, short int clickData);
