@@ -7,19 +7,26 @@
 
 #define DFS 0.0255//idk, ease of use? Don't change, not meant 
 
-#define END_OF_GOOD 3
-#define END_OF_OKAY 5
-#define END_OF_BAD 8
-static const char commsLines[9][100] = {
+#define END_OF_GOOD 5
+#define END_OF_OKAY 9
+#define END_OF_BAD 15
+static const char commsLines[16][100] = {
 	"Good job out there!",//0
-	"It's clear for a bit, let's get you fixed up.",//1
-	"We'll have you fixed up in a jiffy!",//2
+	"It's clear for a bit, let's make sure you're running smooth.",//1
+	"We'll give your ship a good examination.",//2
 	"They'll be back soon, get ready.",//3
-	"Bit rough here, but we'll fix you up.",//4
-	"FDS BROADCAST: ALL FEDERAL DEFENCE FORCES FALL BACK",//5
-	"AUTOMATED BROADCAST: FEDERAL DEFENCE FORCE %d RESPOND", //6
-	"AUTOMATED BRO...",//7
-	"Sorry, don't think we're getting through to you out there...",//8
+	"Keep up the good work, really helping thin them out.",//4
+	"Don't think we'd hold back here without you.",//5
+	"Bit rough here, but we'll fix you up.",//6
+	"Our boys back here aren't doing too hot, but we're here.",//7
+	"FDS BROADCAST: ALL FEDERAL DEFENCE FORCES FALL BACK",//8
+	"FDS BROADCAST: OUTER PERIMETER COMPROMISED",//9
+	"AUTOMATED BROADCAST: UNIT 7, RESPOND", //10
+	"AUTOMATED BROADCAST: UNIT 9, RESPOND", //11
+	"AUTOMATED BROADCAST: UNIT 2, RESPOND", //12
+	"AUTOMATED BROADCAST: UNIT 11, RESPOND", //13
+	"AUTOMATED BRO...",//14
+	"Sorry, don't think we're getting through to you out there...",//15
 };
 
 struct ourShip OurShip = { 0 };
@@ -154,7 +161,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 	//'death mode' wave 20+
 
 	//'start' game, settings wave 0 - 1
-	if (waveNum == 0 || waveNum == 1) {
+	if (waveNum == 0) {
 		ENEMY_DISTANCE = 400;
 		ENEMY_HP = 1;//1
 		ENEMY_POS_RANGE = 1800;
@@ -169,7 +176,7 @@ void updateEnemiesOnWave(unsigned int waveNum, int* maxOnScreenEnemies) {
 	}
 
 	//'early-mid game' settings wave 2-4 
-	else if (waveNum >= 2 && waveNum <= 4) {
+	else if (waveNum >= 1 && waveNum <= 4) {
 		ENEMY_DISTANCE = 500;
 		ENEMY_HP = 2;
 		ENEMY_POS_RANGE = 2200;

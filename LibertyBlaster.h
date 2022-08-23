@@ -80,14 +80,14 @@ static float ENEMY_FIRE_CHANCE = (float)3.0;//Percent chance to begin firing in 
 static float ENEMY_SHIP_DEVIATION = (float)0.0015; //modifier to effect the perfect aiming
 
 //PLAYER SHIP ATTRIBUTES
-#define OUR_ACCELERATION 0.0033 //0.0008 //How much holding a key adds to heading
+#define OUR_ACCELERATION 0.004 //0.0008 //How much holding a key adds to heading
 #define OUR_MAX_SPEED (float)0.4 //max speed
 #define MS_DISP_MULT 500 //Max speed * this = what gets displayed as the highest speed attainable.
-#define FORWARD_BACK_MULT 3 //How much more powerful forward/back is in relation to the other controls
+#define FORWARD_BACK_MULT 2 //How much more powerful forward/back is in relation to the other controls
 #define OUR_FIRE_RATE 8 //is twice as fast due to the alternating guns
 #define OUR_BOOLET_OFFSET .10 //how far to each side boolet spawn
 #define MAX_SHIELDS 50
-#define SHIELD_RECHARGE_START 120//frames between being hit and shields being able to be recharged
+#define SHIELD_RECHARGE_START 60//frames between being hit and shields being able to be recharged
 #define SHIELD_RECHARGE_RATE (float)0.15 //shield hp per frame to heal
 //#define SHIELD_RECHARGE_RATE_ABOVE_ONE //flag for another place
 #define MAX_ARMOUR 400

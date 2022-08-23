@@ -13,10 +13,10 @@
 #include <process.h>
 
 
-void moveCam(World* ourWorld);
+//void moveCam(World* ourWorld);
 
-//int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
-int main(){
+int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
+//int main(){
 	printf("Hi\n");
 
 	//testworld = createWorld(STANDARD_WORLD);	
@@ -24,7 +24,7 @@ int main(){
 	volatile World* lineworld = loadGame();
 
 
-	_beginthread(debugCommands, 0, NULL);
+	//_beginthread(debugCommands, 0, NULL);
 
 
 	/*int audioID = createTrackHandler();
@@ -127,11 +127,11 @@ int main(){
 
 
 
-
+/*
 void moveCam(World* ourWorld) {
 	while (1) {
 		char input = getche();
-		/*
+		
 		if (input == 'w') {
 			ourWorld->camera[Y_pos] += 0.05;
 			printf("\n%f\n", ourWorld->camera[Y_pos]);
@@ -165,7 +165,7 @@ void moveCam(World* ourWorld) {
 			temp = temp / 10;
 			ourWorld->camera[Z_pos] += (0.15 + temp);
 			printf("\n%f\n", ourWorld->camera[Z_pos]);
-		}*/
+		}
 		float posMag = (ourWorld->camera[X_pos] + ourWorld->camera[Y_pos] + ourWorld->camera[Z_pos]) / 3;
 		if (posMag < 0) {
 			posMag *= -1;
@@ -375,7 +375,7 @@ void moveCam(World* ourWorld) {
 
 
 
-/*//left front circle
+left front circle
 		0.0 - 0.1083,			-0.0482 - 0.0318,	 0.06,		//9
 		0.0283 - 0.1083,	-0.039 - 0.0318, 0.06,			//10
 		0.0459 - 0.1083,	-0.0149 - 0.0318, 0.06,			//11
