@@ -17,8 +17,13 @@
 
 int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
 //int main(){
-	printf("Hi\n");
-
+	
+	FILE* debugfile = fopen("debugfile.txt", "w");
+	fputs("The program at least begins to execute.\n\n", debugfile);
+	fclose(debugfile);
+	debugfile = fopen("debugfile.txt", "a");
+	fputs("Test second line\n\n", debugfile);
+	fclose(debugfile);
 	//testworld = createWorld(STANDARD_WORLD);	
 
 	volatile World* lineworld = loadGame();
@@ -118,7 +123,9 @@ int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int n
 	}
 
 
-
+	debugfile = fopen("debugfile.txt", "w");
+	fputs("\n\nPast the main game loop, closing momentarily\n\n", debugfile);
+	fclose(debugfile);
 	glfwTerminate();
 	
 	return 0;

@@ -401,6 +401,9 @@ EndOfFunction:;
 World* loadGame() {
 	gamewindow = startup(expandedMouseClick, keypressHandler);
 
+	FILE* debugfile = fopen("debugfile.txt", "a");
+	fputs("Past startup call completely\n\n", debugfile);
+	fclose(debugfile);
 	AudioSetting = DEFAULT_AUDIO_SETTING;
 
 	masterObjLenght = 0;

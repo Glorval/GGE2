@@ -7,30 +7,55 @@
 
 
 GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
+	FILE* debugfile = fopen("debugfile.txt", "a");
+	fputs("at glfw init\n\n", debugfile);
+	fclose(debugfile);
+
 	glfwInit();
+
+	int thebastardError = glfwGetError(NULL);
+
+	debugfile = fopen("debugfile.txt", "a");
+	fprintf(debugfile, "Error code: %d\n\n", thebastardError);
+	fclose(debugfile);
+
 	GLFWmonitor* primary = glfwGetPrimaryMonitor();
 	GLFWvidmode* mode = glfwGetVideoMode(primary);
 	window_X = mode->width;
 	window_Y = mode->height;
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	//glfwWindowHint(GLFW_REFRESH_RATE, 120);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-
+	debugfile = fopen("debugfile.txt", "a");
+	fprintf(debugfile, "Past glfw initialization. window creation function is at %p\n\n", glfwCreateWindow);
+	fclose(debugfile);
 	GLFWwindow* window = glfwCreateWindow(windX, windY, APPLICATIONNAME, primary, NULL);
 
 	if (window == NULL) {
-		printf("Failed to create GLFW window");
+		int thebastardErrorTwo = glfwGetError(NULL);
+		debugfile = fopen("debugfile.txt", "a");
+		fprintf(debugfile, "Failed to create window. Error code %d\n\n", thebastardErrorTwo);
+		fclose(debugfile);
 		glfwTerminate();
 	}
 	glfwMakeContextCurrent(window);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		printf("GLAD failed to load.");
+		//printf("GLAD failed to load.");
+		int thebastardErrorTwo = glfwGetError(NULL);
+		debugfile = fopen("debugfile.txt", "a");
+		fprintf(debugfile, "Failed to load glad\n\n");
+		fclose(debugfile);
 	}
+
+	debugfile = fopen("debugfile.txt", "a");
+	fputs("Past most important setups.\n\n", debugfile);
+	fclose(debugfile);
+
 
 	glViewport(0, 0, windX, windY);
 
