@@ -59,7 +59,17 @@ GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 
 	glViewport(0, 0, windX, windY);
 
+	debugfile = fopen("debugfile.txt", "a");
+	fputs("Past viewport creation.\n\n", debugfile);
+	fclose(debugfile);
+
 	ProgramData.shaderID = setupShaders();
+
+	debugfile = fopen("debugfile.txt", "a");
+	fputs("Past shader setup.\n\n", debugfile);
+	fclose(debugfile);
+
+
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_DEPTH_CLAMP);
 
@@ -110,11 +120,18 @@ GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 		glfwSetKeyCallback(window, defaultButtonPress);
 	}
 
+	debugfile = fopen("debugfile.txt", "a");
+	fputs("Past callback creations.\n\n", debugfile);
+	fclose(debugfile);
 
 	//int cameraDefault[4] = { 0, 0, 1, 0 };
 	//glUniformMatrix4fv(ProgramData.cameraLoc, 1, 0, cameraDefault);
 
 	setupUI(USE_BUILT_IN_VECTOR_FONT);
+
+	debugfile = fopen("debugfile.txt", "a");
+	fputs("Past UI setup.\n\n", debugfile);
+	fclose(debugfile);
 	return(window);
 }
 
