@@ -23,16 +23,16 @@ GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 	GLFWvidmode* mode = glfwGetVideoMode(primary);
 	window_X = mode->width;
 	window_Y = mode->height;
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-	//glfwWindowHint(GLFW_REFRESH_RATE, 120);
-	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_REFRESH_RATE, 60);
 
 	debugfile = fopen("debugfile.txt", "a");
 	fprintf(debugfile, "Past glfw initialization. window creation function is at %p\n\n", glfwCreateWindow);
 	fclose(debugfile);
+	
 	GLFWwindow* window = glfwCreateWindow(windX, windY, APPLICATIONNAME, primary, NULL);
 
 	if (window == NULL) {
@@ -43,8 +43,8 @@ GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 		glfwTerminate();
 	}
 	glfwMakeContextCurrent(window);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+	//if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+	if(!gladLoadGL()){
 		//printf("GLAD failed to load.");
 		int thebastardErrorTwo = glfwGetError(NULL);
 		debugfile = fopen("debugfile.txt", "a");
@@ -141,6 +141,7 @@ int setupShaders() {
 
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	fileData = readFile("VShader.glsl");
+
 	if (fileData == NULL) {
 		gError("Vertex Shader failed to read.");
 		return(-1);

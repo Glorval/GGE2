@@ -393,8 +393,6 @@ ENDSCREEN:;
 
 
 EndOfFunction:;
-	glfwSwapBuffers(window);
-	glfwPollEvents();
 }
 
 

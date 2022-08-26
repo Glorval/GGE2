@@ -1,14 +1,4 @@
-The program at least begins to execute.
 
-Test second line
 
-at glfw init
-
-Error code: 0
-
-Past glfw initialization. window creation function is at 00007FF657ACFC30
-
-Past most important setups.
-
-Past startup call completely
+Past the main game loop, closing momentarily
 

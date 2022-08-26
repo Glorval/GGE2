@@ -2,7 +2,7 @@
 #include "GlorwynUtilities.h"
 #include <math.h>
 
-#define LINEREADSIZE 100
+#define BUFFER_STEP 100
 
 char* readFile(char* FileName) {
 	FILE* file = fopen(FileName, "r");
@@ -12,19 +12,21 @@ char* readFile(char* FileName) {
 		return(NULL);
 	}
 
-	char* fileData = calloc(LINEREADSIZE + 1, sizeof(char));
+	char* fileData = calloc(BUFFER_STEP, sizeof(char));
 	int position = 0;
-	int prevpos = -1;
-	int count = 0;
-	//int space = LINEREADSIZE;
+	int space = BUFFER_STEP - 1;
 	while (1) {
-		fgets(&fileData[position - count], LINEREADSIZE, file);
-		count++;
-		prevpos = position;
-		position = ftell(file);
-		fileData = realloc(fileData, position + LINEREADSIZE + 1);
-		if (position == prevpos) {
-			break;
+		int passalong = fgetc(file);
+		if (passalong == EOF) {
+			fileData[position] = 0;
+			return(fileData);
+		}
+		fileData[position] = (char)passalong;		
+		position++;
+		space--;
+		if (space == 1) {
+			fileData = realloc(fileData, position + BUFFER_STEP + 1);
+			space = BUFFER_STEP + 1;
 		}
 	}
 

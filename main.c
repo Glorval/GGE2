@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-
+#define _WIN32_WINNT 0x0400
 
 //#include "GGE2_1.h"
 #include <Windows.h>
@@ -15,9 +15,13 @@
 
 //void moveCam(World* ourWorld);
 
-int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
-//int main(){
+//int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
+int main(){
 	
+	
+
+
+
 	FILE* debugfile = fopen("debugfile.txt", "w");
 	fputs("The program at least begins to execute.\n\n", debugfile);
 	fclose(debugfile);
@@ -29,8 +33,15 @@ int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int n
 	volatile World* lineworld = loadGame();
 
 
-	//_beginthread(debugCommands, 0, NULL);
+	int easySwap = glfwExtensionSupported("GLX_EXT_swap_control_tear");
+	if (easySwap == GLFW_FALSE) {
+		easySwap = glfwExtensionSupported("WGL_EXT_swap_control_tear");
+	}
 
+
+	
+	
+	//_beginthread(debugCommands, 0, NULL);
 
 	/*int audioID = createTrackHandler();
 	AudioTrack testTrack = { 0 };
@@ -98,29 +109,87 @@ int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int n
 	setDefaultLength(audioID, 200);
 	addTrack(audioID, testTrack);*/
 
-
 	float counter = 1;
 	int gameFlag = IN_MAIN_MENU;
 	srand(time(NULL));
 	int framesTillCheck = 60;
 	ULONGLONG startOf, endOf;
 	startOf = GetTickCount64();
-	while (!glfwWindowShouldClose(gamewindow)) {
-		runGame(gamewindow, gameFlag);
 
-		framesTillCheck--;
-		if (framesTillCheck == 0) {
-			endOf = GetTickCount64();
-			float fps = 60000.0 / (float)(endOf - startOf);
-			startOf = endOf;
+
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	GLFWvidmode* mode = glfwGetVideoMode(primary);
+	//pain, did fixed physics
+	if (mode->refreshRate != 60 && easySwap == 1) {
+		HANDLE hTimer = NULL;
+		LARGE_INTEGER liDueTime;
+		liDueTime.QuadPart = -206666666;//-16666666, 16.666ms, 1/60 of 1 second
+		hTimer = CreateWaitableTimer(NULL, FALSE, NULL);
+		SetWaitableTimer(hTimer, &liDueTime, 1, NULL, NULL, 0);
+		glfwSwapInterval(0);
+		
+		while (!glfwWindowShouldClose(gamewindow)) {
 			
-			//printf("FPS: %f\n", fps);
-			framesTillCheck = 60;
-		}
+			runGame(gamewindow, gameFlag);
 
-		gameFlag = getsetGamestate(DONT_STATE_CHANGE);
-		counter += 1;		
+			glFlush();
+			WaitForSingleObject(hTimer, 12);
+
+			framesTillCheck--;
+			if (framesTillCheck == 0) {
+				endOf = GetTickCount64();
+				float fps = 60000.0 / (float)(endOf - startOf);
+				startOf = endOf;
+
+				printf("FPS: %f\n", fps);
+				framesTillCheck = 60;
+			}
+
+			glfwSwapBuffers(gamewindow);
+			glfwPollEvents();
+			gameFlag = getsetGamestate(DONT_STATE_CHANGE);
+		}
+	} else if (mode->refreshRate != 60 && easySwap == 0) {
+		HANDLE hTimer = NULL;
+		LARGE_INTEGER liDueTime;
+		liDueTime.QuadPart = -16666666;
+		hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
+		glfwSwapInterval(0);
+
+		while (!glfwWindowShouldClose(gamewindow)) {
+			SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0);
+			runGame(gamewindow, gameFlag);
+
+			glFlush();
+			WaitForSingleObject(hTimer, 10);
+
+			glfwSwapBuffers(gamewindow);
+			glfwPollEvents();
+			gameFlag = getsetGamestate(DONT_STATE_CHANGE);
+		}
+	} else {
+		while (!glfwWindowShouldClose(gamewindow)) {
+
+			runGame(gamewindow, gameFlag);
+			glfwSwapBuffers(gamewindow);
+			glfwPollEvents();
+
+			/*framesTillCheck--;
+			if (framesTillCheck == 0) {
+				endOf = GetTickCount64();
+				float fps = 60000.0 / (float)(endOf - startOf);
+				startOf = endOf;
+
+				//printf("FPS: %f\n", fps);
+				framesTillCheck = 60;
+			}*/
+
+			gameFlag = getsetGamestate(DONT_STATE_CHANGE);
+			//counter += 1;
+		}
 	}
+
+	
 
 
 	debugfile = fopen("debugfile.txt", "w");
