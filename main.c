@@ -15,8 +15,8 @@
 
 //void moveCam(World* ourWorld);
 
-//int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
-int main(){
+int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
+//int main(){
 	
 	
 
@@ -33,11 +33,16 @@ int main(){
 	volatile World* lineworld = loadGame();
 
 
-	int easySwap = glfwExtensionSupported("GLX_EXT_swap_control_tear");
+	/*int easySwap = glfwExtensionSupported("GLX_EXT_swap_control_tear");
 	if (easySwap == GLFW_FALSE) {
 		easySwap = glfwExtensionSupported("WGL_EXT_swap_control_tear");
 	}
 
+	if (easySwap == 1) {
+		glfwSwapInterval(-100);
+	} else {
+		glfwSwapInterval(0);
+	}*/
 
 	
 	
@@ -117,14 +122,57 @@ int main(){
 	startOf = GetTickCount64();
 
 
-	GLFWmonitor* primary = glfwGetPrimaryMonitor();
-	GLFWvidmode* mode = glfwGetVideoMode(primary);
+
+
 	//pain, did fixed physics
+	//GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	//GLFWvidmode* mode = glfwGetVideoMode(primary);
+	HANDLE hTimer = NULL;
+	LARGE_INTEGER liDueTime;
+	liDueTime.QuadPart = -160000;//-166666 hundred ns, 16.666ms, 1/60 of 1 second. BUT, rounded down for inaccuracy of system timer
+	hTimer = CreateWaitableTimer(NULL, FALSE, NULL);	
+	if (hTimer == NULL) {
+		goto end;
+	}
+	glfwSwapInterval(0);
+	SetWaitableTimer(hTimer, &liDueTime, 16, NULL, NULL, 0);
+start:;
+	
+
+	runGame(gamewindow, gameFlag);
+	glFlush();
+	WaitForSingleObject(hTimer, INFINITE);
+	glfwSwapBuffers(gamewindow);
+	glfwPollEvents();
+	gameFlag = getsetGamestate(DONT_STATE_CHANGE);
+
+	framesTillCheck--;
+	if (framesTillCheck == 0) {
+		endOf = GetTickCount64();
+		float fps = 60000.0 / (float)(endOf - startOf);
+		startOf = endOf;
+
+		printf("FPS: %f\n", fps);
+		framesTillCheck = 60;
+	}
+
+	if (glfwWindowShouldClose(gamewindow)) {
+		goto end;
+	}
+	goto start;
+	
+
+
+
+
+
+
+
+
+
+	/*
 	if (mode->refreshRate != 60 && easySwap == 1) {
-		HANDLE hTimer = NULL;
-		LARGE_INTEGER liDueTime;
-		liDueTime.QuadPart = -206666666;//-16666666, 16.666ms, 1/60 of 1 second
-		hTimer = CreateWaitableTimer(NULL, FALSE, NULL);
+		
 		SetWaitableTimer(hTimer, &liDueTime, 1, NULL, NULL, 0);
 		glfwSwapInterval(0);
 		
@@ -174,7 +222,7 @@ int main(){
 			glfwSwapBuffers(gamewindow);
 			glfwPollEvents();
 
-			/*framesTillCheck--;
+			framesTillCheck--;
 			if (framesTillCheck == 0) {
 				endOf = GetTickCount64();
 				float fps = 60000.0 / (float)(endOf - startOf);
@@ -182,16 +230,16 @@ int main(){
 
 				//printf("FPS: %f\n", fps);
 				framesTillCheck = 60;
-			}*/
+			}
 
 			gameFlag = getsetGamestate(DONT_STATE_CHANGE);
 			//counter += 1;
 		}
-	}
+	}*/
 
 	
 
-
+end:;
 	debugfile = fopen("debugfile.txt", "w");
 	fputs("\n\nPast the main game loop, closing momentarily\n\n", debugfile);
 	fclose(debugfile);

@@ -1,7 +1,7 @@
 #include "LibertyBlaster.h"
 #define _CRT_SECURE_NO_WARNINGS
-#include "booletmanager.c"
-#include "Entities.c"
+#include "booletmanager.h"
+#include "Entities.h"
 
 //#include "shipAIManager.h"
 

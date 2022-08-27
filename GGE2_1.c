@@ -27,7 +27,7 @@ GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-	glfwWindowHint(GLFW_REFRESH_RATE, 60);
+	//glfwWindowHint(GLFW_REFRESH_RATE, 60);
 
 	debugfile = fopen("debugfile.txt", "a");
 	fprintf(debugfile, "Past glfw initialization. window creation function is at %p\n\n", glfwCreateWindow);
