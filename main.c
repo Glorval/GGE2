@@ -15,8 +15,8 @@
 
 //void moveCam(World* ourWorld);
 
-int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
-//int main(){
+//int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
+int main(){
 	
 	
 
@@ -46,7 +46,7 @@ int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int n
 
 	
 	
-	//_beginthread(debugCommands, 0, NULL);
+	_beginthread(debugCommands, 0, NULL);
 
 	/*int audioID = createTrackHandler();
 	AudioTrack testTrack = { 0 };

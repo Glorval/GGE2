@@ -3,6 +3,8 @@
 #include "booletmanager.h"
 #include "Entities.h"
 
+#define centeredText(charcount) ((((charcount - 1) / 2) * -1.05) - 0.025)
+
 //#include "shipAIManager.h"
 
 #define DFS 0.0255//idk, ease of use? Don't change, not meant 
@@ -455,7 +457,7 @@ void setupMainMenu() {
 	unsigned int buttonInds[] = {
 		0,1,2,1, 2,3, 3,0
 	};
-	float pos[] = { 0,-0.3,0};
+	float pos[] = { 0,-0.15,0};
 	float clickarea[] = { 0.3,0.3,0.06,0.06 };
 	float buttontextpos[] = { -4.725,0,0 };
 	
@@ -463,7 +465,7 @@ void setupMainMenu() {
 	insertElementIntoUI(MainMenuUI, createVectorElement(gameStartButton, buttonInds, (sizeof(gameStartButton) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, startGameButton, 1, clickarea));
 	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
 	//passer->position[X_pos] = -0.18;
-	passer->position[Y_pos] = -0.325;
+	passer->position[Y_pos] = -0.175;
 	passer->scale = 0.051;
 	insertElementIntoUI(MainMenuUI, passer);
 	freeUnfinObj(buttontext);
@@ -475,35 +477,47 @@ void setupMainMenu() {
 		-0.3, -0.06, -0.5,
 	};
 	buttontextpos[0] = -3.675;
-	pos[1] = -0.5;
+	pos[1] = -0.35;
 	insertElementIntoUI(MainMenuUI, createVectorElement(settingsButtonverts, buttonInds, (sizeof(settingsButtonverts) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, settingsButton, 1, clickarea));
 	buttontext = createVecText("SETTINGS", buttontextpos, 0.05);
 	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
 	//passer->position[X_pos] = -0.18;
-	passer->position[Y_pos] = -0.525;
+	passer->position[Y_pos] = -0.375;
 	passer->scale = 0.051;
 	insertElementIntoUI(MainMenuUI, passer);
 	freeUnfinObj(buttontext);
 
+	buttontextpos[0] = centeredText((countof("SHOW KEYS") - 1));
+	pos[1] = -0.55;
+	insertElementIntoUI(MainMenuUI, createVectorElement(settingsButtonverts, buttonInds, (sizeof(settingsButtonverts) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, settingsButton, 1, clickarea));
+	buttontext = createVecText("SHOW KEYS", buttontextpos, 0.05);
+	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
+	//passer->position[X_pos] = -0.18;
+	passer->position[Y_pos] = -0.575;
+	passer->scale = 0.051;
+	insertElementIntoUI(MainMenuUI, passer);
+	freeUnfinObj(buttontext);
+
+
 	//Exit gaem button
 	buttontextpos[0] = -4.275;
-	pos[1] = -0.7;
+	pos[1] = -0.75;
 	insertElementIntoUI(MainMenuUI, createVectorElement(settingsButtonverts, buttonInds, (sizeof(settingsButtonverts) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, exitGameButton, 1, clickarea));
 	buttontext = createVecText("EXIT GAME", buttontextpos, 0.05);
 	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
 	//passer->position[X_pos] = -0.18;
-	passer->position[Y_pos] = -0.725;
+	passer->position[Y_pos] = -0.775;
 	passer->scale = 0.051;
 	insertElementIntoUI(MainMenuUI, passer);
 	freeUnfinObj(buttontext);
 
 
-	float titlePos[] = { -3.15, 0.0,0 };
-	float titleScreenpos[] = { 0, 0.3, 0 };
+	float titlePos[] = { centeredText(7), 0.0,0 };
+	float titleScreenpos[] = { 0, 0.45, 0 };
 	UnfinObj title = createVecText("BLAZING\nLIBERTY", titlePos, 0.3);//BLAZING\nLIBERTY
 	//UnfinObj title = createVecText("ABCDEFG\n01234\n56789", titlePos, 0.15);
 	passer = createVectorElement(title.verts, title.indices, title.vLineCount, title.iCount, titleScreenpos, NULL, 1, NULL);
-	passer->scale = 0.15;
+	passer->scale = 0.3;
 	insertElementIntoUI(MainMenuUI, passer);
 	freeUnfinObj(title);
 }
@@ -692,7 +706,7 @@ void setupEndscreen(unsigned int* endingWave) {
 
 		//the static text that remains unchanged game to game, aka, not the score itself or wave number
 		pos[1] = 0.6;
-		buttontextpos[0] = -4.4625;
+		buttontextpos[0] = -4.2;
 		buttontext = createVecText("GAME OVER", buttontextpos, 0.25);
 		passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
 		passer->scale = 0.25;
