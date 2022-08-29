@@ -266,6 +266,9 @@ void runGame(GLFWwindow* window, int flagSetting) {
 		SettingsUI->active = 0;
 		runMasterUI();
 	}
+	else if (flagSetting == IN_KEYSCREEN) { //MAIN MENU LOOP
+		runMasterUI();
+	}
 	else if (flagSetting == IN_SETTINGS) { //SETTINGS LOOP
 		if (ShouldBeFullscreen == 1 && IsFullscreen != 1) {
 			GLFWmonitor* monitor;
@@ -420,6 +423,7 @@ World* loadGame() {
 	setupMasterUIList();
 	setupMainMenu();
 	setupPauseMenu();
+	setupKeysUI();
 	setupSettingsUI();
 	setupGameUI();
 	setupCrosshairUI();
@@ -489,7 +493,7 @@ void setupMainMenu() {
 
 	buttontextpos[0] = centeredText((countof("SHOW KEYS") - 1));
 	pos[1] = -0.55;
-	insertElementIntoUI(MainMenuUI, createVectorElement(settingsButtonverts, buttonInds, (sizeof(settingsButtonverts) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, settingsButton, 1, clickarea));
+	insertElementIntoUI(MainMenuUI, createVectorElement(settingsButtonverts, buttonInds, (sizeof(settingsButtonverts) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, gotoKeysPageButton, 1, clickarea));
 	buttontext = createVecText("SHOW KEYS", buttontextpos, 0.05);
 	passer = createVectorElement(buttontext.verts, buttontext.indices, buttontext.vLineCount, buttontext.iCount, pos, NULL, 1, NULL);
 	//passer->position[X_pos] = -0.18;
@@ -641,6 +645,63 @@ void setupSettingsUI() {
 	passer->scale = 0.051;
 	insertElementIntoUI(SettingsUI, passer);//1
 	freeUnfinObj(buttontext);
+}
+
+void setupKeysUI() {
+	KeypageUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
+	KeypageUI->vecColour[0] = 0;
+	KeypageUI->vecColour[1] = 1;
+	KeypageUI->vecColour[2] = 0;
+	KeypageUI->vecColour[3] = 1;
+
+	float pos[3] = { 0,0,0 };	
+	float textpos[] = { 0,0,0 };
+	float* textOffset = &textpos[0];
+
+	*textOffset = centeredText((countof("UP/DOWN:  W/S") - 1));
+	UnfinObj textobj = createVecText("UP/DOWN:  W/S", textpos, 0.05);
+	UIElement* passer = createVectorElement(textobj.verts, textobj.indices, textobj.vLineCount, textobj.iCount, pos, NULL, 1, NULL);
+	passer->position[Y_pos] = 0.5;
+	passer->scale = 0.051;
+	insertElementIntoUI(KeypageUI, passer);//1
+	freeUnfinObj(textobj);
+
+	*textOffset = centeredText((countof("LEFT/RIGHT:  A/D") - 1));
+	textobj = createVecText("LEFT/RIGHT:  A/D", textpos, 0.05);
+	passer = createVectorElement(textobj.verts, textobj.indices, textobj.vLineCount, textobj.iCount, pos, NULL, 1, NULL);
+	passer->position[Y_pos] = 0.3;
+	passer->scale = 0.051;
+	insertElementIntoUI(KeypageUI, passer);//1
+	freeUnfinObj(textobj);
+
+	*textOffset = centeredText((countof("FORWARD/BACK:  V/C") - 1));
+	textobj = createVecText("FORWARD/BACK:  V/C", textpos, 0.05);
+	passer = createVectorElement(textobj.verts, textobj.indices, textobj.vLineCount, textobj.iCount, pos, NULL, 1, NULL);
+	passer->position[Y_pos] = 0.1;
+	passer->scale = 0.051;
+	insertElementIntoUI(KeypageUI, passer);//1
+	freeUnfinObj(textobj);
+
+	float buttonBase[] = {
+		-0.3, 0.06, -0.5,
+		0.3, 0.06, -0.5,
+		0.3, -0.06, -0.5,
+		-0.3, -0.06, -0.5,
+	};
+	unsigned int buttonInds[] = {
+		0,1,2,1, 2,3, 3,0
+	};
+	pos[1] = -0.1;
+	float clickarea[] = { 0.3,0.3,0.06,0.06 };
+	insertElementIntoUI(KeypageUI, createVectorElement(buttonBase, buttonInds, (sizeof(buttonBase) / sizeof(float)) / VECTOR_VERTEX_LENGTH, sizeof(buttonInds) / sizeof(unsigned int), pos, returnToMenuButton, 1, clickarea));
+	*textOffset = centeredText((countof("BACK") - 1));
+	textobj = createVecText("BACK", textpos, 0.05);
+	passer = createVectorElement(textobj.verts, textobj.indices, textobj.vLineCount, textobj.iCount, pos, NULL, 1, NULL);
+	//passer->position[X_pos] = -0.18;
+	passer->position[Y_pos] = -0.125;
+	passer->scale = 0.051;
+	insertElementIntoUI(KeypageUI, passer);//1
+	freeUnfinObj(textobj);
 }
 
 //End screen is a one off creation because I didn't want to make dynamic ui stuff for it
@@ -910,7 +971,6 @@ void setupGameUI() {
 	insertElementIntoUI(BaseGameUI, passer);
 }
 
-
 void setupCrosshairUI() {
 	CrosshairUI->renderMode = RENDER_MODE_VECT_POS_ONLY;
 	CrosshairUI->vecColour[0] = 0;
@@ -962,7 +1022,6 @@ void setupCrosshairUI() {
 	passer = createVectorElement(bigDot, bigDotInds, countof(bigDot) / VECTOR_VERTEX_LENGTH, countof(bigDotInds), zeroPos, NULL, 1, NULL);
 	CrosshairBigDotID = insertElementIntoUI(CrosshairUI, passer);
 }
-
 
 void setupDynamicUI() {
 	UIElement* passer = NULL;
@@ -1280,6 +1339,19 @@ long long int exitGameButton(void* ourself, long long int data, short int clickD
 	}
 }
 
+long long int gotoKeysPageButton(void* ourself, long long int data, short int clickData) {
+	//UIElement* us = ourself;
+	//us->elementActive = 0;
+	char* clickdat = &clickData;
+	char* ourData = &data;
+	//standard left click
+	if (clickdat[0] == GLFW_MOUSE_BUTTON_1 && clickdat[1] == GLFW_PRESS) {
+		getsetGamestate(IN_KEYSCREEN);
+		disableAllUILayers();
+		KeypageUI->active = 1;
+		
+	}
+}
 
 long long int dotSettingsButton(void* ourself, long long int data, short int clickData) {
 	//UIElement* us = ourself;

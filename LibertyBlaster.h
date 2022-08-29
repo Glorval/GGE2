@@ -7,14 +7,15 @@
 #include "GSound.h"
 
 //Defines, enums/struct setup, master variables, function decs
-#define UICount 7 //update whenever adding another base UI layer
+#define UICount 8 //update whenever adding another base UI layer
 #define MainMenuUI masterUIList[0]
 #define SettingsUI masterUIList[1]
-#define BaseGameUI masterUIList[2]
-#define CrosshairUI masterUIList[3]
-#define DynamicGameUI masterUIList[4]
-#define EndscreenUI masterUIList[5]
-#define PauseScreenUI masterUIList[6]
+#define KeypageUI masterUIList[2]
+#define BaseGameUI masterUIList[3]
+#define CrosshairUI masterUIList[4]
+#define DynamicGameUI masterUIList[5]
+#define EndscreenUI masterUIList[6]
+#define PauseScreenUI masterUIList[7]
 static int CrosshairWingsID = 0;
 static int CrosshairBigDotID = 0;
 static int CrosshairSmallDotID = 0;
@@ -29,6 +30,7 @@ static int CrosshairSmallDotID = 0;
 #define END_SCREEN 4
 #define IN_SETTINGS 5
 #define PAUSE_MENU 6
+#define IN_KEYSCREEN 7
 
 #define CLEAR_GAME 10
 
@@ -172,6 +174,7 @@ static int AudioSetting;
 
 
 World* loadGame();
+void setupKeysUI();
 void setupSettingsUI();
 void setupMasterUIList();
 void setupMainMenu();
@@ -194,6 +197,8 @@ long long int returnToMenuButton(void* ourself, long long int data, short int cl
 long long int exitGameButton(void* ourself, long long int data, short int clickData);
 long long int dotSettingsButton(void* ourself, long long int data, short int clickData);
 long long int wingsSettingButton(void* ourself, long long int data, short int clickData);
+long long int gotoKeysPageButton(void* ourself, long long int data, short int clickData);
+
 
 EnShip* enemyShipHandler(EnShip* enemyShipList, int upEnemyShips);
 void updateShipLifeStatus(EnShip* enemyShip);

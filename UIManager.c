@@ -2981,6 +2981,36 @@ void setupVecSym() {
 	Percentobj.scale = 1;
 	vecFont['%'] = &Percentobj;
 
+	static float Forslash[] = {
+			0.25, 1, 0,				//0
+			-0.25, 0, 0,			//1
+	};
+	static unsigned int Forslashinds[] = {
+		0,1,
+	};
+	static UnfinObj Forslashobj = { 0 };
+	Forslashobj.verts = Forslash;
+	Forslashobj.indices = Forslashinds;
+	Forslashobj.iCount = countof(Forslashinds);
+	Forslashobj.vLineCount = countof(Forslash) / VECTOR_VERTEX_LENGTH;
+	Forslashobj.scale = 1;
+	vecFont['/'] = &Forslashobj;
+	
+	static float Backlash[] = {
+			0.25, 1, 0,				//0
+			-0.25, 0, 0,			//1
+	};
+	static unsigned int Backlashinds[] = {
+		0,1,
+	};
+	static UnfinObj Backlashobj = { 0 };
+	Backlashobj.verts = Backlash;
+	Backlashobj.indices = Backlashinds;
+	Backlashobj.iCount = countof(Backlashinds);
+	Backlashobj.vLineCount = countof(Backlash) / VECTOR_VERTEX_LENGTH;
+	Backlashobj.scale = 1;
+	vecFont['\\'] = &Backlashobj;
+
 	static float Colon[] = {
 			-0.2, 0.8, 0,			//0
 			0.0, 1, 0,				//1
