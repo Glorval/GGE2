@@ -322,3 +322,30 @@ void updateOurAI(EnShip* us, struct ourShip PlayerShip, char targetAllowed) {
 	}
 }
 
+Object* loadDirectionArrow() {
+	static float arrowVerts[] = {
+		-0.015, 0.0, -0.020,					//0
+		-0.015, 0.0, 0.00,					//1
+
+		0.00, 0.015, -0.020,				//2
+		0.00, 0.015, 0.00,					//3
+
+		0.015, 0.0, -0.020,					//4
+		0.015, 0.0, 0.00,						//5
+
+		0.00, -0.015, -0.020,				//6
+		0.00, -0.015, 0.00,					//7
+
+		0.00, 0.00, 0.020,					//8
+	};
+	static unsigned int arrowInds[] = {
+		0,1, 2,3, 4,5, 6,7, 
+		1,8, 3,8, 5,8, 7,8,
+	};
+	Object* vectorobj = calloc(1, sizeof(Object));
+	*vectorobj = createStaticVectorObject(arrowVerts, arrowInds, (sizeof(arrowVerts) / VECTOR_VERTEX_LENGTH) / sizeof(float), sizeof(arrowInds) / sizeof(unsigned int));
+
+	vectorobj->position[W_pos] = 0;
+	insertObjectIntoWorld(&gameworld, vectorobj, 1);
+	return(vectorobj);
+}

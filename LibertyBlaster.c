@@ -37,6 +37,7 @@ idSet enShipStuff = { 0 };
 
 volatile static int ShouldBeFullscreen = 1;
 volatile static int IsFullscreen = 1;
+volatile static Object* DirectionalArrow = 0;
 
 void disableAllUILayers() {
 	for (int cLayer = 0; cLayer < UICount; cLayer++) {
@@ -344,6 +345,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	else if (flagSetting == IN_GAME) { //GAME LOOP
 		gameCursorMovement();
 		ourShipHandler();
+		dirArrowHandler();
 		if (updateBoolets(enemyShipList, maxOnScreenEnemies, &OurShip) == 1 || OurShip.hp <= 0) {
 			gotoEndscreen(&waveNum);
 			goto ENDSCREEN;
@@ -364,6 +366,7 @@ void runGame(GLFWwindow* window, int flagSetting) {
 	else if (flagSetting == BETWEEN_WAVES) {
 		gameCursorMovement();
 		ourShipHandler();
+		dirArrowHandler();
 		if (updateBoolets(enemyShipList, maxOnScreenEnemies, &OurShip) == 1) {
 			gotoEndscreen(waveNum);
 			goto ENDSCREEN;
@@ -421,6 +424,8 @@ World* loadGame() {
 	setAudioFunctions(DEFAULT_AUDIO_SETTING);
 
 	loadEnemyShip();
+	DirectionalArrow = loadDirectionArrow();
+
 	setupMasterUIList();
 	setupMainMenu();
 	setupPauseMenu();
@@ -932,7 +937,7 @@ void setupGameUI() {
 	//freeUnfinObj(ammo);
 
 	const float speedTextPos[] = {
-		4.5, 6, 0
+		4.5, 5.5, 0
 	};
 	UnfinObj speed = createVecText("SPEED:", speedTextPos, 0.0255);
 	passer = createVectorElement(speed.verts, speed.indices, speed.vLineCount, speed.iCount, bottomAnchor, NULL, 1, NULL);
@@ -969,6 +974,28 @@ void setupGameUI() {
 	};
 
 	passer = createVectorElement(commsBox, commsBoxInd, countof(commsBox)/VECTOR_VERTEX_LENGTH, countof(commsBoxInd), bottomAnchor, NULL, 1, NULL);
+	insertElementIntoUI(BaseGameUI, passer);
+
+	const float arrowTextPos[] = {
+		-15, 5.5, 0
+	};
+	UnfinObj arrowText = createVecText("TARGET LOCK", arrowTextPos, 0.0255);
+	passer = createVectorElement(arrowText.verts, arrowText.indices, arrowText.vLineCount, arrowText.iCount, bottomAnchor, NULL, 1, NULL);
+	passer->scale = 0.0255;
+	insertElementIntoUI(BaseGameUI, passer);
+	freeUnfinObj(arrowText);
+
+	const float arrowBox[] = {
+		-0.06, 0.178, 0,			//0
+		-0.06, 0.128, 0,				//1
+		-0.01, 0.128, 0,			//2
+		-0.01, 0.178, 0,			//3
+	};
+	const unsigned int arrowBoxInd[] = {
+		0,1, 1,2, 2,3, 3,0,
+	};
+
+	passer = createVectorElement(arrowBox, arrowBoxInd, countof(arrowBox) / VECTOR_VERTEX_LENGTH, countof(arrowBoxInd), bottomAnchor, NULL, 1, NULL);
 	insertElementIntoUI(BaseGameUI, passer);
 }
 
@@ -1145,7 +1172,7 @@ void updateDynamicUI(unsigned int waveDisplay) {
 
 	//Speed update
 	float speedTextPos[] = {
-		11, 6, 0
+		11, 5.5, 0
 	};
 	int speed =
 		(int)((sqrtf((OurShip.heading[X_pos] * OurShip.heading[X_pos])+
@@ -1591,6 +1618,14 @@ void ourShipHandler() {
 		}
 	}
 	OurShip.shieldChargeTimeTracker++;
+}
+
+//call after updating our ship pls
+void dirArrowHandler() {
+	//gameworld.back is offset by 1 because it's a quaternion, remember
+	DirectionalArrow->position[0] = gameworld.camera[0] - gameworld.back[1] + (gameworld.up[1] * 0.4715) + (gameworld.left[1] * 0.02);
+	DirectionalArrow->position[1] = gameworld.camera[1] - gameworld.back[2] + (gameworld.up[2] * 0.4715) + (gameworld.left[2] * 0.02);
+	DirectionalArrow->position[2] = gameworld.camera[2] - gameworld.back[3] + (gameworld.up[3] * 0.4715) + (gameworld.left[3] * 0.02);
 }
 
 EnShip* enemyShipHandler(volatile EnShip* enemyShipList, int upEnemyShips) {

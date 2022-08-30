@@ -210,6 +210,7 @@ void setShip(EnShip* enemyShip);
 void respawnShip(EnShip* enemyShip);
 void ourShipHandler();
 void ourShipMotionHandler();
+void dirArrowHandler();
 
 void expandedMouseClick(GLFWwindow* window, int button, int action, int mods);
 void keypressHandler(GLFWwindow* window, int key, int scancode, int action, int mods);

@@ -1,22 +1,4 @@
-The program at least begins to execute.
 
-Test second line
 
-at glfw init
-
-Error code: 0
-
-Past glfw initialization. window creation function is at 00007FF697620820
-
-Past most important setups.
-
-Past viewport creation.
-
-Past shader setup.
-
-Past callback creations.
-
-Past UI setup.
-
-Past startup call completely
+Past the main game loop, closing momentarily
 
