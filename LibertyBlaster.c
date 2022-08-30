@@ -2,8 +2,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "booletmanager.h"
 #include "Entities.h"
-
-#define centeredText(charcount) ((((charcount - 1) / 2) * -1.05) - 0.025)
+// 
+//#define centeredText(charcount) ((((charcount - 1) / 2) * -1.05)- 0.025)
+#define centeredText(charcount) (float)((((double)charcount - 1.0) * -1.05)/ 2.0)
 
 //#include "shipAIManager.h"
 
