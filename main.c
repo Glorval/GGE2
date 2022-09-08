@@ -1,10 +1,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define _WIN32_WINNT 0x0400
+//#define SDL_MAIN_HANDLED
 
 //#include "GGE2_1.h"
 #include <Windows.h>
 
 
+#include "WaveformHandler.h"
 #include "LibertyBlaster.h" //Includes GGE2.1
 
 #include <time.h>
@@ -13,10 +15,11 @@
 #include <process.h>
 
 
+
 //void moveCam(World* ourWorld);
 
-int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
-//int main(){
+//int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
+int main(){
 	
 	
 
@@ -30,9 +33,9 @@ int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int n
 	fclose(debugfile);
 	//testworld = createWorld(STANDARD_WORLD);	
 
+	GlorLoadSDL();
 	volatile World* lineworld = loadGame();
-
-
+	_beginthread(playWav, 0, "1hMoonRises.wav");
 	/*int easySwap = glfwExtensionSupported("GLX_EXT_swap_control_tear");
 	if (easySwap == GLFW_FALSE) {
 		easySwap = glfwExtensionSupported("WGL_EXT_swap_control_tear");
