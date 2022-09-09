@@ -233,4 +233,5 @@ static unsigned long long playingBulletSound = 0;
 void (*realBulletAudioHandler)(int);
 void silentBulletHandler(int newFrameUpdate);
 void bulletAudioHandler(int newFrameUpdate);
-void retroBulletAudioHandler(int newFrameUpdate);
+void modernBulletAudioHandler(int newFrameUpdate);
+//void retroBulletAudioHandler(int newFrameUpdate);

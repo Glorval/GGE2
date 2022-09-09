@@ -1,4 +1,20 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "WaveformHandler.h"
+#include <string.h>
+#include <stdio.h>
+
+static volatile int FireSound = -1;
+static volatile int ManyHitsSound = -1;
+static volatile int EnemyDiedSound = -1;
+static volatile int MainMenuTheme = -1;
+static volatile int EndTheme = -1;
+
+struct audioFiles {
+    char* name;
+    Mix_Chunk* waveData;
+};
+
+struct audioFiles* AudioFiles;
 
 void glorLoadSDL(){
     int audio_rate;
@@ -26,27 +42,69 @@ void glorLoadSDL(){
         (SDL_AUDIO_ISFLOAT(audio_format) ? " (float)" : ""),
         (audio_channels > 2) ? "surround" :
         (audio_channels > 1) ? "stereo" : "mono");
+
+    gatherWaveforms();
 }
 
 void gatherWaveforms() {
-    char* dirList = system("dir /b");//WINDOWS CALL
-    //use strtok stuff to go line by line and find .wav files, open them, load them, etc.
+    AudioFiles = NULL;
+    system("dir *.wav /b >audioList.txt");//WINDOWS CALL
+    FILE* audioList = fopen("audioList.txt", "r");
+    char line[100] = { 0 };
+    int current = 0;
+    int newlineStrip = 0;
+
+ReadFile:;
+    AudioFiles = realloc(AudioFiles, sizeof(struct audioFiles) * (current + 1));
+    if (fgets(line, 99, audioList) == NULL) {
+        return;
+    }
+    
+    //strip the newline off the end
+    while (line[newlineStrip] != '\n') {
+        if (line[newlineStrip] == 0) {
+            goto NewlineRemoved;
+        }
+        newlineStrip++;
+    }
+    line[newlineStrip] = 0;
+NewlineRemoved:;
+
+    //check to see if it's one of the special files
+    if (strcmp(line, "Fire.wav") == 0) {
+        FireSound = current;
+    }else if (strcmp(line, "ManyHits.wav") == 0) {
+        ManyHitsSound = current;
+    } else if (strcmp(line, "EnemyDied.wav") == 0) {
+        EnemyDiedSound = current;
+    } else if (strcmp(line, "MainMenu.wav") == 0) {
+        MainMenuTheme = current;
+    } else if (strcmp(line, "Endtheme.wav") == 0) {
+        EndTheme = current;
+    }
+
+    AudioFiles[current].waveData = Mix_LoadWAV(line);
+    //AudioFiles[current].name = calloc;
+    AudioFiles[current].name = 0;
+
+    current++;
+    goto ReadFile;
+
 }
 
 
-void playWav(char* name) {
-    Mix_Chunk* wave = NULL;
-    wave = Mix_LoadWAV(name);
-    if (wave == NULL) {
-        SDL_Log("Couldn't load %s: %s\n", name, SDL_GetError());
-    }
-
+void playWav(int ID) {
     /* Play and then exit */
-    Mix_PlayChannel(0, wave, 0);
+    Mix_PlayChannel(-1, AudioFiles[ID].waveData, 0);
 
     while (Mix_Playing(0)) {
-
         SDL_Delay(1);
-
     }
 }
+
+
+void fireAndForgetPlayWav(int ID) {
+
+}
+
+

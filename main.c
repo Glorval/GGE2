@@ -15,15 +15,10 @@
 #include <process.h>
 
 
-
 //void moveCam(World* ourWorld);
 
 //int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
 int main(){
-	
-	
-
-
 
 	FILE* debugfile = fopen("debugfile.txt", "w");
 	fputs("The program at least begins to execute.\n\n", debugfile);
@@ -34,7 +29,8 @@ int main(){
 	//testworld = createWorld(STANDARD_WORLD);	
 
 	glorLoadSDL();
-	volatile World* lineworld = loadGame();
+	
+	//volatile World* lineworld = loadGame();
 	//_beginthread(playWav, 0, "1hMoonRises.wav");
 	/*int easySwap = glfwExtensionSupported("GLX_EXT_swap_control_tear");
 	if (easySwap == GLFW_FALSE) {
@@ -49,7 +45,7 @@ int main(){
 
 	
 	
-	_beginthread(debugCommands, 0, NULL);
+	//_beginthread(debugCommands, 0, NULL);
 
 	/*int audioID = createTrackHandler();
 	AudioTrack testTrack = { 0 };
@@ -116,7 +112,7 @@ int main(){
 	testTrack.tracklen = tracklen;
 	setDefaultLength(audioID, 200);
 	addTrack(audioID, testTrack);*/
-
+	/*
 	float counter = 1;
 	int gameFlag = IN_MAIN_MENU;
 	srand(time(NULL));
@@ -165,7 +161,7 @@ start:;
 	goto start;
 	
 
-
+	*/
 
 
 

@@ -1921,9 +1921,26 @@ void setAudioFunctions(int audioSetting) {
 	}
 }
 
+//non zero to tell it a bullet has hit AND to start counting in a new frame, zero to add another hit to the current frame
 void bulletAudioHandler(int newFrameUpdate) {
+	/*
+	The default code to be in every handler, use it to decide when to play the sound.
+	if (newFrameUpdate == 0) {
+		OurShip.lastHits[FTHS - 1]++;
+		int totalHits = 0;
+		for (int cHits = 0; cHits < FTHS; cHits++) {
+			totalHits += OurShip.lastHits[cHits];
+		}
+		//Total hits has been acquired, if the total hits is over what you want to be able to play, play your sound code wizard 
+	} else {
+		for (int cHits = 0; cHits < FTHS - 1; cHits++) {
+			OurShip.lastHits[cHits] = OurShip.lastHits[cHits + 1];
+		}
+		OurShip.lastHits[FTHS - 1] = 0;
+	}*/
 	realBulletAudioHandler(newFrameUpdate);
 }
+
 void silentBulletHandler(int newFrameUpdate) {
 	if (newFrameUpdate == 0) {
 		OurShip.lastHits[FTHS - 1]++;
@@ -1939,7 +1956,22 @@ void silentBulletHandler(int newFrameUpdate) {
 	}
 }
 
-void retroBulletAudioHandler(int newFrameUpdate) {
+void modernBulletAudioHandler(int newFrameUpdate) {
+	if (newFrameUpdate == 0) {
+		OurShip.lastHits[FTHS - 1]++;
+		int totalHits = 0;
+		for (int cHits = 0; cHits < FTHS; cHits++) {
+			totalHits += OurShip.lastHits[cHits];
+		}
+	} else {
+		for (int cHits = 0; cHits < FTHS - 1; cHits++) {
+			OurShip.lastHits[cHits] = OurShip.lastHits[cHits + 1];
+		}
+		OurShip.lastHits[FTHS - 1] = 0;
+	}
+}
+
+/*void retroBulletAudioHandler(int newFrameUpdate) {
 	if (newFrameUpdate == 0) {
 		OurShip.lastHits[FTHS - 1]++;
 		int totalHits = 0;
@@ -1982,7 +2014,7 @@ void retroBulletAudioHandler(int newFrameUpdate) {
 		}
 		OurShip.lastHits[FTHS - 1] = 0;
 	}
-}
+}*/
 
 
 
