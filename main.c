@@ -33,9 +33,9 @@ int main(){
 	fclose(debugfile);
 	//testworld = createWorld(STANDARD_WORLD);	
 
-	GlorLoadSDL();
+	glorLoadSDL();
 	volatile World* lineworld = loadGame();
-	_beginthread(playWav, 0, "1hMoonRises.wav");
+	//_beginthread(playWav, 0, "1hMoonRises.wav");
 	/*int easySwap = glfwExtensionSupported("GLX_EXT_swap_control_tear");
 	if (easySwap == GLFW_FALSE) {
 		easySwap = glfwExtensionSupported("WGL_EXT_swap_control_tear");

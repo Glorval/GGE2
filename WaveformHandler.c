@@ -1,6 +1,6 @@
 #include "WaveformHandler.h"
 
-void GlorLoadSDL(){
+void glorLoadSDL(){
     int audio_rate;
     Uint16 audio_format;
     int audio_channels;
@@ -26,6 +26,11 @@ void GlorLoadSDL(){
         (SDL_AUDIO_ISFLOAT(audio_format) ? " (float)" : ""),
         (audio_channels > 2) ? "surround" :
         (audio_channels > 1) ? "stereo" : "mono");
+}
+
+void gatherWaveforms() {
+    char* dirList = system("dir /b");//WINDOWS CALL
+    //use strtok stuff to go line by line and find .wav files, open them, load them, etc.
 }
 
 
