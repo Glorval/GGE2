@@ -3,18 +3,17 @@
 #include <string.h>
 #include <stdio.h>
 
-static volatile int FireSound = -1;
-static volatile int ManyHitsSound = -1;
-static volatile int EnemyDiedSound = -1;
-static volatile int MainMenuTheme = -1;
-static volatile int EndTheme = -1;
 
-struct audioFiles {
-    char* name;
-    Mix_Chunk* waveData;
-};
 
-struct audioFiles* AudioFiles;
+
+
+int getSetSongCount(int SC) {
+    static int SongCount = 0;
+    if (SC >= 0) {
+        SongCount = SC;
+    }
+    return(SongCount);
+}
 
 void glorLoadSDL(){
     int audio_rate;
@@ -46,16 +45,22 @@ void glorLoadSDL(){
     gatherWaveforms();
 }
 
+
 void gatherWaveforms() {
-    AudioFiles = NULL;
-    system("dir *.wav /b >audioList.txt");//WINDOWS CALL
-    FILE* audioList = fopen("audioList.txt", "r");
+    MusicFiles = NULL;
+    char* test = "dir GameMusic\\*.wav /b >GameMusic/audioList.txt";
+    system(test);//WINDOWS CALL
+    FILE* audioList = fopen("GameMusic\\audioList.txt", "r");
     char line[100] = { 0 };
-    int current = 0;
     int newlineStrip = 0;
 
+    char base[] = "GameMusic/";
+
+    char filePath[200] = { 0 };
+
+
 ReadFile:;
-    AudioFiles = realloc(AudioFiles, sizeof(struct audioFiles) * (current + 1));
+    MusicFiles = realloc(MusicFiles, sizeof(struct musicFiles) * (getSetSongCount(-1) + 1));
     if (fgets(line, 99, audioList) == NULL) {
         return;
     }
@@ -68,43 +73,66 @@ ReadFile:;
         newlineStrip++;
     }
     line[newlineStrip] = 0;
+    newlineStrip = 0;
 NewlineRemoved:;
+    filePath[0] = 0;
+    strcat(filePath, base);
+    strcat(filePath, line);
 
-    //check to see if it's one of the special files
+    //check to see if it's one of the special files, if not, increment song count
     if (strcmp(line, "Fire.wav") == 0) {
-        FireSound = current;
+        KeySounds.Fire = KeySounds.SoundCount;
+        KeySounds.sfxData = realloc(KeySounds.sfxData, (KeySounds.SoundCount + 1)* sizeof(Mix_Chunk*));
+        KeySounds.sfxData[KeySounds.Fire] = Mix_LoadWAV(filePath);
+        KeySounds.SoundCount++;
+        goto ReadFile;//skip the song addition because this isnt a song
     }else if (strcmp(line, "ManyHits.wav") == 0) {
-        ManyHitsSound = current;
+        KeySounds.ManyHits = KeySounds.SoundCount;
+        KeySounds.sfxData = realloc(KeySounds.sfxData, (KeySounds.SoundCount + 1) * sizeof(Mix_Chunk*));
+        KeySounds.sfxData[KeySounds.ManyHits] = Mix_LoadWAV(filePath);
+        KeySounds.SoundCount++;
+        goto ReadFile;//skip the song addition because this isnt a song
     } else if (strcmp(line, "EnemyDied.wav") == 0) {
-        EnemyDiedSound = current;
-    } else if (strcmp(line, "MainMenu.wav") == 0) {
-        MainMenuTheme = current;
-    } else if (strcmp(line, "Endtheme.wav") == 0) {
-        EndTheme = current;
+        KeySounds.EnemyDied = KeySounds.SoundCount;
+        KeySounds.sfxData = realloc(KeySounds.sfxData, (KeySounds.SoundCount + 1) * sizeof(Mix_Chunk*));
+        KeySounds.sfxData[KeySounds.EnemyDied] = Mix_LoadWAV(filePath);
+        KeySounds.SoundCount++;
+        goto ReadFile;//skip the song addition because this isnt a song
+    } else if (strcmp(line, "MainTheme.wav") == 0) {
+        KeySounds.MainMenuTheme = getSetSongCount(-1);
+        printf("main menu should be %d, is %d\n", getSetSongCount(-1), KeySounds.MainMenuTheme);
+    } else if (strcmp(line, "EndTheme.wav") == 0) {
+        KeySounds.EndTheme = getSetSongCount(-1);
+                
     }
 
-    AudioFiles[current].waveData = Mix_LoadWAV(line);
-    //AudioFiles[current].name = calloc;
-    AudioFiles[current].name = 0;
+    //add the music file to the 'directory' of songs to load/play later
+    MusicFiles[getSetSongCount(-1)].name = calloc(strlen(filePath), sizeof(char));
+    strcpy(MusicFiles[getSetSongCount(-1)].name, filePath);
+    getSetSongCount(getSetSongCount(-1) + 1);
+    
 
-    current++;
     goto ReadFile;
 
 }
 
 
-void playWav(int ID) {
+void playWav(Mix_Chunk* waveData) {
     /* Play and then exit */
-    Mix_PlayChannel(-1, AudioFiles[ID].waveData, 0);
-
-    while (Mix_Playing(0)) {
-        SDL_Delay(1);
-    }
+    if (waveData != NULL) {
+        SDL_ClearError();
+        int successValue = Mix_PlayChannel(-1, waveData, 0);        
+        if (successValue == -1) {
+            char* error = SDL_GetError();
+            printf("SDL Error %s\n", error);
+        }
+    }    
 }
 
-
-void fireAndForgetPlayWav(int ID) {
-
+Mix_Chunk* playWavName(char* fileName) {
+    /* Play and then exit */
+    Mix_Chunk* data = Mix_LoadWAV(fileName);
+    Mix_PlayChannel(0, data, 0);
+    return(data);
 }
-
 

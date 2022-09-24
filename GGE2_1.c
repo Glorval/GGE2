@@ -33,7 +33,7 @@ GLFWwindow* startup(void* clickfunc, void* keypressfunc) {
 	fprintf(debugfile, "Past glfw initialization. window creation function is at %p\n\n", glfwCreateWindow);
 	fclose(debugfile);
 	
-	GLFWwindow* window = glfwCreateWindow(windX, windY, APPLICATIONNAME, primary, NULL);
+	GLFWwindow* window = glfwCreateWindow(windX, windY, APPLICATIONNAME, NULL, NULL);
 
 	if (window == NULL) {
 		int thebastardErrorTwo = glfwGetError(NULL);

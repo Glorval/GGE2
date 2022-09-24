@@ -1,10 +1,12 @@
 //#pragma once
 #define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
+#include <process.h>
 #include <stdlib.h>
 #include <time.h>
 #include "GGE2_1.h"
 #include "GSound.h"
+#include "WaveformHandler.h"
 
 
 //Defines, enums/struct setup, master variables, function decs
@@ -53,11 +55,11 @@ static unsigned int score = 0;
 #define SCORE_LOSS_FOR_PASS 2
 
 //Audio Settings
-#define FULL_RETRO 0
-#define FULL_RETRO_COMPAT 1
-#define MODERN 2
+#define FULL_AUDIO 0
+#define ONLY_MUSIC 1
+#define ONLY_SFX 2
 #define NO_AUDIO 3
-#define DEFAULT_AUDIO_SETTING MODERN
+#define DEFAULT_AUDIO_SETTING FULL_AUDIO
 
 //GENERAL ENEMY ATTRIBUTES
 static int ENEMY_DISTANCE = 500;//500
@@ -121,6 +123,10 @@ static int ekey = 5;
 static int vkey = 6;
 static int ckey = 7;
 static int fireKey = 8;
+
+
+static volatile int ForceMusicChange = 0;
+
 
 
 struct referObj {
@@ -227,11 +233,19 @@ void debugCommands();
 
 
 //Audio handler dec's
+
+void audioProcess();
+void audioProcessThread();
+
 void setAudioFunctions(int audioSetting);
 
 static unsigned long long playingBulletSound = 0;
 void (*realBulletAudioHandler)(int);
+void (*realShootingHandler)(void);
 void silentBulletHandler(int newFrameUpdate);
+void shootingHandler();
 void bulletAudioHandler(int newFrameUpdate);
 void modernBulletAudioHandler(int newFrameUpdate);
+void voidvoidfunct(void);
+
 //void retroBulletAudioHandler(int newFrameUpdate);

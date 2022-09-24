@@ -55,6 +55,7 @@ void gotoEndscreen(unsigned int* curWave) {
 	glfwSetInputMode(gamewindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	getsetGamestate(END_SCREEN);
 	setupEndscreen(curWave);
+	ForceMusicChange = 1;
 }
 
 void setOurShip() {
@@ -426,6 +427,7 @@ World* loadGame() {
 	loadEnemyShip();
 	DirectionalArrow = loadDirectionArrow();
 
+	audioProcess();
 	setupMasterUIList();
 	setupMainMenu();
 	setupPauseMenu();
@@ -1352,7 +1354,14 @@ long long int returnToMenuButton(void* ourself, long long int data, short int cl
 		disableAllUILayers();
 		MainMenuUI->active = 1;
 		//updateBroadcast(-1, 0);
+		int prevGamestate = getsetGamestate(DONT_STATE_CHANGE);
+		if (prevGamestate == IN_MAIN_MENU || prevGamestate == IN_SETTINGS || prevGamestate == IN_KEYSCREEN) {
+			
+		} else {
+			ForceMusicChange = 1;
+		}
 		getsetGamestate(IN_MAIN_MENU);
+		
 	}
 }
 
@@ -1909,16 +1918,91 @@ void attemptToResetGameVariables() {
 
 //AUDIO HANDLING
 
+//handles the game's music
+
+//call it if you want the audio to cut
+uintptr_t audioCutHandler(uintptr_t threadID) {
+	uintptr_t ourRecord = 0;
+	if (threadID == DONT_STATE_CHANGE) {
+		return(ourRecord);
+	} else {
+		ourRecord = threadID;
+		return(threadID);
+	}	
+}
+
+void audioProcess() {
+	uintptr_t threadID = _beginthread(audioProcessThread, 0, &KeySounds, MusicFiles);
+	_beginthread(audioCutHandler, 0, threadID);
+}
+
+
+void audioProcessThread(struct keySounds keysounds, struct musicFiles* audiofiles) {
+	int lastPlayed = -1;
+	static int songToPlay = -1;
+	Mix_Chunk* songData = NULL;
+
+start:;
+	//free the chunk just in case
+	Mix_FreeChunk(songData);
+
+
+	//the forbidden selector
+	//Could just reduce the selection by 1 and then anything on/past 'last played' gets 1 added to the random number to skip it in selection, but eh
+	if (getSetSongCount(-1) > 1) {
+		while (songToPlay == lastPlayed) {
+			songToPlay = randNum(0, getSetSongCount(-1) - 1);
+		}
+	}
+
+	//special boiahs overrides to the selector
+ 	int gameState = getsetGamestate(DONT_STATE_CHANGE);
+	if (gameState == IN_MAIN_MENU || gameState == IN_SETTINGS || gameState == IN_KEYSCREEN) {
+		printf("Song to play should be main menu, is %d\n", KeySounds.MainMenuTheme);
+		songToPlay = KeySounds.MainMenuTheme;
+		lastPlayed = songToPlay;
+	} else if (gameState == END_SCREEN) {
+		songToPlay = KeySounds.EndTheme;
+		lastPlayed = songToPlay;
+	}
+	if (songToPlay != -1) {
+		songData = playWavName(MusicFiles[songToPlay].name);
+		lastPlayed = songToPlay;
+	}
+	
+	//play the sound until done or force changing of the music
+	while (Mix_Playing(0)) {
+		if (ForceMusicChange == 1) {
+			ForceMusicChange = 0;
+			Mix_PlayChannel(0, NULL, 0);
+			goto start;
+		}
+		SDL_Delay(1);
+	}
+	goto start;
+}
+
+
 //void (*realBulletAudioHandler)(int);
 
 void setAudioFunctions(int audioSetting) {
-	if (AudioSetting == NO_AUDIO) {
-		realBulletAudioHandler = silentBulletHandler;//retroBulletAudioHandler;//noBulletAudioHandler;
-	}
+	realBulletAudioHandler = silentBulletHandler;//retroBulletAudioHandler;//noBulletAudioHandler;
 
-	else if (AudioSetting == DEFAULT_AUDIO_SETTING) {
-		realBulletAudioHandler = silentBulletHandler;//retroBulletAudioHandler;//noBulletAudioHandler;
+	if (audioSetting == FULL_AUDIO || audioSetting == ONLY_SFX) {
+		realShootingHandler = shootingHandler;
+	} else {
+		realShootingHandler = voidvoidfunct;
 	}
+	
+
+}
+
+void shootingHandler() {
+	if (KeySounds.sfxData != NULL) {
+		if (KeySounds.sfxData[KeySounds.Fire] != NULL) {
+			playWav(KeySounds.sfxData[KeySounds.Fire]);
+		}
+	}	
 }
 
 //non zero to tell it a bullet has hit AND to start counting in a new frame, zero to add another hit to the current frame
@@ -2017,7 +2101,9 @@ void modernBulletAudioHandler(int newFrameUpdate) {
 }*/
 
 
-
+void voidvoidfunct(void) {
+	return;
+}
 
 
 void debugCommands() {

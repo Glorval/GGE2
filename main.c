@@ -6,7 +6,7 @@
 #include <Windows.h>
 
 
-#include "WaveformHandler.h"
+
 #include "LibertyBlaster.h" //Includes GGE2.1
 
 #include <time.h>
@@ -19,18 +19,13 @@
 
 //int WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance,	LPSTR lpCmdLine,	int nShowCmd) {
 int main(){
+	srand(time(NULL));
 
-	FILE* debugfile = fopen("debugfile.txt", "w");
-	fputs("The program at least begins to execute.\n\n", debugfile);
-	fclose(debugfile);
-	debugfile = fopen("debugfile.txt", "a");
-	fputs("Test second line\n\n", debugfile);
-	fclose(debugfile);
 	//testworld = createWorld(STANDARD_WORLD);	
 
 	glorLoadSDL();
 	
-	//volatile World* lineworld = loadGame();
+	volatile World* lineworld = loadGame();
 	//_beginthread(playWav, 0, "1hMoonRises.wav");
 	/*int easySwap = glfwExtensionSupported("GLX_EXT_swap_control_tear");
 	if (easySwap == GLFW_FALSE) {
@@ -112,16 +107,13 @@ int main(){
 	testTrack.tracklen = tracklen;
 	setDefaultLength(audioID, 200);
 	addTrack(audioID, testTrack);*/
-	/*
+	
 	float counter = 1;
 	int gameFlag = IN_MAIN_MENU;
 	srand(time(NULL));
 	int framesTillCheck = 60;
 	ULONGLONG startOf, endOf;
 	startOf = GetTickCount64();
-
-
-
 
 	//pain, did fixed physics
 	//GLFWmonitor* primary = glfwGetPrimaryMonitor();
@@ -159,89 +151,8 @@ start:;
 		goto end;
 	}
 	goto start;
-	
-
-	*/
-
-
-
-
-
-
-
-	/*
-	if (mode->refreshRate != 60 && easySwap == 1) {
-		
-		SetWaitableTimer(hTimer, &liDueTime, 1, NULL, NULL, 0);
-		glfwSwapInterval(0);
-		
-		while (!glfwWindowShouldClose(gamewindow)) {
-			
-			runGame(gamewindow, gameFlag);
-
-			glFlush();
-			WaitForSingleObject(hTimer, 12);
-
-			framesTillCheck--;
-			if (framesTillCheck == 0) {
-				endOf = GetTickCount64();
-				float fps = 60000.0 / (float)(endOf - startOf);
-				startOf = endOf;
-
-				printf("FPS: %f\n", fps);
-				framesTillCheck = 60;
-			}
-
-			glfwSwapBuffers(gamewindow);
-			glfwPollEvents();
-			gameFlag = getsetGamestate(DONT_STATE_CHANGE);
-		}
-	} else if (mode->refreshRate != 60 && easySwap == 0) {
-		HANDLE hTimer = NULL;
-		LARGE_INTEGER liDueTime;
-		liDueTime.QuadPart = -16666666;
-		hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
-		glfwSwapInterval(0);
-
-		while (!glfwWindowShouldClose(gamewindow)) {
-			SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0);
-			runGame(gamewindow, gameFlag);
-
-			glFlush();
-			WaitForSingleObject(hTimer, 10);
-
-			glfwSwapBuffers(gamewindow);
-			glfwPollEvents();
-			gameFlag = getsetGamestate(DONT_STATE_CHANGE);
-		}
-	} else {
-		while (!glfwWindowShouldClose(gamewindow)) {
-
-			runGame(gamewindow, gameFlag);
-			glfwSwapBuffers(gamewindow);
-			glfwPollEvents();
-
-			framesTillCheck--;
-			if (framesTillCheck == 0) {
-				endOf = GetTickCount64();
-				float fps = 60000.0 / (float)(endOf - startOf);
-				startOf = endOf;
-
-				//printf("FPS: %f\n", fps);
-				framesTillCheck = 60;
-			}
-
-			gameFlag = getsetGamestate(DONT_STATE_CHANGE);
-			//counter += 1;
-		}
-	}*/
-
-	
 
 end:;
-	debugfile = fopen("debugfile.txt", "w");
-	fputs("\n\nPast the main game loop, closing momentarily\n\n", debugfile);
-	fclose(debugfile);
 	glfwTerminate();
 	
 	return 0;

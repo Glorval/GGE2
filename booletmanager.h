@@ -213,5 +213,8 @@ void add_boolet(float* pos/*7 longxyzwijk*/, float* velocity/*3 long, xyz*/, int
 	curBoolet->velocity[1] = velocity[1];
 	curBoolet->velocity[2] = velocity[2];
 	curBoolet->booletType = playerOrEnemy;
+	if (playerOrEnemy == PLAYER_BOOLET) {
+		realShootingHandler();
+	}
 	curBoolet->framesToLive = framesToLive;
 }
